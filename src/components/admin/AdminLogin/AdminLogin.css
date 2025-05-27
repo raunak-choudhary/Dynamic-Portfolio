@@ -1,0 +1,44 @@
+/* src/components/admin/AdminLogin/AdminLogin.css */
+.admin-login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  
+  .admin-login-card {
+    max-width: 400px;
+    width: 100%;
+    padding: 2rem;
+    text-align: center;
+  }
+  
+  .login-title {
+    margin-bottom: 2rem;
+  }
+  
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .login-button {
+    margin-top: 1rem;
+    min-height: 48px;
+  }
+  
+  .error-message {
+    color: var(--neon-pink);
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border: 1px solid var(--neon-pink);
+    border-radius: 8px;
+    background: rgba(255, 0, 128, 0.1);
+  }
