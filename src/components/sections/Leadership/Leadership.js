@@ -1,27 +1,95 @@
-import React, { useEffect } from 'react';
+// =====================================================
+// Leadership.js - Main Component
+// =====================================================
+
+import React, { useState, useEffect } from 'react';
 import LeadershipCard from './LeadershipCard';
-import { sectionTemplates } from '../../../data/portfolioData';
+import { getLeadership } from '../../../services/dataService';
+import LoadingSpinner from '../../common/LoadingSpinner';
 import './Leadership.css';
 
 const Leadership = () => {
-  const { leadership } = sectionTemplates;
+  // State management
+  const [leadership, setLeadership] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Fix Issue 1: Scroll to top when component mounts
+  // Fetch leadership data from API
+  useEffect(() => {
+    const fetchLeadership = async () => {
+      try {
+        console.log('🔍 Fetching leadership data...');
+        setLoading(true);
+        setError(null);
+        
+        const response = await getLeadership();
+        
+        if (response.success) {
+          console.log('✅ Leadership fetched successfully:', response.data?.length || 0, 'entries');
+          setLeadership(response.data || []);
+        } else {
+          console.error('❌ Failed to fetch leadership:', response.error);
+          setError(response.error);
+          setLeadership([]);
+        }
+      } catch (error) {
+        console.error('❌ Leadership fetch error:', error);
+        setError(error.message);
+        setLeadership([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLeadership();
+  }, []);
+
+  // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
+  // Show loading spinner
+  if (loading) {
+    return (
+      <section className="leadership-section section">
+        <div className="container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+          <LoadingSpinner size="large" message="Loading leadership positions..." />
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="leadership-section section">
       <div className="container">
-        {/* Header matching Explore Portfolio section style */}
+        {/* Header matching Projects section style */}
         <div className="section-header">
-          <h1 className="neon-title">{leadership.title}</h1>
-          <p className="neon-subtitle">{leadership.description}</p>
+          <h1 className="neon-title">Leadership</h1>
+          <p className="neon-subtitle">Leadership roles and volunteer experiences that shaped my professional journey</p>
         </div>
 
         <div className="leadership-content">
-          {leadership.items.length === 0 ? (
+          {error ? (
+            // Error state
+            <div className="no-content-message glass-card">
+              <div className="no-content-icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 9v4m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <h3 className="no-content-title">Error Loading Leadership</h3>
+              <p className="no-content-text">
+                {error || 'Something went wrong while loading leadership positions. Please try again later.'}
+              </p>
+              <div className="no-content-decoration">
+                <div className="floating-particle"></div>
+                <div className="floating-particle"></div>
+                <div className="floating-particle"></div>
+              </div>
+            </div>
+          ) : leadership.length === 0 ? (
+            // No leadership state
             <div className="no-content-message glass-card">
               <div className="no-content-icon">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -43,9 +111,10 @@ const Leadership = () => {
               </div>
             </div>
           ) : (
+            // Leadership grid - display actual data
             <div className="leadership-grid">
-              {leadership.items.map((item, index) => (
-                <LeadershipCard key={index} leadership={item} />
+              {leadership.map((position, index) => (
+                <LeadershipCard key={position.id || index} leadership={position} />
               ))}
             </div>
           )}

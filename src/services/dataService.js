@@ -372,18 +372,11 @@ export const getCertificationsData = async () => {
   }
 };
 
-// Recommendations Data (Still static - will be updated in Phase 2B-19.1)
+// Recommendations Data (Real Supabase Integration - Updated in Phase 2B-19.1)
 export const getRecommendationsData = async () => {
-  try {
-    await simulateApiDelay(500);
-    return {
-      success: true,
-      data: sectionTemplates.recommendations.items,
-      message: sectionTemplates.recommendations.items.length === 0 ? MESSAGES.NO_DATA : null
-    };
-  } catch (error) {
-    return handleApiError(error, 'Recommendations Data');
-  }
+  // This function is deprecated - use getRecommendations() instead
+  console.warn('getRecommendationsData is deprecated, use getRecommendations() instead');
+  return await getRecommendations();
 };
 
 // Achievements Data (Still static - will be updated in Phase 2B-19.1)
@@ -400,27 +393,52 @@ export const getAchievementsData = async () => {
   }
 };
 
-// Leadership Data (Still static - will be updated in Phase 2B-19.2)
+// Leadership Data (Real Supabase Integration - Updated in Phase 2B-19.2)
 export const getLeadershipData = async () => {
-  try {
-    await simulateApiDelay(500);
-    return {
-      success: true,
-      data: sectionTemplates.leadership.items,
-      message: sectionTemplates.leadership.items.length === 0 ? MESSAGES.NO_DATA : null
-    };
-  } catch (error) {
-    return handleApiError(error, 'Leadership Data');
-  }
+  console.warn('getLeadershipData is deprecated, use getLeadership() instead');
+  return await getLeadership();
 };
 
-// Contact Information (Still static)
+// Contact Information (Real Supabase Integration - Updated in Phase 2B-19.2)
 export const getContactData = async () => {
   try {
     await simulateApiDelay(300);
     return {
       success: true,
-      data: portfolioData.contact
+      data: {
+        formConfig: {
+          recipientEmail: 'raunakchoudhary17@gmail.com',
+          maxFileSize: 5 * 1024 * 1024, // 5MB
+          maxFiles: 5,
+          allowedFileTypes: [
+            'application/pdf',
+            'image/jpeg', 'image/jpg', 'image/png',
+            'text/plain',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+          ],
+          roleOptions: [
+            { value: 'recruiter', label: 'Recruiter' },
+            { value: 'hr-manager', label: 'HR Manager' },
+            { value: 'hiring-manager', label: 'Hiring Manager' },
+            { value: 'technical-lead', label: 'Technical Lead' },
+            { value: 'developer', label: 'Developer' },
+            { value: 'startup-founder', label: 'Startup Founder' },
+            { value: 'student', label: 'Student' },
+            { value: 'other', label: 'Other' }
+          ],
+          inquiryTypes: [
+            { value: 'job-opportunity', label: 'Job Opportunity' },
+            { value: 'internship-offer', label: 'Internship Offer' },
+            { value: 'freelance-project', label: 'Freelance Project' },
+            { value: 'collaboration', label: 'Collaboration Opportunity' },
+            { value: 'mentorship', label: 'Mentorship' },
+            { value: 'speaking-event', label: 'Speaking/Event Invitation' },
+            { value: 'networking', label: 'Networking' },
+            { value: 'general-inquiry', label: 'General Inquiry' }
+          ]
+        }
+      }
     };
   } catch (error) {
     return handleApiError(error, 'Contact Data');
@@ -430,18 +448,18 @@ export const getContactData = async () => {
 // Generic section data fetcher (Updated with real Projects APIs)
 export const getSectionData = async (sectionName) => {
   const dataFetchers = {
-    hero: getHeroData,
-    about: getAboutData,
-    projects: getProjects, // ✅ Updated to use real API
-    internships: getInternships, // ✅ Updated to use real API
-    education: getEducation, // ✅ Updated to use real API
-    'work-experience': getWorkExperience, // ✅ Updated to use real API
-    skills: getSkillsData, // Still static - will be updated in Phase 2B-18.3
-    certifications: getCertificationsData, // Still static - will be updated in Phase 2B-18.3
-    recommendations: getRecommendationsData, // Still static - will be updated in Phase 2B-19.1
-    achievements: getAchievementsData, // Still static - will be updated in Phase 2B-19.1
-    leadership: getLeadershipData, // Still static - will be updated in Phase 2B-19.2
-    contact: getContactData
+    hero: getHeroData, // ✅ Real API
+    about: getAboutData, // ✅ Real API
+    projects: getProjects, // ✅ Real API
+    internships: getInternships, // ✅ Real API
+    education: getEducation, // ✅ Real API
+    'work-experience': getWorkExperience, // ✅ Real API
+    recommendations: getRecommendations, // ✅ Real API
+    leadership: getLeadership, // ✅ Real API
+    contact: getContactData, // ✅ Static config + Real submission API
+    skills: getSkillsData, // 🔄 Still static - Phase 2B-18.3
+    certifications: getCertificationsData, // 🔄 Still static - Phase 2B-18.3
+    achievements: getAchievementsData // 🔄 Still static - Phase 2B-19.3
   };
 
   const fetcher = dataFetchers[sectionName];
@@ -2787,4 +2805,1056 @@ const generateCompanyInitials = (companyName) => {
     return words[0].substring(0, 2).toUpperCase();
   }
   return words.slice(0, 2).map(word => word.charAt(0).toUpperCase()).join('');
+};
+
+// =====================================================
+// RECOMMENDATIONS APIs (Real Supabase Integration)
+// =====================================================
+
+/**
+ * Get All Recommendations - Public Access
+ */
+export const getRecommendations = async () => {
+  try {
+    console.log('🔍 Fetching all public recommendations...');
+    
+    const { data, error } = await supabase
+      .from('recommendations')
+      .select('*')
+      .eq('status', 'active')
+      .eq('is_public', true)
+      .order('order_index', { ascending: true })
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('❌ Recommendations fetch error:', error);
+      throw new Error(`Failed to fetch recommendations: ${error.message}`);
+    }
+
+    // Process recommendations data
+    const processedRecommendations = data.map(recommendation => ({
+      ...recommendation,
+      // Ensure word_count is calculated if not stored
+      word_count: recommendation.word_count || 
+                  (recommendation.content ? recommendation.content.split(' ').length : 0),
+      // Format date for display
+      formatted_date: recommendation.date_received ? 
+                     formatRecommendationDate(recommendation.date_received) : null,
+      // Generate initials for avatar fallback
+      recommender_initials: generateInitials(recommendation.recommender_name),
+      // Check if LinkedIn URL is valid
+      has_linkedin: isValidLinkedInUrl(recommendation.linkedin_profile_url)
+    }));
+
+    console.log(`✅ Retrieved ${processedRecommendations.length} recommendations`);
+    
+    return {
+      success: true,
+      data: processedRecommendations,
+      message: processedRecommendations.length === 0 
+        ? 'No recommendations found' 
+        : `Found ${processedRecommendations.length} recommendations`
+    };
+  } catch (error) {
+    console.error('❌ getRecommendations error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: []
+    };
+  }
+};
+
+/**
+ * Get Single Recommendation by ID - Public Access
+ */
+export const getRecommendationById = async (id) => {
+  try {
+    console.log('🔍 Fetching recommendation by ID:', id);
+    
+    if (!id) {
+      throw new Error('Recommendation ID is required');
+    }
+
+    const { data, error } = await supabase
+      .from('recommendations')
+      .select('*')
+      .eq('id', id)
+      .eq('status', 'active')
+      .eq('is_public', true)
+      .single();
+
+    if (error) {
+      console.error('❌ Recommendation fetch error:', error);
+      throw new Error(`Failed to fetch recommendation: ${error.message}`);
+    }
+
+    console.log('✅ Retrieved recommendation:', data?.recommender_name);
+    
+    return {
+      success: true,
+      data: data,
+      message: 'Recommendation retrieved successfully'
+    };
+  } catch (error) {
+    console.error('❌ getRecommendationById error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+/**
+ * Get Featured Recommendations - Public Access
+ */
+export const getFeaturedRecommendations = async () => {
+  try {
+    console.log('🔍 Fetching featured recommendations...');
+    
+    const { data, error } = await supabase
+      .from('recommendations')
+      .select('*')
+      .eq('status', 'active')
+      .eq('is_public', true)
+      .eq('is_featured', true)
+      .order('order_index', { ascending: true })
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('❌ Featured recommendations fetch error:', error);
+      throw new Error(`Failed to fetch featured recommendations: ${error.message}`);
+    }
+
+    console.log(`✅ Retrieved ${data?.length || 0} featured recommendations`);
+    
+    return {
+      success: true,
+      data: data || [],
+      message: data?.length === 0 
+        ? 'No featured recommendations found' 
+        : `Found ${data.length} featured recommendations`
+    };
+  } catch (error) {
+    console.error('❌ getFeaturedRecommendations error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: []
+    };
+  }
+};
+
+/**
+ * Create New Recommendation - Admin Only
+ */
+export const createRecommendation = async (recommendationData) => {
+  try {
+    console.log('📝 Creating new recommendation...');
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    // Validate required fields
+    if (!recommendationData.recommender_name) {
+      throw new Error('Recommender name is required');
+    }
+
+    if (!recommendationData.content) {
+      throw new Error('Recommendation content is required');
+    }
+
+    // Calculate word count
+    const wordCount = recommendationData.content.split(' ').length;
+
+    // Prepare recommendation data for database
+    const recommendationInsert = {
+      recommendation_number: recommendationData.recommendation_number || null,
+      recommender_name: recommendationData.recommender_name,
+      recommender_title: recommendationData.recommender_title || null,
+      organization: recommendationData.organization || null,
+      relationship: recommendationData.relationship || null,
+      content: recommendationData.content,
+      linkedin_profile_url: recommendationData.linkedin_profile_url || null,
+      profile_image_url: recommendationData.profile_image_url || null,
+      date_received: recommendationData.date_received || null,
+      recommendation_type: recommendationData.recommendation_type || 'LinkedIn',
+      rating: recommendationData.rating || null,
+      is_featured: recommendationData.is_featured || false,
+      is_public: recommendationData.is_public !== undefined ? recommendationData.is_public : true,
+      word_count: wordCount,
+      order_index: recommendationData.order_index || null,
+      status: recommendationData.status || 'active'
+    };
+
+    const { data, error } = await supabase
+      .from('recommendations')
+      .insert([recommendationInsert])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('❌ Recommendation creation error:', error);
+      throw new Error(`Failed to create recommendation: ${error.message}`);
+    }
+
+    console.log('✅ Recommendation created successfully:', data.recommender_name);
+    
+    return {
+      success: true,
+      data: data,
+      message: 'Recommendation created successfully'
+    };
+  } catch (error) {
+    console.error('❌ createRecommendation error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+/**
+ * Update Recommendation - Admin Only
+ */
+export const updateRecommendation = async (id, recommendationData) => {
+  try {
+    console.log('📝 Updating recommendation:', id);
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    if (!id) {
+      throw new Error('Recommendation ID is required');
+    }
+
+    // Calculate word count if content is being updated
+    const wordCount = recommendationData.content ? 
+      recommendationData.content.split(' ').length : undefined;
+
+    // Prepare update data
+    const recommendationUpdate = {
+      recommendation_number: recommendationData.recommendation_number,
+      recommender_name: recommendationData.recommender_name,
+      recommender_title: recommendationData.recommender_title,
+      organization: recommendationData.organization,
+      relationship: recommendationData.relationship,
+      content: recommendationData.content,
+      linkedin_profile_url: recommendationData.linkedin_profile_url,
+      profile_image_url: recommendationData.profile_image_url,
+      date_received: recommendationData.date_received,
+      recommendation_type: recommendationData.recommendation_type,
+      rating: recommendationData.rating,
+      is_featured: recommendationData.is_featured,
+      is_public: recommendationData.is_public,
+      word_count: wordCount,
+      order_index: recommendationData.order_index,
+      status: recommendationData.status,
+      updated_at: new Date().toISOString()
+    };
+
+    // Remove undefined values
+    Object.keys(recommendationUpdate).forEach(key => {
+      if (recommendationUpdate[key] === undefined) {
+        delete recommendationUpdate[key];
+      }
+    });
+
+    const { data, error } = await supabase
+      .from('recommendations')
+      .update(recommendationUpdate)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('❌ Recommendation update error:', error);
+      throw new Error(`Failed to update recommendation: ${error.message}`);
+    }
+
+    console.log('✅ Recommendation updated successfully:', data.recommender_name);
+    
+    return {
+      success: true,
+      data: data,
+      message: 'Recommendation updated successfully'
+    };
+  } catch (error) {
+    console.error('❌ updateRecommendation error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+/**
+ * Delete Recommendation - Admin Only
+ */
+export const deleteRecommendation = async (id) => {
+  try {
+    console.log('🗑️ Deleting recommendation:', id);
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    if (!id) {
+      throw new Error('Recommendation ID is required');
+    }
+
+    // Get recommendation info before deletion for cleanup
+    const { data: recommendationInfo } = await supabase
+      .from('recommendations')
+      .select('recommender_name, profile_image_url')
+      .eq('id', id)
+      .single();
+
+    // Delete associated profile image if exists
+    if (recommendationInfo?.profile_image_url) {
+      console.log('🧹 Cleaning up associated profile image...');
+      await deleteRecommenderPhoto(id, recommendationInfo.profile_image_url);
+    }
+
+    const { error } = await supabase
+      .from('recommendations')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('❌ Recommendation deletion error:', error);
+      throw new Error(`Failed to delete recommendation: ${error.message}`);
+    }
+
+    console.log('✅ Recommendation deleted successfully:', recommendationInfo?.recommender_name || id);
+    
+    return {
+      success: true,
+      data: { id, recommender_name: recommendationInfo?.recommender_name },
+      message: 'Recommendation deleted successfully'
+    };
+  } catch (error) {
+    console.error('❌ deleteRecommendation error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+/**
+ * Reorder Recommendations - Admin Only
+ */
+export const reorderRecommendations = async (orderArray) => {
+  try {
+    console.log('🔄 Reordering recommendations...');
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    if (!Array.isArray(orderArray) || orderArray.length === 0) {
+      throw new Error('Order array is required and must not be empty');
+    }
+
+    // Validate orderArray format: [{ id: 'uuid', order_index: number }, ...]
+    for (const item of orderArray) {
+      if (!item.id || typeof item.order_index !== 'number') {
+        throw new Error('Each order item must have id and order_index');
+      }
+    }
+
+    // Update each recommendation's order_index
+    const updatePromises = orderArray.map(item => 
+      supabase
+        .from('recommendations')
+        .update({ 
+          order_index: item.order_index,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', item.id)
+    );
+
+    const results = await Promise.all(updatePromises);
+    
+    // Check for errors
+    const errors = results.filter(result => result.error);
+    if (errors.length > 0) {
+      console.error('❌ Some recommendation reorder operations failed:', errors);
+      throw new Error(`Failed to reorder ${errors.length} recommendations`);
+    }
+
+    console.log(`✅ Successfully reordered ${orderArray.length} recommendations`);
+    
+    return {
+      success: true,
+      data: { 
+        reorderedCount: orderArray.length,
+        orderArray: orderArray
+      },
+      message: `Successfully reordered ${orderArray.length} recommendations`
+    };
+  } catch (error) {
+    console.error('❌ reorderRecommendations error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+/**
+ * Upload Recommender Profile Photo - Admin Only
+ */
+export const uploadRecommenderPhoto = async (file, recommendationId, recommenderName = 'recommender') => {
+  try {
+    console.log(`📸 Uploading recommender photo for recommendation: ${recommendationId}`);
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    // Validate inputs
+    if (!file) {
+      throw new Error('No file provided');
+    }
+
+    if (!recommendationId) {
+      throw new Error('Recommendation ID is required');
+    }
+
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+    // Validate file
+    if (file.size > maxSize) {
+      throw new Error('File size must be less than 5MB');
+    }
+
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error('Invalid file type. Only JPEG, JPG, PNG, and WebP are allowed');
+    }
+
+    // Create folder and file naming
+    const folderName = `recommendations/recommendation_${recommendationId}`;
+    const sanitizedName = recommenderName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const timestamp = Date.now();
+    const fileExtension = file.name.split('.').pop();
+    const fileName = `recommender-photo-${sanitizedName}-${timestamp}.${fileExtension}`;
+    const filePath = `${folderName}/${fileName}`;
+
+    console.log(`🔄 Uploading: ${fileName}`);
+
+    // Upload to Supabase Storage - documents bucket
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('documents')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    if (uploadError) {
+      console.error(`❌ Upload failed for ${fileName}:`, uploadError);
+      throw new Error(`Upload failed: ${uploadError.message}`);
+    }
+
+    // Get public URL
+    const { data: urlData } = supabase.storage
+      .from('documents')
+      .getPublicUrl(filePath);
+
+    // Update recommendation with new profile image URL
+    const { data: updatedRecommendation, error: updateError } = await supabase
+      .from('recommendations')
+      .update({ 
+        profile_image_url: urlData.publicUrl,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', recommendationId)
+      .select()
+      .single();
+
+    if (updateError) {
+      console.error('❌ Database update error:', updateError);
+      // Clean up uploaded file if database update fails
+      await supabase.storage.from('documents').remove([filePath]);
+      throw new Error(`Database update failed: ${updateError.message}`);
+    }
+
+    console.log(`✅ Successfully uploaded recommender photo for ${recommenderName}`);
+
+    return {
+      success: true,
+      data: {
+        recommendationId: recommendationId,
+        fileName: fileName,
+        filePath: filePath,
+        url: urlData.publicUrl,
+        size: file.size,
+        type: file.type,
+        updatedRecommendation: updatedRecommendation
+      },
+      message: 'Recommender photo uploaded successfully'
+    };
+
+  } catch (error) {
+    console.error('❌ uploadRecommenderPhoto error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+/**
+ * Delete Recommender Profile Photo - Admin Only
+ */
+export const deleteRecommenderPhoto = async (recommendationId, imageUrl) => {
+  try {
+    console.log(`🗑️ Deleting recommender photo for recommendation: ${recommendationId}`);
+
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    if (!recommendationId || !imageUrl) {
+      throw new Error('Recommendation ID and image URL are required');
+    }
+
+    // Extract file path from URL
+    // URL format: https://{project}.supabase.co/storage/v1/object/public/documents/{path}
+    const urlParts = imageUrl.split('/storage/v1/object/public/documents/');
+    const filePath = urlParts.length > 1 ? urlParts[1] : imageUrl;
+
+    // Delete file from storage
+    const { error: storageError } = await supabase.storage
+      .from('documents')
+      .remove([filePath]);
+
+    if (storageError) {
+      console.warn('⚠️ File may not have been deleted from storage:', storageError);
+    }
+
+    // Update recommendation to remove profile image URL
+    const { error: updateError } = await supabase
+      .from('recommendations')
+      .update({ 
+        profile_image_url: null,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', recommendationId);
+
+    if (updateError) {
+      throw new Error(`Database update failed: ${updateError.message}`);
+    }
+
+    console.log('✅ Recommender photo deleted successfully');
+
+    return {
+      success: true,
+      data: {
+        recommendationId: recommendationId,
+        deletedUrl: imageUrl
+      },
+      message: 'Recommender photo deleted successfully'
+    };
+
+  } catch (error) {
+    console.error('❌ deleteRecommenderPhoto error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// =====================================================
+// UTILITY FUNCTIONS FOR RECOMMENDATIONS
+// =====================================================
+
+/**
+ * Format recommendation date for display
+ */
+const formatRecommendationDate = (dateString) => {
+  if (!dateString) return null;
+  
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long',
+      day: 'numeric'
+    });
+  } catch (error) {
+    return dateString;
+  }
+};
+
+/**
+ * Generate initials from recommender name
+ */
+const generateInitials = (name) => {
+  if (!name) return 'R';
+  
+  const words = name.split(' ').filter(word => word.length > 0);
+  if (words.length === 1) {
+    return words[0].substring(0, 2).toUpperCase();
+  }
+  return words.slice(0, 2).map(word => word.charAt(0).toUpperCase()).join('');
+};
+
+/**
+ * Validate LinkedIn URL format
+ */
+const isValidLinkedInUrl = (url) => {
+  if (!url) return false;
+  
+  const linkedinRegex = /^https?:\/\/(www\.)?linkedin\.com\/in\/[a-zA-Z0-9-]+\/?$/;
+  return linkedinRegex.test(url);
+};
+
+// =====================================================
+// LEADERSHIP APIs (Real Supabase Integration)
+// Phase 2B-19.2: Leadership APIs Implementation
+// =====================================================
+
+// Get All Leadership Positions - Public Access
+export const getLeadership = async () => {
+  try {
+    console.log('🔍 Fetching all active leadership positions...');
+    
+    const { data, error } = await supabase
+      .from('leadership')
+      .select('*')
+      .eq('status', 'active')
+      .order('order_index', { ascending: true })
+      .order('start_date', { ascending: false }); // Most recent first
+
+    if (error) {
+      console.error('❌ Leadership fetch error:', error);
+      throw new Error(`Failed to fetch leadership positions: ${error.message}`);
+    }
+
+    // Process the data for frontend
+    const processedLeadership = data.map(position => ({
+      ...position,
+      // Ensure arrays are properly formatted
+      key_responsibilities: Array.isArray(position.key_responsibilities) ? position.key_responsibilities : [],
+      achievements: Array.isArray(position.achievements) ? position.achievements : [],
+      skills_developed: Array.isArray(position.skills_developed) ? position.skills_developed : [],
+      recognition_received: Array.isArray(position.recognition_received) ? position.recognition_received : [],
+      training_provided: Array.isArray(position.training_provided) ? position.training_provided : [],
+      // Format dates
+      formatted_start_date: position.start_date ? new Date(position.start_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long' }) : null,
+      formatted_end_date: position.end_date ? new Date(position.end_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long' }) : null,
+      // Calculate duration
+      duration: calculatePositionDuration(position.start_date, position.end_date, position.is_current)
+    }));
+
+    console.log(`✅ Retrieved ${processedLeadership.length} leadership positions`);
+    
+    return {
+      success: true,
+      data: processedLeadership,
+      message: processedLeadership.length === 0 ? 'No leadership positions found' : `Found ${processedLeadership.length} leadership positions`
+    };
+  } catch (error) {
+    console.error('❌ getLeadership error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: []
+    };
+  }
+};
+
+// Get Single Leadership Position by ID - Public Access
+export const getLeadershipById = async (id) => {
+  try {
+    console.log('🔍 Fetching leadership position by ID:', id);
+    
+    if (!id) {
+      throw new Error('Leadership position ID is required');
+    }
+
+    const { data, error } = await supabase
+      .from('leadership')
+      .select('*')
+      .eq('id', id)
+      .eq('status', 'active')
+      .single();
+
+    if (error) {
+      console.error('❌ Leadership position fetch error:', error);
+      throw new Error(`Failed to fetch leadership position: ${error.message}`);
+    }
+
+    // Process the data
+    const processedPosition = {
+      ...data,
+      key_responsibilities: Array.isArray(data.key_responsibilities) ? data.key_responsibilities : [],
+      achievements: Array.isArray(data.achievements) ? data.achievements : [],
+      skills_developed: Array.isArray(data.skills_developed) ? data.skills_developed : [],
+      recognition_received: Array.isArray(data.recognition_received) ? data.recognition_received : [],
+      training_provided: Array.isArray(data.training_provided) ? data.training_provided : [],
+      formatted_start_date: data.start_date ? new Date(data.start_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long' }) : null,
+      formatted_end_date: data.end_date ? new Date(data.end_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long' }) : null,
+      duration: calculatePositionDuration(data.start_date, data.end_date, data.is_current)
+    };
+
+    console.log('✅ Retrieved leadership position:', data?.title);
+    
+    return {
+      success: true,
+      data: processedPosition,
+      message: 'Leadership position retrieved successfully'
+    };
+  } catch (error) {
+    console.error('❌ getLeadershipById error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Get Featured Leadership Positions - Public Access
+export const getFeaturedLeadership = async () => {
+  try {
+    console.log('🔍 Fetching featured leadership positions...');
+    
+    const { data, error } = await supabase
+      .from('leadership')
+      .select('*')
+      .eq('status', 'active')
+      .eq('is_featured', true)
+      .order('order_index', { ascending: true })
+      .order('start_date', { ascending: false });
+
+    if (error) {
+      console.error('❌ Featured leadership fetch error:', error);
+      throw new Error(`Failed to fetch featured leadership positions: ${error.message}`);
+    }
+
+    console.log(`✅ Retrieved ${data?.length || 0} featured leadership positions`);
+    
+    return {
+      success: true,
+      data: data || [],
+      message: data?.length === 0 ? 'No featured leadership positions found' : `Found ${data.length} featured leadership positions`
+    };
+  } catch (error) {
+    console.error('❌ getFeaturedLeadership error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: []
+    };
+  }
+};
+
+// Create New Leadership Position - Admin Only
+export const createLeadership = async (leadershipData) => {
+  try {
+    console.log('📝 Creating new leadership position...');
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    // Validate required fields
+    if (!leadershipData.title) {
+      throw new Error('Position title is required');
+    }
+    if (!leadershipData.organization) {
+      throw new Error('Organization name is required');
+    }
+
+    // Prepare leadership data for database
+    const leadershipInsert = {
+      position_number: leadershipData.position_number || null,
+      title: leadershipData.title,
+      organization: leadershipData.organization,
+      organization_type: leadershipData.organization_type || null,
+      start_date: leadershipData.start_date || null,
+      end_date: leadershipData.end_date || null,
+      is_current: leadershipData.is_current || false,
+      location: leadershipData.location || null,
+      description: leadershipData.description || null,
+      team_size: leadershipData.team_size || null,
+      budget_managed: leadershipData.budget_managed || null,
+      key_responsibilities: leadershipData.key_responsibilities || [],
+      achievements: leadershipData.achievements || [],
+      skills_developed: leadershipData.skills_developed || [],
+      challenges_overcome: leadershipData.challenges_overcome || null,
+      impact: leadershipData.impact || null,
+      volunteer_hours: leadershipData.volunteer_hours || null,
+      initiative_type: leadershipData.initiative_type || null,
+      recognition_received: leadershipData.recognition_received || [],
+      mentees_count: leadershipData.mentees_count || null,
+      training_provided: leadershipData.training_provided || [],
+      is_featured: leadershipData.is_featured || false,
+      order_index: leadershipData.order_index || null,
+      status: leadershipData.status || 'active'
+    };
+
+    const { data, error } = await supabase
+      .from('leadership')
+      .insert([leadershipInsert])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('❌ Leadership position creation error:', error);
+      throw new Error(`Failed to create leadership position: ${error.message}`);
+    }
+
+    console.log('✅ Leadership position created successfully:', data.title);
+    
+    return {
+      success: true,
+      data: data,
+      message: 'Leadership position created successfully'
+    };
+  } catch (error) {
+    console.error('❌ createLeadership error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Update Leadership Position - Admin Only
+export const updateLeadership = async (id, leadershipData) => {
+  try {
+    console.log('📝 Updating leadership position:', id);
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    if (!id) {
+      throw new Error('Leadership position ID is required');
+    }
+
+    // Prepare update data
+    const leadershipUpdate = {
+      position_number: leadershipData.position_number,
+      title: leadershipData.title,
+      organization: leadershipData.organization,
+      organization_type: leadershipData.organization_type,
+      start_date: leadershipData.start_date,
+      end_date: leadershipData.end_date,
+      is_current: leadershipData.is_current,
+      location: leadershipData.location,
+      description: leadershipData.description,
+      team_size: leadershipData.team_size,
+      budget_managed: leadershipData.budget_managed,
+      key_responsibilities: leadershipData.key_responsibilities || [],
+      achievements: leadershipData.achievements || [],
+      skills_developed: leadershipData.skills_developed || [],
+      challenges_overcome: leadershipData.challenges_overcome,
+      impact: leadershipData.impact,
+      volunteer_hours: leadershipData.volunteer_hours,
+      initiative_type: leadershipData.initiative_type,
+      recognition_received: leadershipData.recognition_received || [],
+      mentees_count: leadershipData.mentees_count,
+      training_provided: leadershipData.training_provided || [],
+      is_featured: leadershipData.is_featured,
+      order_index: leadershipData.order_index,
+      status: leadershipData.status,
+      updated_at: new Date().toISOString()
+    };
+
+    const { data, error } = await supabase
+      .from('leadership')
+      .update(leadershipUpdate)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('❌ Leadership position update error:', error);
+      throw new Error(`Failed to update leadership position: ${error.message}`);
+    }
+
+    console.log('✅ Leadership position updated successfully:', data.title);
+    
+    return {
+      success: true,
+      data: data,
+      message: 'Leadership position updated successfully'
+    };
+  } catch (error) {
+    console.error('❌ updateLeadership error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Delete Leadership Position - Admin Only
+export const deleteLeadership = async (id) => {
+  try {
+    console.log('🗑️ Deleting leadership position:', id);
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    if (!id) {
+      throw new Error('Leadership position ID is required');
+    }
+
+    // Get position info before deletion for logging
+    const { data: positionInfo } = await supabase
+      .from('leadership')
+      .select('title, organization')
+      .eq('id', id)
+      .single();
+
+    const { error } = await supabase
+      .from('leadership')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('❌ Leadership position deletion error:', error);
+      throw new Error(`Failed to delete leadership position: ${error.message}`);
+    }
+
+    console.log('✅ Leadership position deleted successfully:', positionInfo?.title || id);
+    
+    return {
+      success: true,
+      data: { id, title: positionInfo?.title, organization: positionInfo?.organization },
+      message: 'Leadership position deleted successfully'
+    };
+  } catch (error) {
+    console.error('❌ deleteLeadership error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Reorder Leadership Positions - Admin Only
+export const reorderLeadership = async (orderArray) => {
+  try {
+    console.log('🔄 Reordering leadership positions...');
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    if (!Array.isArray(orderArray) || orderArray.length === 0) {
+      throw new Error('Order array is required and must not be empty');
+    }
+
+    // Validate orderArray format: [{ id: 'uuid', order_index: number }, ...]
+    for (const item of orderArray) {
+      if (!item.id || typeof item.order_index !== 'number') {
+        throw new Error('Each order item must have id and order_index');
+      }
+    }
+
+    // Update each position's order_index
+    const updatePromises = orderArray.map(item => 
+      supabase
+        .from('leadership')
+        .update({ 
+          order_index: item.order_index,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', item.id)
+    );
+
+    const results = await Promise.all(updatePromises);
+    
+    // Check for errors
+    const errors = results.filter(result => result.error);
+    if (errors.length > 0) {
+      console.error('❌ Some leadership reorder operations failed:', errors);
+      throw new Error(`Failed to reorder ${errors.length} leadership positions`);
+    }
+
+    console.log(`✅ Successfully reordered ${orderArray.length} leadership positions`);
+    
+    return {
+      success: true,
+      data: { 
+        reorderedCount: orderArray.length,
+        orderArray: orderArray
+      },
+      message: `Successfully reordered ${orderArray.length} leadership positions`
+    };
+  } catch (error) {
+    console.error('❌ reorderLeadership error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Helper function to calculate position duration
+const calculatePositionDuration = (startDate, endDate, isCurrent) => {
+  if (!startDate) return null;
+  
+  const start = new Date(startDate);
+  const end = isCurrent ? new Date() : (endDate ? new Date(endDate) : new Date());
+  
+  const diffTime = Math.abs(end - start);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const diffMonths = Math.floor(diffDays / 30);
+  const diffYears = Math.floor(diffMonths / 12);
+  
+  if (diffYears > 0) {
+    const remainingMonths = diffMonths % 12;
+    if (remainingMonths > 0) {
+      return `${diffYears} year${diffYears > 1 ? 's' : ''}, ${remainingMonths} month${remainingMonths > 1 ? 's' : ''}`;
+    }
+    return `${diffYears} year${diffYears > 1 ? 's' : ''}`;
+  } else if (diffMonths > 0) {
+    return `${diffMonths} month${diffMonths > 1 ? 's' : ''}`;
+  } else {
+    return 'Less than 1 month';
+  }
 };

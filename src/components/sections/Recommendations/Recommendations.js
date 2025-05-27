@@ -1,27 +1,97 @@
-import React, { useEffect } from 'react';
+// =====================================================
+// Recommendations.js - Main Component
+// =====================================================
+
+import React, { useState, useEffect } from 'react';
 import RecommendationCard from './RecommendationCard';
-import { sectionTemplates } from '../../../data/portfolioData';
+import { getRecommendations } from '../../../services/dataService';
+import LoadingSpinner from '../../common/LoadingSpinner';
 import './Recommendations.css';
 
 const Recommendations = () => {
-  const { recommendations } = sectionTemplates;
+  // State management
+  const [recommendations, setRecommendations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Fix Issue 1: Scroll to top when component mounts
+  // Fetch recommendations data from API
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      try {
+        console.log('🔍 Fetching recommendations data...');
+        setLoading(true);
+        setError(null);
+        
+        const response = await getRecommendations();
+        
+        if (response.success) {
+          console.log('✅ Recommendations fetched successfully:', response.data?.length || 0, 'entries');
+          // Filter out non-public recommendations (additional safety check)
+          const publicRecommendations = response.data.filter(rec => rec.is_public !== false);
+          setRecommendations(publicRecommendations || []);
+        } else {
+          console.error('❌ Failed to fetch recommendations:', response.error);
+          setError(response.error);
+          setRecommendations([]);
+        }
+      } catch (error) {
+        console.error('❌ Recommendations fetch error:', error);
+        setError(error.message);
+        setRecommendations([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecommendations();
+  }, []);
+
+  // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
+
+  // Show loading spinner
+  if (loading) {
+    return (
+      <section className="recommendations-section section">
+        <div className="container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+          <LoadingSpinner size="large" message="Loading recommendations..." />
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="recommendations-section section">
       <div className="container">
         {/* Header matching Projects section style */}
         <div className="section-header">
-          <h1 className="neon-title">{recommendations.title}</h1>
-          <p className="neon-subtitle">{recommendations.description}</p>
+          <h1 className="neon-title">Recommendations</h1>
+          <p className="neon-subtitle">Professional testimonials and endorsements from colleagues and mentors</p>
         </div>
 
         <div className="recommendations-content">
-          {recommendations.items.length === 0 ? (
+          {error ? (
+            // Error state
+            <div className="no-content-message glass-card">
+              <div className="no-content-icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 9v4m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <h3 className="no-content-title">Error Loading Recommendations</h3>
+              <p className="no-content-text">
+                {error || 'Something went wrong while loading recommendations. Please try again later.'}
+              </p>
+              <div className="no-content-decoration">
+                <div className="floating-particle"></div>
+                <div className="floating-particle"></div>
+                <div className="floating-particle"></div>
+              </div>
+            </div>
+          ) : recommendations.length === 0 ? (
+            // No recommendations state
             <div className="no-content-message glass-card">
               <div className="no-content-icon">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -43,9 +113,10 @@ const Recommendations = () => {
               </div>
             </div>
           ) : (
+            // Recommendations grid - display actual data
             <div className="recommendations-grid">
-              {recommendations.items.map((item, index) => (
-                <RecommendationCard key={index} recommendation={item} />
+              {recommendations.map((recommendation, index) => (
+                <RecommendationCard key={recommendation.id || index} recommendation={recommendation} />
               ))}
             </div>
           )}

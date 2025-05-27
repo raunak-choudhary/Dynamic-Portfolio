@@ -1,4 +1,4 @@
-// src/services/supabaseClient.js
+// src/services/supabaseClient.js - FIXED VERSION
 
 import { createClient } from '@supabase/supabase-js';
 
@@ -13,7 +13,6 @@ if (process.env.NODE_ENV === 'development') {
   console.log('URL:', supabaseUrl);
   console.log('Anon Key Present:', !!supabaseAnonKey);
   console.log('Service Key Present:', !!supabaseServiceRoleKey);
-  console.log('All SUPABASE env vars:', Object.keys(process.env).filter(key => key.includes('SUPABASE')));
 }
 
 // Validate environment variables
@@ -26,29 +25,15 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-// Public client configuration for frontend operations
+// 🔧 SIMPLIFIED: Basic client configuration
 const supabaseConfig = {
   auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true,
-    flowType: 'pkce', // Recommended for security
-    storage: window.localStorage, // Use localStorage for session persistence
-    storageKey: 'portfolio-auth-token',
-    debug: process.env.NODE_ENV === 'development'
+    autoRefreshToken: false,
+    persistSession: false,
+    detectSessionInUrl: false
   },
   db: {
     schema: 'public'
-  },
-  global: {
-    headers: {
-      'x-application-name': 'dynamic-portfolio'
-    }
-  },
-  realtime: {
-    params: {
-      eventsPerSecond: 10
-    }
   }
 };
 
@@ -76,7 +61,8 @@ export const getSupabaseAdmin = () => {
       },
       global: {
         headers: {
-          'x-application-name': 'dynamic-portfolio-admin'
+          'x-application-name': 'dynamic-portfolio-admin',
+          'Authorization': `Bearer ${supabaseServiceRoleKey}`
         }
       }
     });
@@ -88,23 +74,18 @@ export const getSupabaseAdmin = () => {
 // Test connection function
 export const testConnection = async () => {
   try {
-    // Simple query to test connection - this will work even with no tables
     const {error } = await supabase
       .from('nonexistent_table')
       .select('*')
       .limit(1);
 
-    // We expect an error here, but if we get a specific "table doesn't exist" error,
-    // it means the connection is working
     if (error && error.code === '42P01') {
-      // 42P01 = table doesn't exist, which means connection is working!
       console.log('✅ Supabase connection successful (table not found is expected)');
       return { success: true, message: 'Connection established' };
     } else if (error) {
       throw error;
     }
 
-    // If no error, connection is definitely working
     console.log('✅ Supabase connection successful');
     return { success: true, message: 'Connection established' };
   } catch (error) {
@@ -117,38 +98,37 @@ export const testConnection = async () => {
   }
 };
 
-// Database health check
-export const healthCheck = async () => {
+// 🔧 ADDED: Test anonymous access specifically
+export const testAnonymousAccess = async () => {
   try {
-    // Same approach for health check
-    const {error } = await supabase
-      .from('health_check_table')
-      .select('*')
-      .limit(1);
+    console.log('🔍 Testing anonymous access to contact_messages...');
+    
+    // Try to insert a test record (will fail but should give us RLS info)
+    const { data, error } = await supabase
+      .from('contact_messages')
+      .insert([{
+        name: 'Test User',
+        email: 'test@example.com',
+        organization: 'Test Org',
+        role_position: 'tester',
+        inquiry_type: 'general-inquiry',
+        subject: 'Test Subject',
+        message: 'Test message for RLS verification',
+        priority: 'normal',
+        status: 'unread'
+      }])
+      .select();
 
-    // Table not found error means connection is healthy
-    if (error && error.code === '42P01') {
-      return { 
-        success: true, 
-        database: 'healthy',
-        timestamp: new Date().toISOString()
-      };
-    } else if (error) {
-      throw error;
+    if (error) {
+      console.error('❌ Anonymous access test failed:', error);
+      return { success: false, error: error.message };
     }
 
-    return { 
-      success: true, 
-      database: 'healthy',
-      timestamp: new Date().toISOString()
-    };
+    console.log('✅ Anonymous access test successful:', data);
+    return { success: true, data };
   } catch (error) {
-    return { 
-      success: false, 
-      database: 'unhealthy',
-      error: error.message,
-      timestamp: new Date().toISOString()
-    };
+    console.error('❌ Anonymous access test error:', error);
+    return { success: false, error: error.message };
   }
 };
 
@@ -194,7 +174,6 @@ export const signOut = async () => {
 export const handleSupabaseError = (error, context = 'Operation') => {
   console.error(`${context} failed:`, error);
   
-  // Common error messages mapping
   const errorMessages = {
     'Failed to fetch': 'Network error. Please check your connection.',
     'Invalid JWT': 'Authentication expired. Please sign in again.',
@@ -203,7 +182,6 @@ export const handleSupabaseError = (error, context = 'Operation') => {
     'foreign key constraint': 'Cannot delete: record is being used elsewhere.'
   };
 
-  // Find matching error message
   const userFriendlyMessage = Object.keys(errorMessages).find(key => 
     error.message?.includes(key)
   );
@@ -214,31 +192,6 @@ export const handleSupabaseError = (error, context = 'Operation') => {
     technical: error.message,
     context
   };
-};
-
-// Realtime subscription helper
-export const createRealtimeSubscription = (table, callback, filters = {}) => {
-  const channel = supabase
-    .channel(`${table}-changes`)
-    .on('postgres_changes', 
-      { 
-        event: '*', 
-        schema: 'public', 
-        table: table,
-        ...filters 
-      }, 
-      callback
-    )
-    .subscribe();
-
-  return channel;
-};
-
-// Unsubscribe from realtime
-export const unsubscribeRealtime = (channel) => {
-  if (channel) {
-    supabase.removeChannel(channel);
-  }
 };
 
 // Export configuration for debugging
@@ -253,21 +206,9 @@ export const config = {
 if (process.env.NODE_ENV === 'development') {
   window.supabase = supabase;
   window.supabaseConfig = config;
+  window.testAnonymousAccess = testAnonymousAccess; // 🔧 ADDED: Test function
   console.log('🔧 Supabase client available in window.supabase for debugging');
+  console.log('🔧 Test anonymous access with: window.testAnonymousAccess()');
 }
-
-// Add auth header support for admin operations
-export const setSupabaseAuthHeader = (token) => {
-    if (token) {
-      supabase.auth.setSession({
-        access_token: token,
-        refresh_token: token
-      });
-    }
-  };
-  
-  export const clearSupabaseAuthHeader = () => {
-    supabase.auth.signOut();
-  };
 
 export default supabase;
