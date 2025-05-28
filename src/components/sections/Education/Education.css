@@ -96,7 +96,7 @@
 /* ACADEMIC TIMELINE CONTAINER */
 /* ============================================ */
 
-.timeline-container {
+.education-section .timeline-container {
   position: relative;
   max-width: 1000px;
   margin: 0 auto;
@@ -104,14 +104,14 @@
 }
 
 /* Vertical Timeline Path */
-.timeline-path {
+.education-section .timeline-path {
   position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-4xl);
 }
 
-.timeline-path::before {
+.education-section .timeline-path::before {
   content: '';
   position: absolute;
   left: 60px;
@@ -133,7 +133,7 @@
 /* TIMELINE MILESTONE */
 /* ============================================ */
 
-.timeline-milestone {
+.education-section .timeline-milestone {
   position: relative;
   display: flex;
   align-items: flex-start;
@@ -141,13 +141,13 @@
   animation: fadeInUp 0.8s ease-out;
 }
 
-.timeline-milestone:nth-child(1) { animation-delay: 0.1s; }
-.timeline-milestone:nth-child(2) { animation-delay: 0.3s; }
-.timeline-milestone:nth-child(3) { animation-delay: 0.5s; }
-.timeline-milestone:nth-child(4) { animation-delay: 0.7s; }
+.education-section .timeline-milestone:nth-child(1) { animation-delay: 0.1s; }
+.education-section .timeline-milestone:nth-child(2) { animation-delay: 0.3s; }
+.education-section .timeline-milestone:nth-child(3) { animation-delay: 0.5s; }
+.education-section .timeline-milestone:nth-child(4) { animation-delay: 0.7s; }
 
 /* Timeline Node (Graduation Cap) */
-.timeline-node {
+.education-section .timeline-node {
   position: relative;
   width: 120px;
   height: 120px;
@@ -158,7 +158,7 @@
   flex-shrink: 0;
 }
 
-.graduation-cap {
+.education-section .graduation-cap {
   font-size: 3rem;
   background: var(--glass-bg);
   width: 80px;
@@ -175,7 +175,7 @@
   animation: nodePulse 3s ease-in-out infinite;
 }
 
-.timeline-milestone:hover .graduation-cap {
+.education-section .timeline-milestone:hover .graduation-cap {
   border-color: var(--neon-green);
   box-shadow: 
     0 0 40px rgba(0, 255, 128, 0.8),
@@ -183,7 +183,7 @@
   background: rgba(0, 255, 128, 0.05);
 }
 
-.node-glow {
+.education-section .node-glow {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -205,7 +205,7 @@
 /* 3D FLIP CARD CONTAINER */
 /* ============================================ */
 
-.education-flip-card {
+.education-section .education-flip-card {
   background: transparent;
   width: 100%;
   height: 600px; /* FIXED HEIGHT FOR BOTH SIDES */
@@ -213,7 +213,7 @@
   flex: 1;
 }
 
-.education-flip-card-inner {
+.education-section .education-flip-card-inner {
   position: relative;
   width: 100%;
   height: 100%;
@@ -222,12 +222,12 @@
   transform-style: preserve-3d;
 }
 
-.education-flip-card.flipped .education-flip-card-inner {
+.education-section .education-flip-card.flipped .education-flip-card-inner {
   transform: rotateY(180deg);
 }
 
-.education-flip-card-front,
-.education-flip-card-back {
+.education-section .education-flip-card-front,
+.education-section .education-flip-card-back {
   position: absolute;
   width: 100%;
   height: 100%; /* SAME HEIGHT FOR BOTH SIDES */
@@ -245,13 +245,13 @@
     0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
-.education-flip-card-back {
+.education-section .education-flip-card-back {
   transform: rotateY(180deg);
 }
 
 /* Card Hover Effects */
-.timeline-milestone:hover .education-flip-card-front,
-.timeline-milestone:hover .education-flip-card-back {
+.education-section .timeline-milestone:hover .education-flip-card-front,
+.education-section .timeline-milestone:hover .education-flip-card-back {
   border-color: var(--neon-orange);
   box-shadow: 
     0 8px 32px rgba(0, 0, 0, 0.4),
@@ -260,7 +260,7 @@
   background: var(--glass-bg-enhanced);
 }
 
-.timeline-milestone:hover .education-flip-card-back {
+.education-section .timeline-milestone:hover .education-flip-card-back {
   transform: rotateY(180deg);
   border-color: var(--neon-green);
   box-shadow: 
@@ -274,7 +274,7 @@
 /* FRONT SIDE STYLES - UPDATED LAYOUT */
 /* ============================================ */
 
-.education-flip-card-front::before {
+.education-section .education-flip-card-front::before {
   content: '';
   position: absolute;
   top: 0;
@@ -287,12 +287,12 @@
   pointer-events: none;
 }
 
-.timeline-milestone:hover .education-flip-card-front::before {
+.education-section .timeline-milestone:hover .education-flip-card-front::before {
   opacity: 1;
 }
 
 /* Top Row: Logo (Center) + Flip Icon (Right) */
-.card-top-row {
+.education-section .card-top-row {
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -303,14 +303,14 @@
 }
 
 /* Institution Logo - Bigger Size, Centered */
-.institution-logo-large {
+.education-section .institution-logo-large {
   position: relative;
   width: 120px; /* BIGGER SIZE */
   height: 120px;
   flex-shrink: 0;
 }
 
-.logo-image-large {
+.education-section .logo-image-large {
   width: 100%;
   height: 100%;
   border-radius: 50%;
@@ -320,12 +320,12 @@
   transition: all var(--duration-normal) var(--ease-in-out);
 }
 
-.logo-image-large:hover {
+.education-section .logo-image-large:hover {
   transform: scale(1.05);
   box-shadow: 0 0 35px rgba(0, 255, 128, 0.6);
 }
 
-.logo-temp-large {
+.education-section .logo-temp-large {
   width: 100%;
   height: 100%;
   border-radius: 50%;
@@ -345,7 +345,7 @@
 }
 
 /* Flip Card Button - Right Aligned */
-.flip-card-btn {
+.education-section .flip-card-btn {
   background: rgba(255, 102, 0, 0.1);
   border: 2px solid var(--neon-orange);
   border-radius: 50%;
@@ -363,31 +363,31 @@
   z-index: 5;
 }
 
-.flip-card-btn svg {
+.education-section .flip-card-btn svg {
   width: 24px;
   height: 24px;
   stroke: var(--neon-orange);
   transition: all var(--duration-normal) var(--ease-in-out);
 }
 
-.flip-card-btn:hover {
+.education-section .flip-card-btn:hover {
   background: rgba(255, 102, 0, 0.2);
   border-color: var(--neon-green);
   transform: scale(1.1);
   box-shadow: 0 0 20px rgba(255, 102, 0, 0.5);
 }
 
-.flip-card-btn:hover svg {
+.education-section .flip-card-btn:hover svg {
   stroke: var(--neon-green);
 }
 
 /* Degree Title */
-.front-degree-title {
+.education-section .front-degree-title {
   margin-bottom: var(--spacing-md);
   text-align: center;
 }
 
-.front-degree-title h3 {
+.education-section .front-degree-title h3 {
   font-size: var(--text-2xl);
   font-weight: 800;
   margin: 0;
@@ -400,12 +400,12 @@
 }
 
 /* Institution Names */
-.front-institution-info {
+.education-section .front-institution-info {
   margin-bottom: var(--spacing-lg);
   text-align: center;
 }
 
-.university-name {
+.education-section .university-name {
   font-size: var(--text-lg);
   font-weight: 700;
   margin: 0 0 var(--spacing-xs) 0;
@@ -413,7 +413,7 @@
   text-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
 }
 
-.college-school-name {
+.education-section .college-school-name {
   font-size: var(--text-base);
   font-weight: 600;
   margin: 0;
@@ -423,7 +423,7 @@
 }
 
 /* Duration Display */
-.front-duration {
+.education-section .front-duration {
   background: rgba(255, 102, 0, 0.1);
   border: 1px solid rgba(255, 102, 0, 0.3);
   border-radius: var(--radius-lg);
@@ -432,7 +432,7 @@
   margin-bottom: var(--spacing-md);
 }
 
-.duration-label {
+.education-section .duration-label {
   font-size: var(--text-xs);
   color: var(--text-muted);
   font-weight: 600;
@@ -442,7 +442,7 @@
   display: block;
 }
 
-.duration-value {
+.education-section .duration-value {
   font-size: var(--text-base);
   font-weight: 600;
   color: var(--neon-orange);
@@ -450,12 +450,12 @@
 }
 
 /* Status Badge */
-.front-status {
+.education-section .front-status {
   text-align: center;
   margin-bottom: var(--spacing-md);
 }
 
-.front-status-badge {
+.education-section .front-status-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -473,14 +473,14 @@
 }
 
 /* GPA/Percentage - SEPARATE BOXES */
-.front-grade-container {
+.education-section .front-grade-container {
   display: flex;
   gap: var(--spacing-sm);
   margin-bottom: var(--spacing-md);
 }
 
-.front-grade-received,
-.front-grade-max {
+.education-section .front-grade-received,
+.education-section .front-grade-max {
   flex: 1;
   background: rgba(0, 255, 128, 0.1);
   border: 1px solid rgba(0, 255, 128, 0.3);
@@ -492,12 +492,12 @@
   gap: 2px;
 }
 
-.front-grade-max {
+.education-section .front-grade-max {
   background: rgba(0, 255, 255, 0.1);
   border-color: rgba(0, 255, 255, 0.3);
 }
 
-.front-grade-label {
+.education-section .front-grade-label {
   font-size: var(--text-xs);
   color: var(--text-muted);
   font-weight: 500;
@@ -505,7 +505,7 @@
   letter-spacing: 0.5px;
 }
 
-.front-grade-value {
+.education-section .front-grade-value {
   font-size: var(--text-lg);
   font-weight: 700;
   background: linear-gradient(135deg, var(--neon-green), var(--neon-cyan));
@@ -516,7 +516,7 @@
 }
 
 /* Major Display */
-.front-major {
+.education-section .front-major {
   background: rgba(0, 255, 255, 0.1);
   border: 1px solid rgba(0, 255, 255, 0.2);
   border-radius: var(--radius-md);
@@ -527,13 +527,13 @@
   align-items: center;
 }
 
-.front-major-label {
+.education-section .front-major-label {
   font-size: var(--text-sm);
   color: var(--text-muted);
   font-weight: 600;
 }
 
-.front-major-value {
+.education-section .front-major-value {
   font-size: var(--text-base);
   font-weight: 700;
   color: var(--neon-cyan);
@@ -621,7 +621,7 @@
 /* BACK SIDE STYLES - FIXED HEIGHT WITH SCROLL */
 /* ============================================ */
 
-.education-flip-card-back {
+.education-section .education-flip-card-back {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border-color);
   position: relative;
@@ -629,7 +629,7 @@
   overflow: hidden; /* PREVENT OVERFLOW */
 }
 
-.education-flip-card-back::before {
+.education-section .education-flip-card-back::before {
   content: '';
   position: absolute;
   top: 0;
@@ -642,12 +642,12 @@
   pointer-events: none;
 }
 
-.timeline-milestone:hover .education-flip-card-back::before {
+.education-section .timeline-milestone:hover .education-flip-card-back::before {
   opacity: 1;
 }
 
 /* Back Content Container - FULL HEIGHT MANAGEMENT */
-.back-content {
+.education-section .back-content {
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -656,7 +656,7 @@
 }
 
 /* Back Header - FIXED AT TOP */
-.back-header {
+.education-section .back-header {
   flex-shrink: 0; /* DON'T SHRINK */
   display: flex;
   justify-content: space-between;
@@ -667,7 +667,7 @@
   position: relative;
 }
 
-.back-title {
+.education-section .back-title {
   font-size: var(--text-lg);
   font-weight: 700;
   margin: 0;
@@ -678,7 +678,7 @@
   text-shadow: 0 0 15px rgba(0, 255, 128, 0.4);
 }
 
-.flip-back-btn {
+.education-section .flip-back-btn {
   background: rgba(0, 255, 128, 0.1);
   border: 2px solid var(--neon-green);
   border-radius: 50%;
@@ -695,26 +695,26 @@
   flex-shrink: 0;
 }
 
-.flip-back-btn svg {
+.education-section .flip-back-btn svg {
   width: 20px;
   height: 20px;
   stroke: var(--neon-green);
   transition: all var(--duration-normal) var(--ease-in-out);
 }
 
-.flip-back-btn:hover {
+.education-section .flip-back-btn:hover {
   background: rgba(0, 255, 128, 0.2);
   border-color: var(--neon-orange);
   transform: scale(1.1);
   box-shadow: 0 0 20px rgba(0, 255, 128, 0.5);
 }
 
-.flip-back-btn:hover svg {
+.education-section .flip-back-btn:hover svg {
   stroke: var(--neon-orange);
 }
 
 /* Back Details Container - SCROLLABLE AREA */
-.back-details {
+.education-section .back-details {
   flex: 1; /* TAKE REMAINING SPACE */
   display: flex;
   flex-direction: column;
@@ -730,28 +730,28 @@
 }
 
 /* Webkit Scrollbar for Chrome/Safari */
-.back-details::-webkit-scrollbar {
+.education-section .back-details::-webkit-scrollbar {
   width: 6px;
 }
 
-.back-details::-webkit-scrollbar-track {
+.education-section .back-details::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 3px;
 }
 
-.back-details::-webkit-scrollbar-thumb {
+.education-section .back-details::-webkit-scrollbar-thumb {
   background: linear-gradient(to bottom, var(--neon-orange), var(--neon-green));
   border-radius: 3px;
   transition: all var(--duration-fast) var(--ease-in-out);
 }
 
-.back-details::-webkit-scrollbar-thumb:hover {
+.education-section .back-details::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(to bottom, var(--neon-green), var(--neon-cyan));
   box-shadow: 0 0 8px rgba(0, 255, 128, 0.5);
 }
 
 /* Back Section Styling - COMPACT */
-.back-section {
+.education-section .back-section {
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-md);
@@ -762,14 +762,14 @@
   flex-shrink: 0; /* DON'T SHRINK SECTIONS */
 }
 
-.back-section:hover {
+.education-section .back-section:hover {
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(0, 255, 128, 0.3);
   transform: translateY(-1px); /* SUBTLE HOVER */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.back-section::before {
+.education-section .back-section::before {
   content: '';
   position: absolute;
   top: 0;
@@ -787,12 +787,12 @@
   transition: opacity var(--duration-normal) var(--ease-in-out);
 }
 
-.back-section:hover::before {
+.education-section .back-section:hover::before {
   opacity: 1;
 }
 
 /* Back Section Headers - COMPACT */
-.back-section-header {
+.education-section .back-section-header {
   font-size: var(--text-sm);
   font-weight: 700;
   margin-bottom: var(--spacing-xs); /* SMALLER MARGIN */
@@ -803,7 +803,7 @@
   gap: var(--spacing-xs);
 }
 
-.back-section-header::before {
+.education-section .back-section-header::before {
   content: '';
   width: 4px;
   height: 4px;
@@ -814,28 +814,28 @@
 }
 
 /* Back Section Content - OPTIMIZED */
-.back-section-content {
+.education-section .back-section-content {
   color: var(--text-secondary);
   line-height: 1.5; /* TIGHTER LINE HEIGHT */
   font-size: var(--text-sm);
 }
 
 /* Description Styling */
-.back-section-content p {
+.education-section .back-section-content p {
   margin: 0;
   color: var(--text-secondary);
   font-weight: 400;
 }
 
 /* Coursework Tags - COMPACT */
-.coursework-tags {
+.education-section .coursework-tags {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-xs);
   margin-top: var(--spacing-xs);
 }
 
-.coursework-tag {
+.education-section .coursework-tag {
   background: linear-gradient(135deg, rgba(255, 102, 0, 0.1), rgba(0, 255, 128, 0.1));
   border: 1px solid rgba(255, 102, 0, 0.3);
   border-radius: var(--radius-full);
@@ -848,7 +848,7 @@
   line-height: 1.2;
 }
 
-.coursework-tag:hover {
+.education-section .coursework-tag:hover {
   background: linear-gradient(135deg, rgba(255, 102, 0, 0.2), rgba(0, 255, 128, 0.2));
   border-color: var(--neon-green);
   color: var(--neon-green);
@@ -857,7 +857,7 @@
 }
 
 /* Achievements List - COMPACT */
-.achievements-list {
+.education-section .achievements-list {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -866,7 +866,7 @@
   gap: 2px; /* VERY SMALL GAP */
 }
 
-.achievements-list li {
+.education-section .achievements-list li {
   position: relative;
   padding-left: var(--spacing-md);
   color: var(--text-secondary);
@@ -874,7 +874,7 @@
   line-height: 1.4;
 }
 
-.achievements-list li::before {
+.education-section .achievements-list li::before {
   content: '🏆';
   position: absolute;
   left: 0;
@@ -883,7 +883,7 @@
   filter: sepia(1) hue-rotate(30deg) saturate(2);
 }
 
-.achievements-list li:hover {
+.education-section .achievements-list li:hover {
   color: var(--neon-green);
   text-shadow: 0 0 5px rgba(0, 255, 128, 0.3);
   transform: translateX(2px);
@@ -891,7 +891,7 @@
 }
 
 /* Activities List - COMPACT */
-.activities-list {
+.education-section .activities-list {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -900,7 +900,7 @@
   gap: 2px; /* VERY SMALL GAP */
 }
 
-.activities-list li {
+.education-section .activities-list li {
   position: relative;
   padding-left: var(--spacing-md);
   color: var(--text-secondary);
@@ -908,7 +908,7 @@
   line-height: 1.4;
 }
 
-.activities-list li::before {
+.education-section .activities-list li::before {
   content: '🎯';
   position: absolute;
   left: 0;
@@ -917,7 +917,7 @@
   filter: sepia(1) hue-rotate(60deg) saturate(1.5);
 }
 
-.activities-list li:hover {
+.education-section .activities-list li:hover {
   color: var(--neon-cyan);
   text-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
   transform: translateX(2px);
@@ -925,7 +925,7 @@
 }
 
 /* Thesis, Minor, Location - Single Line Items */
-.back-section-content .single-line-item {
+.education-section .back-section-content .single-line-item {
   font-style: italic;
   color: var(--text-primary);
   font-weight: 500;
@@ -933,12 +933,12 @@
 }
 
 /* Smooth Scroll Behavior */
-.back-details {
+.education-section .back-details {
   scroll-behavior: smooth;
 }
 
 /* Focus States for Accessibility */
-.back-details:focus {
+.education-section .back-details:focus {
   outline: 2px solid var(--neon-green);
   outline-offset: 2px;
 }
@@ -1343,52 +1343,52 @@
 /* ============================================ */
 
 /* Grade Box Hover Animation */
-.front-grade-received:hover,
-.front-grade-max:hover {
+.education-section .front-grade-received:hover,
+.education-section .front-grade-max:hover {
   animation: gradeBoxPulse 1.5s ease-in-out infinite;
   transform: translateY(-2px);
 }
 
 /* Coursework Tag Floating Animation */
-.coursework-tag {
+.education-section .coursework-tag {
   animation: tagFloat 3s ease-in-out infinite;
 }
 
-.coursework-tag:nth-child(2n) {
+.education-section .coursework-tag:nth-child(2n) {
   animation-delay: 0.5s;
 }
 
-.coursework-tag:nth-child(3n) {
+.education-section .coursework-tag:nth-child(3n) {
   animation-delay: 1s;
 }
 
-.coursework-tag:nth-child(4n) {
+.education-section .coursework-tag:nth-child(4n) {
   animation-delay: 1.5s;
 }
 
 /* Flip Button Enhanced Animation */
-.flip-card-btn:hover {
+.education-section .flip-card-btn:hover {
   animation: flipIconRotate 0.6s ease-in-out;
 }
 
-.flip-back-btn:hover {
+.education-section .flip-back-btn:hover {
   animation: flipIconRotate 0.6s ease-in-out reverse;
 }
 
 /* Achievement and Activity List Enhanced Hover */
-.achievements-list li:hover::before,
-.activities-list li:hover::before {
+.education-section .achievements-list li:hover::before,
+.education-section .activities-list li:hover::before {
   animation: glowPulse 0.8s ease-in-out;
   transform: scale(1.2);
 }
 
 /* Scrollbar Glow Animation */
-.back-details::-webkit-scrollbar-thumb:hover {
+.education-section .back-details::-webkit-scrollbar-thumb:hover {
   animation: scrollbarGlow 2s ease-in-out infinite;
 }
 
 /* Card Flip Enhanced Animation */
-.education-flip-card.flipped .education-flip-card-inner {
+.education-section .education-flip-card.flipped .education-flip-card-inner {
   animation: cardFlipComplete 0.8s ease-in-out;
 }
 
@@ -1436,50 +1436,50 @@
 /* ============================================ */
 
 @media (max-width: 1024px) {
-  .timeline-path::before {
+  .education-section .timeline-path::before {
     left: 50px;
   }
 
-  .timeline-node {
+  .education-section .timeline-node {
     width: 100px;
     height: 100px;
   }
 
-  .graduation-cap {
+  .education-section .graduation-cap {
     width: 70px;
     height: 70px;
     font-size: 2.5rem;
   }
 
-  .node-glow {
+  .education-section .node-glow {
     width: 90px;
     height: 90px;
   }
 
-  .education-flip-card {
+  .education-section .education-flip-card {
     height: 420px;
   }
 
-  .education-flip-card-front,
-  .education-flip-card-back {
+  .education-section .education-flip-card-front,
+  .education-section .education-flip-card-back {
     height: 420px;
   }
 
-  .institution-logo-large {
+  .education-section .institution-logo-large {
     width: 100px;
     height: 100px;
   }
 
-  .logo-temp-large {
+  .education-section .logo-temp-large {
     font-size: var(--text-xl);
   }
 
-  .flip-card-btn {
+  .education-section .flip-card-btn {
     width: 45px;
     height: 45px;
   }
 
-  .flip-card-btn svg {
+  .education-section .flip-card-btn svg {
     width: 20px;
     height: 20px;
   }
@@ -1727,56 +1727,56 @@
 /* ============================================ */
 
 @media (prefers-reduced-motion: reduce) {
-  .timeline-milestone,
-  .graduation-cap,
-  .logo-image-large,
-  .education-flip-card-front,
-  .education-flip-card-back,
-  .floating-particle,
-  .coursework-tag,
-  .achievements-list li,
-  .activities-list li,
-  .front-grade-received,
-  .front-grade-max,
-  .flip-card-btn,
-  .flip-back-btn {
+  .education-section .timeline-milestone,
+  .education-section .graduation-cap,
+  .education-section .logo-image-large,
+  .education-section .education-flip-card-front,
+  .education-section .education-flip-card-back,
+  .education-section .floating-particle,
+  .education-section .coursework-tag,
+  .education-section .achievements-list li,
+  .education-section .activities-list li,
+  .education-section .front-grade-received,
+  .education-section .front-grade-max,
+  .education-section .flip-card-btn,
+  .education-section .flip-back-btn {
     animation: none !important;
   }
 
-  .timeline-milestone:hover .graduation-cap,
-  .timeline-milestone:hover .education-flip-card-front,
-  .timeline-milestone:hover .education-flip-card-back,
-  .flip-card-btn:hover,
-  .coursework-tag:hover,
-  .achievements-list li:hover,
-  .activities-list li:hover,
-  .front-grade-received:hover,
-  .front-grade-max:hover {
+  .education-section .timeline-milestone:hover .graduation-cap,
+  .education-section .timeline-milestone:hover .education-flip-card-front,
+  .education-section .timeline-milestone:hover .education-flip-card-back,
+  .education-section .flip-card-btn:hover,
+  .education-section .coursework-tag:hover,
+  .education-section .achievements-list li:hover,
+  .education-section .activities-list li:hover,
+  .education-section .front-grade-received:hover,
+  .education-section .front-grade-max:hover {
     transform: none !important;
   }
 
-  .education-flip-card-inner {
+  .education-section .education-flip-card-inner {
     transition: none !important;
   }
 
-  .education-flip-card.flipped .education-flip-card-inner {
+  .education-section .education-flip-card.flipped .education-flip-card-inner {
     transform: rotateY(180deg);
   }
 }
 
-.timeline-milestone:focus-visible {
+.education-section .timeline-milestone:focus-visible {
   outline: 2px solid var(--neon-orange);
   outline-offset: 4px;
   border-radius: var(--radius-md);
 }
 
-.flip-card-btn:focus-visible,
-.flip-back-btn:focus-visible {
+.education-section .flip-card-btn:focus-visible,
+.education-section .flip-back-btn:focus-visible {
   outline: 2px solid var(--neon-green);
   outline-offset: 2px;
 }
 
-.back-details:focus-visible {
+.education-section .back-details:focus-visible {
   outline: 2px solid var(--neon-cyan);
   outline-offset: 2px;
 }
@@ -1785,29 +1785,29 @@
 /* UTILITY CLASSES */
 /* ============================================ */
 
-.education-hidden {
+.education-section .education-hidden {
   display: none !important;
 }
 
-.education-visible {
+.education-section .education-visible {
   display: block !important;
 }
 
-.education-fade-in {
+.education-section .education-fade-in {
   animation: fadeInUp 0.6s ease-out;
 }
 
-.education-no-scroll {
+.education-section .education-no-scroll {
   overflow: hidden !important;
 }
 
-.education-loading {
+.education-section .education-loading {
   pointer-events: none;
   opacity: 0.6;
 }
 
 /* Smooth Transitions */
-.education-smooth-transition * {
+.education-section .education-smooth-transition * {
   transition: all var(--duration-normal) var(--ease-in-out);
 }
 
@@ -1904,26 +1904,26 @@
 /* ============================================ */
 
 /* GPU Acceleration for Smooth Animations */
-.education-flip-card-inner,
-.graduation-cap,
-.flip-card-btn,
-.flip-back-btn,
-.coursework-tag {
+.education-section .education-flip-card-inner,
+.education-section .graduation-cap,
+.education-section .flip-card-btn,
+.education-section .flip-back-btn,
+.education-section .coursework-tag {
   will-change: transform;
   transform: translateZ(0);
 }
 
 /* Contain Layout Shifts */
-.education-flip-card {
+.education-section .education-flip-card {
   contain: layout style paint;
 }
 
-.timeline-milestone {
+.education-section .timeline-milestone {
   contain: layout paint;
 }
 
 /* Optimize Scrolling Performance */
-.back-details {
+.education-section .back-details {
   contain: layout style paint;
   will-change: scroll-position;
 }

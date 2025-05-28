@@ -93,7 +93,7 @@
 }
 
 /* Leadership Grid Layout - Max 2 cards per row */
-.leadership-grid {
+.leadership-section .leadership-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
   max-width: 1000px; /* Limit to ensure max 2 cards */
@@ -184,13 +184,13 @@
   min-height: 120px;
 }
 
-.organization-initials-section {
+.leadership-section .organization-initials-section {
   display: flex;
   justify-content: center;
   flex: 1;
 }
 
-.organization-initials-large {
+.leadership-section .organization-initials-large {
   width: 100px;
   height: 100px;
   border-radius: 50%;
@@ -210,7 +210,7 @@
   transition: all var(--duration-normal) var(--ease-in-out);
 }
 
-.organization-initials-large:hover {
+.leadership-section .organization-initials-large:hover {
   transform: scale(1.1);
   box-shadow: 
     0 0 35px rgba(123, 31, 162, 0.6),
@@ -231,7 +231,7 @@
 }
 
 /* Flip Icon Button */
-.flip-icon-btn {
+.leadership-section .flip-icon-btn {
   background: rgba(123, 31, 162, 0.1);
   border: 2px solid #7B1FA2;
   border-radius: 50%;
@@ -247,7 +247,7 @@
   overflow: hidden;
 }
 
-.flip-icon-btn::before {
+.leadership-section .flip-icon-btn::before {
   content: '';
   position: absolute;
   top: 0;
@@ -260,17 +260,17 @@
   border-radius: 50%;
 }
 
-.flip-icon-btn:hover::before {
+.leadership-section .flip-icon-btn:hover::before {
   transform: scale(1);
 }
 
-.flip-icon-btn:hover {
+.leadership-section .flip-icon-btn:hover {
   color: var(--color-white);
   box-shadow: 0 0 20px rgba(123, 31, 162, 0.5);
   transform: scale(1.1);
 }
 
-.flip-icon-btn svg {
+.leadership-section .flip-icon-btn svg {
   width: 16px;
   height: 16px;
   z-index: 1;
@@ -307,12 +307,12 @@
 }
 
 /* Organization Section */
-.organization-section {
+.leadership-section .organization-section {
   text-align: center;
   margin-bottom: var(--spacing-md);
 }
 
-.organization-name {
+.leadership-section .organization-name {
   font-size: var(--text-lg);
   font-weight: 700;
   color: var(--text-secondary);
@@ -321,12 +321,12 @@
 }
 
 /* Location Section */
-.location-section {
+.leadership-section .location-section {
   text-align: center;
   margin-bottom: var(--spacing-md);
 }
 
-.location-badge {
+.leadership-section .location-badge {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-xs);
@@ -340,18 +340,18 @@
   backdrop-filter: blur(10px);
 }
 
-.location-icon {
+.leadership-section .location-icon {
   width: 14px;
   height: 14px;
   fill: currentColor;
 }
 
 /* Description Section */
-.description-section {
+.leadership-section .description-section {
   margin-bottom: var(--spacing-md);
 }
 
-.description-container {
+.leadership-section .description-container {
   background: rgba(123, 31, 162, 0.05);
   border: 1px solid rgba(123, 31, 162, 0.2);
   border-radius: var(--radius-md);
@@ -361,44 +361,44 @@
   overflow-y: auto;
 }
 
-.description-container::-webkit-scrollbar {
+.leadership-section .description-container::-webkit-scrollbar {
   width: 4px;
 }
 
-.description-container::-webkit-scrollbar-track {
+.leadership-section .description-container::-webkit-scrollbar-track {
   background: var(--bg-secondary);
   border-radius: var(--radius-sm);
 }
 
-.description-container::-webkit-scrollbar-thumb {
+.leadership-section .description-container::-webkit-scrollbar-thumb {
   background: linear-gradient(135deg, #7B1FA2, #C2185B);
   border-radius: var(--radius-sm);
 }
 
-.description-header {
+.leadership-section .description-header {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
   margin-bottom: var(--spacing-sm);
 }
 
-.description-icon {
+.leadership-section .description-icon {
   font-size: var(--text-sm);
   color: #7B1FA2;
 }
 
-.description-title {
+.leadership-section .description-title {
   font-size: var(--text-sm);
   font-weight: 600;
   color: #7B1FA2;
   margin: 0;
 }
 
-.description-text-wrapper {
+.leadership-section .description-text-wrapper {
   position: relative;
 }
 
-.description-text {
+.leadership-section .description-text {
   font-size: var(--text-sm);
   color: var(--text-tertiary);
   line-height: 1.6;
@@ -406,7 +406,7 @@
 }
 
 /* Duration Section */
-.duration-section {
+.leadership-section .duration-section {
   margin-bottom: var(--spacing-md);
   background: rgba(123, 31, 162, 0.05);
   border-radius: var(--radius-md);
@@ -414,26 +414,26 @@
   border-left: 3px solid #7B1FA2;
 }
 
-.duration-header {
+.leadership-section .duration-header {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
   margin-bottom: var(--spacing-xs);
 }
 
-.duration-icon {
+.leadership-section .duration-icon {
   font-size: var(--text-sm);
   color: #7B1FA2;
 }
 
-.duration-title {
+.leadership-section .duration-title {
   font-size: var(--text-sm);
   font-weight: 600;
   color: #7B1FA2;
   margin: 0;
 }
 
-.duration-text {
+.leadership-section .duration-text {
   font-size: var(--text-sm);
   color: var(--text-tertiary);
   margin: 0;
@@ -441,12 +441,12 @@
 }
 
 /* Status Section */
-.status-section {
+.leadership-section .status-section {
   text-align: center;
   margin-bottom: var(--spacing-md);
 }
 
-.status-badge {
+.leadership-section .status-badge {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-xs);
@@ -460,20 +460,20 @@
   transition: all var(--duration-normal) var(--ease-in-out);
 }
 
-.status-badge.active {
+.leadership-section .status-badge.active {
   background: rgba(76, 175, 80, 0.1);
   border: 2px solid #4CAF50;
   color: #4CAF50;
   animation: activeGlow 2s ease-in-out infinite;
 }
 
-.status-badge.inactive {
+.leadership-section .status-badge.inactive {
   background: rgba(244, 67, 54, 0.1);
   border: 2px solid #F44336;
   color: #F44336;
 }
 
-.status-icon {
+.leadership-section .status-icon {
   font-size: var(--text-base);
 }
 
@@ -487,12 +487,12 @@
 }
 
 /* Featured Section */
-.featured-section {
+.leadership-section .featured-section {
   text-align: center;
   margin-bottom: var(--spacing-md);
 }
 
-.featured-badge {
+.leadership-section .featured-badge {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-xs);
@@ -509,7 +509,7 @@
   animation: featuredGlow 2s ease-in-out infinite;
 }
 
-.star-icon {
+.leadership-section .star-icon {
   width: 16px;
   height: 16px;
   fill: currentColor;
@@ -525,36 +525,36 @@
 }
 
 /* Skills Preview Section */
-.skills-preview-section {
+.leadership-section .skills-preview-section {
   margin-bottom: var(--spacing-md);
 }
 
-.skills-header {
+.leadership-section .skills-header {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
   margin-bottom: var(--spacing-sm);
 }
 
-.skills-icon {
+.leadership-section .skills-icon {
   font-size: var(--text-sm);
   color: #7B1FA2;
 }
 
-.skills-title {
+.leadership-section .skills-title {
   font-size: var(--text-sm);
   font-weight: 600;
   color: #7B1FA2;
   margin: 0;
 }
 
-.skills-preview-container {
+.leadership-section .skills-preview-container {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-xs);
 }
 
-.skill-tag-preview {
+.leadership-section .skill-tag-preview {
   background: rgba(123, 31, 162, 0.1);
   border: 1px solid rgba(123, 31, 162, 0.3);
   border-radius: var(--radius-sm);
@@ -565,13 +565,13 @@
   transition: all var(--duration-normal) var(--ease-in-out);
 }
 
-.skill-tag-preview:hover {
+.leadership-section .skill-tag-preview:hover {
   background: rgba(123, 31, 162, 0.15);
   border-color: #7B1FA2;
   transform: translateY(-1px);
 }
 
-.skill-tag-more {
+.leadership-section .skill-tag-more {
   background: rgba(194, 24, 91, 0.1);
   border: 1px solid rgba(194, 24, 91, 0.3);
   border-radius: var(--radius-sm);
@@ -1480,7 +1480,7 @@
 }
 
 /* Light theme organization initials */
-[data-theme="light"] .organization-initials-large {
+[data-theme="light"] .leadership-section .organization-initials-large {
   background: linear-gradient(135deg, #9C27B0, #673AB7);
   border-color: #7B1FA2;
   box-shadow: 
@@ -1488,7 +1488,7 @@
     inset 0 0 15px rgba(255, 255, 255, 0.2);
 }
 
-[data-theme="light"] .organization-initials-large:hover {
+[data-theme="light"] .leadership-section .organization-initials-large:hover {
   box-shadow: 
     0 0 35px rgba(156, 39, 176, 0.5),
     inset 0 0 20px rgba(255, 255, 255, 0.3);
@@ -1501,7 +1501,7 @@
     height: 900px;
   }
 
-  .leadership-grid {
+  .leadership-section .leadership-grid {
     grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
     gap: var(--spacing-2xl);
     padding: var(--spacing-md) 0;
@@ -1513,7 +1513,7 @@
     height: 950px;
   }
 
-  .leadership-grid {
+  .leadership-section .leadership-grid {
     grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
     gap: var(--spacing-2xl);
     max-width: none; /* Remove max-width constraint */
@@ -1551,7 +1551,7 @@
     font-size: var(--text-lg);
   }
 
-  .leadership-grid {
+  .leadership-section .leadership-grid {
     grid-template-columns: 1fr;
     gap: var(--spacing-2xl);
     padding: var(--spacing-sm) 0;
@@ -1562,23 +1562,23 @@
     min-height: 100px;
   }
 
-  .organization-initials-large {
+  .leadership-section .organization-initials-large {
     width: 85px;
     height: 85px;
     font-size: var(--text-xl);
   }
 
-  .flip-icon-btn {
+  .leadership-section .flip-icon-btn {
     width: 35px;
     height: 35px;
   }
 
-  .flip-icon-btn svg {
+  .leadership-section .flip-icon-btn svg {
     width: 14px;
     height: 14px;
   }
 
-  .description-container {
+  .leadership-section .description-container {
     max-height: 100px;
   }
 
@@ -1622,23 +1622,23 @@
     font-size: var(--text-base);
   }
 
-  .leadership-grid {
+  .leadership-section .leadership-grid {
     gap: var(--spacing-xl);
     grid-template-columns: 1fr;
   }
 
-  .organization-initials-large {
+  .leadership-section .organization-initials-large {
     width: 75px;
     height: 75px;
     font-size: var(--text-lg);
   }
 
-  .flip-icon-btn {
+  .leadership-section .flip-icon-btn {
     width: 30px;
     height: 30px;
   }
 
-  .flip-icon-btn svg {
+  .leadership-section .flip-icon-btn svg {
     width: 12px;
     height: 12px;
   }
@@ -1647,7 +1647,7 @@
     min-height: 85px;
   }
 
-  .description-container {
+  .leadership-section .description-container {
     padding: var(--spacing-sm);
     max-height: 80px;
   }
@@ -1697,7 +1697,7 @@
 }
 
 /* Entry Animations */
-.leadership-grid {
+.leadership-section .leadership-grid {
   animation: fadeInUp 0.8s ease-out;
 }
 

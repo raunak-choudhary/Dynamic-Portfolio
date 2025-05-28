@@ -1,27 +1,258 @@
-import React, { useEffect } from 'react';
+// =====================================================
+// Skills.js - Complete Frontend Implementation
+// Red/Coral Theme with Carousel Layout and Modal System
+// =====================================================
+
+import React, { useState, useEffect, useRef } from 'react';
 import SkillCard from './SkillCard';
-import { sectionTemplates } from '../../../data/portfolioData';
+import SkillModal from './SkillModal';
+import { getSkills } from '../../../services/dataService';
+import LoadingSpinner from '../../common/LoadingSpinner';
 import './Skills.css';
 
 const Skills = () => {
-  const { skills } = sectionTemplates;
+  // State management
+  const [skillCategories, setSkillCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedSkill, setSelectedSkill] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Fix Issue 1: Scroll to top when component mounts
+  // Refs for carousel touch handling
+  const carouselRefs = useRef({});
+
+  // Fetch skills data from API
+  useEffect(() => {
+    const fetchSkills = async () => {
+      try {
+        console.log('🔍 Fetching skills data...');
+        setLoading(true);
+        setError(null);
+        
+        const response = await getSkills();
+        
+        if (response.success) {
+          console.log('✅ Skills fetched successfully:', response.data?.length || 0, 'categories');
+          
+          // Sort categories and prioritize featured skills within each category
+          const sortedCategories = response.data.map(category => ({
+            ...category,
+            skills: category.skills.sort((a, b) => {
+              // Featured skills first, then by order_index, then by name
+              if (a.is_featured && !b.is_featured) return -1;
+              if (!a.is_featured && b.is_featured) return 1;
+              if (a.order_index !== b.order_index) {
+                return (a.order_index || 999) - (b.order_index || 999);
+              }
+              return a.skill_name.localeCompare(b.skill_name);
+            })
+          }));
+          
+          setSkillCategories(sortedCategories || []);
+        } else {
+          console.error('❌ Failed to fetch skills:', response.error);
+          setError(response.error);
+          setSkillCategories([]);
+        }
+      } catch (error) {
+        console.error('❌ Skills fetch error:', error);
+        setError(error.message);
+        setSkillCategories([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSkills();
+  }, []);
+
+  // Scroll to top when component mounts
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
+  // Handle skill card click
+  const handleSkillClick = (skill) => {
+    console.log('🔄 Opening skill modal for:', skill.skill_name);
+    setSelectedSkill(skill);
+    setIsModalOpen(true);
+    
+    // Add haptic feedback for mobile devices
+    if (navigator.vibrate) {
+      navigator.vibrate(50);
+    }
+  };
+
+  // Handle modal close
+  const handleModalClose = () => {
+    console.log('❌ Closing skill modal');
+    setIsModalOpen(false);
+    setSelectedSkill(null);
+  };
+
+  // Handle escape key to close modal
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && isModalOpen) {
+        handleModalClose();
+      }
+    };
+
+    if (isModalOpen) {
+      document.addEventListener('keydown', handleEscape);
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.removeEventListener('keydown', handleEscape);
+        document.body.style.overflow = 'unset';
+      };
+    }
+  }, [isModalOpen]);
+
+  // Carousel scroll function with smooth scrolling
+  const scrollCarousel = (carouselId, direction) => {
+    const carousel = carouselRefs.current[carouselId];
+    if (!carousel) return;
+
+    const track = carousel.querySelector('.skills-track');
+    if (!track) return;
+
+    const cardWidth = 200; // Approximate card width + gap
+    const scrollAmount = cardWidth * 2; // Scroll 2 cards at a time
+
+    if (direction === 'left') {
+      track.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    } else {
+      track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  // Setup touch swipe for mobile carousels
+  useEffect(() => {
+    skillCategories.forEach((category, index) => {
+      const carouselId = `carousel-${index}`;
+      const carousel = carouselRefs.current[carouselId];
+      
+      if (!carousel) return;
+
+      const track = carousel.querySelector('.skills-track');
+      if (!track) return;
+
+      let startX = 0;
+      let scrollLeft = 0;
+      let isDown = false;
+
+      const handleTouchStart = (e) => {
+        isDown = true;
+        startX = e.touches[0].pageX - track.offsetLeft;
+        scrollLeft = track.scrollLeft;
+        track.style.cursor = 'grabbing';
+      };
+
+      const handleTouchMove = (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.touches[0].pageX - track.offsetLeft;
+        const walk = (x - startX) * 2; // Scroll speed multiplier
+        track.scrollLeft = scrollLeft - walk;
+      };
+
+      const handleTouchEnd = () => {
+        isDown = false;
+        track.style.cursor = 'grab';
+      };
+
+      // Mouse events for desktop
+      const handleMouseDown = (e) => {
+        isDown = true;
+        startX = e.pageX - track.offsetLeft;
+        scrollLeft = track.scrollLeft;
+        track.style.cursor = 'grabbing';
+      };
+
+      const handleMouseMove = (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - track.offsetLeft;
+        const walk = (x - startX) * 2;
+        track.scrollLeft = scrollLeft - walk;
+      };
+
+      const handleMouseUp = () => {
+        isDown = false;
+        track.style.cursor = 'grab';
+      };
+
+      const handleMouseLeave = () => {
+        isDown = false;
+        track.style.cursor = 'grab';
+      };
+
+      // Add touch event listeners
+      track.addEventListener('touchstart', handleTouchStart, { passive: false });
+      track.addEventListener('touchmove', handleTouchMove, { passive: false });
+      track.addEventListener('touchend', handleTouchEnd);
+
+      // Add mouse event listeners for desktop
+      track.addEventListener('mousedown', handleMouseDown);
+      track.addEventListener('mousemove', handleMouseMove);
+      track.addEventListener('mouseup', handleMouseUp);
+      track.addEventListener('mouseleave', handleMouseLeave);
+
+      // Cleanup function
+      return () => {
+        track.removeEventListener('touchstart', handleTouchStart);
+        track.removeEventListener('touchmove', handleTouchMove);
+        track.removeEventListener('touchend', handleTouchEnd);
+        track.removeEventListener('mousedown', handleMouseDown);
+        track.removeEventListener('mousemove', handleMouseMove);
+        track.removeEventListener('mouseup', handleMouseUp);
+        track.removeEventListener('mouseleave', handleMouseLeave);
+      };
+    });
+  }, [skillCategories]);
+
+  // Show loading spinner
+  if (loading) {
+    return (
+      <section className="skills-section section">
+        <div className="container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+          <LoadingSpinner size="large" message="Loading skills..." />
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="skills-section section">
       <div className="container">
-        {/* Header matching Explore Portfolio section style */}
+        {/* Header */}
         <div className="section-header">
-          <h1 className="neon-title">{skills.title}</h1>
-          <p className="neon-subtitle">{skills.description}</p>
+          <h1 className="neon-title">Skills & Competencies</h1>
+          <p className="neon-subtitle">Technical skills and expertise areas</p>
         </div>
 
         <div className="skills-content">
-          {skills.categories.length === 0 ? (
+          {error ? (
+            // Error state
+            <div className="no-content-message glass-card">
+              <div className="no-content-icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 9v4m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <h3 className="no-content-title">Error Loading Skills</h3>
+              <p className="no-content-text">
+                {error || 'Something went wrong while loading skills. Please try again later.'}
+              </p>
+              <div className="no-content-decoration">
+                <div className="floating-particle"></div>
+                <div className="floating-particle"></div>
+                <div className="floating-particle"></div>
+              </div>
+            </div>
+          ) : skillCategories.length === 0 ? (
+            // No skills state
             <div className="no-content-message glass-card">
               <div className="no-content-icon">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -41,14 +272,69 @@ const Skills = () => {
               </div>
             </div>
           ) : (
-            <div className="skills-grid">
-              {skills.categories.map((category, index) => (
-                <SkillCard key={index} category={category} />
+            // Skills categories with carousels
+            <div className="skills-categories">
+              {skillCategories.map((category, categoryIndex) => (
+                <div key={category.category || categoryIndex} className="skill-category">
+                  {/* Category Subheading - h2 as requested */}
+                  <h2 className="category-heading">
+                    <span className="category-pipe">|</span>
+                    <span className="category-text">{category.category}</span>
+                  </h2>
+                  
+                  {/* Skills Carousel */}
+                  <div className="skills-carousel-wrapper">
+                    <div 
+                      className="skills-carousel" 
+                      ref={el => carouselRefs.current[`carousel-${categoryIndex}`] = el}
+                    >
+                      <div className="skills-track">
+                        {category.skills.map((skill, skillIndex) => (
+                          <SkillCard 
+                            key={skill.id || skillIndex} 
+                            skill={skill} 
+                            onClick={() => handleSkillClick(skill)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Always Visible Carousel Navigation */}
+                    <div className="carousel-navigation">
+                      <button 
+                        className="carousel-btn carousel-btn-prev"
+                        onClick={() => scrollCarousel(`carousel-${categoryIndex}`, 'left')}
+                        aria-label="Previous skills"
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                      <button 
+                        className="carousel-btn carousel-btn-next"
+                        onClick={() => scrollCarousel(`carousel-${categoryIndex}`, 'right')}
+                        aria-label="Next skills"
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
           )}
         </div>
       </div>
+
+      {/* Skill Modal */}
+      {isModalOpen && selectedSkill && (
+        <SkillModal 
+          skill={selectedSkill} 
+          onClose={handleModalClose}
+        />
+      )}
     </section>
   );
 };

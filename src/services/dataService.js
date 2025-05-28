@@ -1,13 +1,11 @@
 // src/services/dataService.js
 
-// Complete data service with real Hero & About APIs
-// Phase 2B-17.2: Hero & About APIs fully integrated
-// Other sections still return static data until Phase 2B completion
+// All APIs completed successfully.
 
 import { supabase } from './supabaseClient';
 import { getCurrentAdmin, requireAdminAuth } from './authService';
-import { portfolioData, sectionTemplates } from '../data/portfolioData';
-import { MESSAGES } from '../utils/constants';
+import { portfolioData } from '../data/portfolioData';
+
 
 // Simulate API delay for realistic loading experience
 const simulateApiDelay = (ms = 500) => {
@@ -251,7 +249,7 @@ export const uploadProfileImage = async (file, imageType = 'general') => {
     const filePath = `about/${fileName}`;
 
     // Upload to Supabase Storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const {error: uploadError } = await supabase.storage
       .from('profile-images')
       .upload(filePath, file, {
         cacheControl: '3600',
@@ -344,32 +342,18 @@ export const getWorkExperienceData = async () => {
   return await getWorkExperience();
 };
 
-// Skills Data (Still static - will be updated in Phase 2B-18.3)
+// Skills Data (Real Supabase Integration - Updated in Phase 2B-18.3)
 export const getSkillsData = async () => {
-  try {
-    await simulateApiDelay(500);
-    return {
-      success: true,
-      data: sectionTemplates.skills.categories,
-      message: sectionTemplates.skills.categories.length === 0 ? MESSAGES.NO_DATA : null
-    };
-  } catch (error) {
-    return handleApiError(error, 'Skills Data');
-  }
+  // This function is deprecated - use getSkills() instead
+  console.warn('getSkillsData is deprecated, use getSkills() instead');
+  return await getSkills();
 };
 
-// Certifications Data (Still static - will be updated in Phase 2B-18.3)
+// Certifications Data (Real Supabase Integration - Updated in Phase 2B-18.3)
 export const getCertificationsData = async () => {
-  try {
-    await simulateApiDelay(500);
-    return {
-      success: true,
-      data: sectionTemplates.certifications.items,
-      message: sectionTemplates.certifications.items.length === 0 ? MESSAGES.NO_DATA : null
-    };
-  } catch (error) {
-    return handleApiError(error, 'Certifications Data');
-  }
+  // This function is deprecated - use getCertifications() instead
+  console.warn('getCertificationsData is deprecated, use getCertifications() instead');
+  return await getCertifications();
 };
 
 // Recommendations Data (Real Supabase Integration - Updated in Phase 2B-19.1)
@@ -379,18 +363,11 @@ export const getRecommendationsData = async () => {
   return await getRecommendations();
 };
 
-// Achievements Data (Still static - will be updated in Phase 2B-19.1)
+// Achievements Data (Real Supabase Integration - Updated in Phase 2B-19.1)
 export const getAchievementsData = async () => {
-  try {
-    await simulateApiDelay(500);
-    return {
-      success: true,
-      data: sectionTemplates.achievements.items,
-      message: sectionTemplates.achievements.items.length === 0 ? MESSAGES.NO_DATA : null
-    };
-  } catch (error) {
-    return handleApiError(error, 'Achievements Data');
-  }
+  // This function is deprecated - use getAchievements() instead
+  console.warn('getAchievementsData is deprecated, use getAchievements() instead');
+  return await getAchievements();
 };
 
 // Leadership Data (Real Supabase Integration - Updated in Phase 2B-19.2)
@@ -456,10 +433,10 @@ export const getSectionData = async (sectionName) => {
     'work-experience': getWorkExperience, // ✅ Real API
     recommendations: getRecommendations, // ✅ Real API
     leadership: getLeadership, // ✅ Real API
-    contact: getContactData, // ✅ Static config + Real submission API
-    skills: getSkillsData, // 🔄 Still static - Phase 2B-18.3
-    certifications: getCertificationsData, // 🔄 Still static - Phase 2B-18.3
-    achievements: getAchievementsData // 🔄 Still static - Phase 2B-19.3
+    contact: getContactData, // ✅ Static config + Real submission API (emailService.js)
+    skills: getSkills,  // ✅ Real API
+    certifications: getCertifications, // ✅ Real API
+    achievements: getAchievements // ✅ Real API 
   };
 
   const fetcher = dataFetchers[sectionName];
@@ -1463,7 +1440,7 @@ export const uploadCompanyLogo = async (file, internshipId, companyName = 'compa
     console.log(`🔄 Uploading: ${fileName} to organization-logos bucket`);
 
     // Upload to Supabase Storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const {error: uploadError } = await supabase.storage
       .from('organization-logos')
       .upload(filePath, file, {
         cacheControl: '3600',
@@ -2160,7 +2137,7 @@ export const uploadInstitutionLogo = async (file, educationId, institutionName =
     console.log(`🔄 Uploading logo: ${fileName}`);
 
     // Upload to Supabase Storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const {error: uploadError } = await supabase.storage
       .from('organization-logos')
       .upload(filePath, file, {
         cacheControl: '3600',
@@ -2611,7 +2588,7 @@ export const uploadWorkCompanyLogo = async (file, workId, companyName = 'company
     console.log(`🔄 Uploading logo: ${fileName} to organization-logos bucket`);
 
     // Upload to Supabase Storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const {error: uploadError } = await supabase.storage
       .from('organization-logos')
       .upload(filePath, file, {
         cacheControl: '3600',
@@ -3263,7 +3240,7 @@ export const uploadRecommenderPhoto = async (file, recommendationId, recommender
     console.log(`🔄 Uploading: ${fileName}`);
 
     // Upload to Supabase Storage - documents bucket
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    const {error: uploadError } = await supabase.storage
       .from('documents')
       .upload(filePath, file, {
         cacheControl: '3600',
@@ -3856,5 +3833,2388 @@ const calculatePositionDuration = (startDate, endDate, isCurrent) => {
     return `${diffMonths} month${diffMonths > 1 ? 's' : ''}`;
   } else {
     return 'Less than 1 month';
+  }
+};
+
+// =====================================================
+// SKILLS APIs (Real Supabase Integration)
+// =====================================================
+
+// Get All Skills - Public Access (Grouped by skill_type)
+export const getSkills = async () => {
+  try {
+    console.log('🔍 Fetching all active skills grouped by skill_type...');
+    
+    const { data, error } = await supabase
+      .from('skills')
+      .select('*')
+      .eq('status', 'active')
+      .order('skill_type', { ascending: true })
+      .order('order_index', { ascending: true })
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('❌ Skills fetch error:', error);
+      throw new Error(`Failed to fetch skills: ${error.message}`);
+    }
+
+    // Group skills by skill_type
+    const groupedSkills = {};
+    
+    data.forEach(skill => {
+      const skillType = skill.skill_type || 'Other';
+      
+      if (!groupedSkills[skillType]) {
+        groupedSkills[skillType] = {
+          category: skillType,
+          skills: []
+        };
+      }
+      
+      // Process certifications and projects_used arrays
+      const processedSkill = {
+        ...skill,
+        certifications: Array.isArray(skill.certifications) ? skill.certifications : [],
+        projects_used: Array.isArray(skill.projects_used) ? skill.projects_used : [],
+      };
+      
+      groupedSkills[skillType].skills.push(processedSkill);
+    });
+
+    // Convert to array format expected by frontend
+    const categorizedSkills = Object.values(groupedSkills);
+
+    console.log(`✅ Retrieved ${data.length} skills across ${categorizedSkills.length} categories`);
+    
+    return {
+      success: true,
+      data: categorizedSkills,
+      message: categorizedSkills.length === 0 ? 'No skills found' : `Found ${data.length} skills in ${categorizedSkills.length} categories`
+    };
+  } catch (error) {
+    console.error('❌ getSkills error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: []
+    };
+  }
+};
+
+// Get Skill Categories - Public Access
+export const getSkillCategories = async () => {
+  try {
+    console.log('🔍 Fetching distinct skill categories...');
+    
+    const { data, error } = await supabase
+      .from('skills')
+      .select('skill_type')
+      .eq('status', 'active')
+      .not('skill_type', 'is', null);
+
+    if (error) {
+      console.error('❌ Skill categories fetch error:', error);
+      throw new Error(`Failed to fetch skill categories: ${error.message}`);
+    }
+
+    // Get unique categories
+    const uniqueCategories = [...new Set(data.map(item => item.skill_type))].sort();
+
+    console.log(`✅ Retrieved ${uniqueCategories.length} skill categories`);
+    
+    return {
+      success: true,
+      data: uniqueCategories,
+      message: `Found ${uniqueCategories.length} skill categories`
+    };
+  } catch (error) {
+    console.error('❌ getSkillCategories error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: []
+    };
+  }
+};
+
+// Get Single Skill by ID - Public Access
+export const getSkillById = async (id) => {
+  try {
+    console.log('🔍 Fetching skill by ID:', id);
+    
+    if (!id) {
+      throw new Error('Skill ID is required');
+    }
+
+    const { data, error } = await supabase
+      .from('skills')
+      .select('*')
+      .eq('id', id)
+      .eq('status', 'active')
+      .single();
+
+    if (error) {
+      console.error('❌ Skill fetch error:', error);
+      throw new Error(`Failed to fetch skill: ${error.message}`);
+    }
+
+    // Process arrays
+    const processedSkill = {
+      ...data,
+      certifications: Array.isArray(data.certifications) ? data.certifications : [],
+      projects_used: Array.isArray(data.projects_used) ? data.projects_used : [],
+    };
+
+    console.log('✅ Retrieved skill:', data.skill_name);
+    
+    return {
+      success: true,
+      data: processedSkill,
+      message: 'Skill retrieved successfully'
+    };
+  } catch (error) {
+    console.error('❌ getSkillById error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Get Featured Skills - Public Access
+export const getFeaturedSkills = async () => {
+  try {
+    console.log('🔍 Fetching featured skills...');
+    
+    const { data, error } = await supabase
+      .from('skills')
+      .select('*')
+      .eq('status', 'active')
+      .eq('is_featured', true)
+      .order('skill_type', { ascending: true })
+      .order('order_index', { ascending: true })
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('❌ Featured skills fetch error:', error);
+      throw new Error(`Failed to fetch featured skills: ${error.message}`);
+    }
+
+    // Group by skill_type like getSkills()
+    const groupedSkills = {};
+    
+    data.forEach(skill => {
+      const skillType = skill.skill_type || 'Other';
+      
+      if (!groupedSkills[skillType]) {
+        groupedSkills[skillType] = {
+          category: skillType,
+          skills: []
+        };
+      }
+      
+      const processedSkill = {
+        ...skill,
+        certifications: Array.isArray(skill.certifications) ? skill.certifications : [],
+        projects_used: Array.isArray(skill.projects_used) ? skill.projects_used : [],
+      };
+      
+      groupedSkills[skillType].skills.push(processedSkill);
+    });
+
+    const categorizedSkills = Object.values(groupedSkills);
+
+    console.log(`✅ Retrieved ${data?.length || 0} featured skills`);
+    
+    return {
+      success: true,
+      data: categorizedSkills,
+      message: data?.length === 0 ? 'No featured skills found' : `Found ${data.length} featured skills`
+    };
+  } catch (error) {
+    console.error('❌ getFeaturedSkills error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: []
+    };
+  }
+};
+
+// Create New Skill - Admin Only
+export const createSkill = async (skillData) => {
+  try {
+    console.log('📝 Creating new skill...');
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    // Validate required fields
+    if (!skillData.skill_name) {
+      throw new Error('Skill name is required');
+    }
+
+    if (!skillData.skill_type) {
+      throw new Error('Skill type/category is required');
+    }
+
+    // Validate proficiency level
+    if (skillData.proficiency_level && (skillData.proficiency_level < 1 || skillData.proficiency_level > 10)) {
+      throw new Error('Proficiency level must be between 1 and 10');
+    }
+
+    // Prepare skill data for database
+    const skillInsert = {
+      skill_name: skillData.skill_name,
+      category: skillData.category || skillData.skill_type, // Backward compatibility
+      skill_type: skillData.skill_type,
+      proficiency_level: skillData.proficiency_level || null,
+      icon_url: skillData.icon_url || null,
+      description: skillData.description || null,
+      certifications: Array.isArray(skillData.certifications) ? skillData.certifications : [],
+      projects_used: Array.isArray(skillData.projects_used) ? skillData.projects_used : [],
+      learning_source: skillData.learning_source || null,
+      is_featured: skillData.is_featured || false,
+      order_index: skillData.order_index || null,
+      status: skillData.status || 'active'
+    };
+
+    const { data, error } = await supabase
+      .from('skills')
+      .insert([skillInsert])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('❌ Skill creation error:', error);
+      throw new Error(`Failed to create skill: ${error.message}`);
+    }
+
+    console.log('✅ Skill created successfully:', data.skill_name);
+    
+    return {
+      success: true,
+      data: data,
+      message: 'Skill created successfully'
+    };
+  } catch (error) {
+    console.error('❌ createSkill error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Update Skill - Admin Only
+export const updateSkill = async (id, skillData) => {
+  try {
+    console.log('📝 Updating skill:', id);
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    if (!id) {
+      throw new Error('Skill ID is required');
+    }
+
+    // Validate proficiency level if provided
+    if (skillData.proficiency_level && (skillData.proficiency_level < 1 || skillData.proficiency_level > 10)) {
+      throw new Error('Proficiency level must be between 1 and 10');
+    }
+
+    // Prepare update data
+    const skillUpdate = {
+      skill_name: skillData.skill_name,
+      category: skillData.category || skillData.skill_type,
+      skill_type: skillData.skill_type,
+      proficiency_level: skillData.proficiency_level,
+      icon_url: skillData.icon_url,
+      description: skillData.description,
+      certifications: Array.isArray(skillData.certifications) ? skillData.certifications : [],
+      projects_used: Array.isArray(skillData.projects_used) ? skillData.projects_used : [],
+      learning_source: skillData.learning_source,
+      is_featured: skillData.is_featured,
+      order_index: skillData.order_index,
+      status: skillData.status,
+      updated_at: new Date().toISOString()
+    };
+
+    const { data, error } = await supabase
+      .from('skills')
+      .update(skillUpdate)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('❌ Skill update error:', error);
+      throw new Error(`Failed to update skill: ${error.message}`);
+    }
+
+    console.log('✅ Skill updated successfully:', data.skill_name);
+    
+    return {
+      success: true,
+      data: data,
+      message: 'Skill updated successfully'
+    };
+  } catch (error) {
+    console.error('❌ updateSkill error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Delete Skill - Admin Only
+export const deleteSkill = async (id) => {
+  try {
+    console.log('🗑️ Deleting skill:', id);
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    if (!id) {
+      throw new Error('Skill ID is required');
+    }
+
+    // Get skill info before deletion for logging
+    const { data: skillInfo } = await supabase
+      .from('skills')
+      .select('skill_name, icon_url')
+      .eq('id', id)
+      .single();
+
+    // Delete associated files if they exist
+    if (skillInfo?.icon_url) {
+      console.log('🗑️ Cleaning up skill icon...');
+      await deleteSkillIcon(id, skillInfo.icon_url);
+    }
+
+    const { error } = await supabase
+      .from('skills')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('❌ Skill deletion error:', error);
+      throw new Error(`Failed to delete skill: ${error.message}`);
+    }
+
+    console.log('✅ Skill deleted successfully:', skillInfo?.skill_name || id);
+    
+    return {
+      success: true,
+      data: { id, skill_name: skillInfo?.skill_name },
+      message: 'Skill deleted successfully'
+    };
+  } catch (error) {
+    console.error('❌ deleteSkill error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Reorder Skills - Admin Only
+export const reorderSkills = async (orderArray) => {
+  try {
+    console.log('🔄 Reordering skills...');
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    if (!Array.isArray(orderArray) || orderArray.length === 0) {
+      throw new Error('Order array is required and must not be empty');
+    }
+
+    // Validate orderArray format: [{ id: 'uuid', order_index: number }, ...]
+    for (const item of orderArray) {
+      if (!item.id || typeof item.order_index !== 'number') {
+        throw new Error('Each order item must have id and order_index');
+      }
+    }
+
+    // Update each skill's order_index
+    const updatePromises = orderArray.map(item => 
+      supabase
+        .from('skills')
+        .update({ 
+          order_index: item.order_index,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', item.id)
+    );
+
+    const results = await Promise.all(updatePromises);
+    
+    // Check for errors
+    const errors = results.filter(result => result.error);
+    if (errors.length > 0) {
+      console.error('❌ Some skill reorder operations failed:', errors);
+      throw new Error(`Failed to reorder ${errors.length} skills`);
+    }
+
+    console.log(`✅ Successfully reordered ${orderArray.length} skills`);
+    
+    return {
+      success: true,
+      data: { 
+        reorderedCount: orderArray.length,
+        orderArray: orderArray
+      },
+      message: `Successfully reordered ${orderArray.length} skills`
+    };
+  } catch (error) {
+    console.error('❌ reorderSkills error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Upload Skill Icon - Admin Only
+export const uploadSkillIcon = async (file, skillId, skillName = 'skill') => {
+  try {
+    console.log(`📸 Uploading skill icon for skill: ${skillId}`);
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    // Validate inputs
+    if (!file) {
+      throw new Error('No file provided');
+    }
+
+    if (!skillId) {
+      throw new Error('Skill ID is required');
+    }
+
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/svg+xml'];
+
+    // Validate file
+    if (file.size > maxSize) {
+      throw new Error('File size must be less than 5MB');
+    }
+    
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error('Invalid file type. Only JPEG, JPG, PNG, WebP, and SVG files are allowed');
+    }
+
+    // Create folder name: skill_{skillId}/icons/
+    const folderName = `skill_${skillId}`;
+    const sanitizedName = skillName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const timestamp = Date.now();
+    const fileExtension = file.name.split('.').pop();
+    const fileName = `${sanitizedName}-icon-${timestamp}.${fileExtension}`;
+    const filePath = `icons/${folderName}/${fileName}`;
+
+    console.log(`🔄 Uploading icon: ${fileName}`);
+
+    // Upload to Supabase Storage
+    const {error: uploadError } = await supabase.storage
+      .from('skill-icons')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    if (uploadError) {
+      console.error(`❌ Upload failed for ${fileName}:`, uploadError);
+      throw new Error(`Upload failed for ${fileName}: ${uploadError.message}`);
+    }
+
+    // Get public URL
+    const { data: urlData } = supabase.storage
+      .from('skill-icons')
+      .getPublicUrl(filePath);
+
+    // Update skill with new icon URL
+    const { data: updatedSkill, error: updateError } = await supabase
+      .from('skills')
+      .update({ 
+        icon_url: urlData.publicUrl,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', skillId)
+      .select()
+      .single();
+
+    if (updateError) {
+      console.error('❌ Database update error:', updateError);
+      // Clean up uploaded file if database update fails
+      await supabase.storage.from('skill-icons').remove([filePath]);
+      throw new Error(`Database update failed: ${updateError.message}`);
+    }
+
+    console.log(`✅ Successfully uploaded icon for skill ${skillName}`);
+
+    return {
+      success: true,
+      data: {
+        skillId: skillId,
+        fileName: fileName,
+        filePath: filePath,
+        url: urlData.publicUrl,
+        size: file.size,
+        type: file.type,
+        updatedSkill: updatedSkill
+      },
+      message: 'Skill icon uploaded successfully'
+    };
+
+  } catch (error) {
+    console.error('❌ uploadSkillIcon error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Upload Skill Certifications - Admin Only
+export const uploadSkillCertificates = async (files, skillId, skillName = 'skill') => {
+  try {
+    console.log(`📄 Uploading ${files.length} certificates for skill: ${skillId}`);
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    // Validate inputs
+    if (!files || files.length === 0) {
+      throw new Error('No files provided');
+    }
+
+    if (!skillId) {
+      throw new Error('Skill ID is required');
+    }
+
+    const maxSize = 10 * 1024 * 1024; // 10MB for certificates
+    const allowedTypes = [
+      'application/pdf',
+      'image/jpeg', 'image/jpg', 'image/png', 'image/webp',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+    const maxFiles = 5; // Maximum 5 certificates per skill
+
+    // Validate files
+    if (files.length > maxFiles) {
+      throw new Error(`Maximum ${maxFiles} certificates allowed per skill`);
+    }
+
+    for (const file of files) {
+      if (file.size > maxSize) {
+        throw new Error(`File ${file.name} is too large. Maximum size is 10MB`);
+      }
+      if (!allowedTypes.includes(file.type)) {
+        throw new Error(`File ${file.name} has invalid type. Only PDF, images, and document files are allowed`);
+      }
+    }
+
+    // Create folder name: skill_{skillId}/certifications/
+    const folderName = `skill_${skillId}`;
+    const sanitizedName = skillName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const timestamp = Date.now();
+
+    // Upload all files
+    const uploadPromises = files.map(async (file, index) => {
+      const fileExtension = file.name.split('.').pop();
+      const fileName = `${sanitizedName}-cert-${timestamp}-${index + 1}.${fileExtension}`;
+      const filePath = `certifications/${folderName}/${fileName}`;
+
+      console.log(`🔄 Uploading certificate: ${fileName}`);
+
+      // Upload to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('skill-icons')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error(`❌ Upload failed for ${fileName}:`, uploadError);
+        throw new Error(`Upload failed for ${fileName}: ${uploadError.message}`);
+      }
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('skill-icons')
+        .getPublicUrl(filePath);
+
+      return {
+        fileName: fileName,
+        filePath: filePath,
+        url: urlData.publicUrl,
+        size: file.size,
+        type: file.type,
+        uploadData: uploadData
+      };
+    });
+
+    // Wait for all uploads to complete
+    const uploadResults = await Promise.all(uploadPromises);
+    
+    // Extract URLs for database
+    const certificateUrls = uploadResults.map(result => result.url);
+
+    // Get current skill to preserve existing certifications
+    const { data: currentSkill } = await supabase
+      .from('skills')
+      .select('certifications')
+      .eq('id', skillId)
+      .single();
+
+    // Merge with existing certifications
+    const existingCertifications = Array.isArray(currentSkill?.certifications) ? currentSkill.certifications : [];
+    const allCertifications = [...existingCertifications, ...certificateUrls];
+
+    // Update skill with new certificate URLs
+    const { data: updatedSkill, error: updateError } = await supabase
+      .from('skills')
+      .update({ 
+        certifications: allCertifications,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', skillId)
+      .select()
+      .single();
+
+    if (updateError) {
+      console.error('❌ Database update error:', updateError);
+      // Clean up uploaded files if database update fails
+      await Promise.all(uploadResults.map(result => 
+        supabase.storage.from('skill-icons').remove([result.filePath])
+      ));
+      throw new Error(`Database update failed: ${updateError.message}`);
+    }
+
+    console.log(`✅ Successfully uploaded ${uploadResults.length} certificates for skill ${skillName}`);
+
+    return {
+      success: true,
+      data: {
+        skillId: skillId,
+        uploadedFiles: uploadResults,
+        certificateUrls: certificateUrls,
+        allCertifications: allCertifications,
+        updatedSkill: updatedSkill
+      },
+      message: `Successfully uploaded ${uploadResults.length} certificates`
+    };
+
+  } catch (error) {
+    console.error('❌ uploadSkillCertificates error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Delete Skill Icon - Admin Only
+export const deleteSkillIcon = async (skillId, iconUrl) => {
+  try {
+    console.log(`🗑️ Deleting skill icon for skill: ${skillId}`);
+
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    if (!skillId || !iconUrl) {
+      throw new Error('Skill ID and icon URL are required');
+    }
+
+    // Extract file path from URL
+    const urlParts = iconUrl.split('/storage/v1/object/public/skill-icons/');
+    const filePath = urlParts.length > 1 ? urlParts[1] : iconUrl;
+
+    // Delete file from storage
+    const { error: storageError } = await supabase.storage
+      .from('skill-icons')
+      .remove([filePath]);
+
+    if (storageError) {
+      console.warn('⚠️ File may not have been deleted from storage:', storageError);
+    }
+
+    // Update skill to remove icon URL
+    const { error: updateError } = await supabase
+      .from('skills')
+      .update({ 
+        icon_url: null,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', skillId);
+
+    if (updateError) {
+      throw new Error(`Database update failed: ${updateError.message}`);
+    }
+
+    console.log('✅ Skill icon deleted successfully');
+
+    return {
+      success: true,
+      data: {
+        skillId: skillId,
+        deletedUrl: iconUrl
+      },
+      message: 'Skill icon deleted successfully'
+    };
+
+  } catch (error) {
+    console.error('❌ deleteSkillIcon error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Delete Skill Certificates - Admin Only
+export const deleteSkillCertificates = async (skillId, certificateUrls) => {
+  try {
+    console.log(`🗑️ Deleting ${certificateUrls.length} certificates for skill: ${skillId}`);
+
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    if (!skillId || !Array.isArray(certificateUrls) || certificateUrls.length === 0) {
+      throw new Error('Skill ID and certificate URLs array are required');
+    }
+
+    // Extract file paths from URLs
+    const filePaths = certificateUrls.map(url => {
+      const urlParts = url.split('/storage/v1/object/public/skill-icons/');
+      return urlParts.length > 1 ? urlParts[1] : url; 
+    });
+
+    // Delete files from storage
+    const { error: storageError } = await supabase.storage
+      .from('skill-icons')
+      .remove(filePaths);
+
+    if (storageError) {
+      console.warn('⚠️ Some files may not have been deleted from storage:', storageError);
+    }
+
+    // Get current skill certificates
+    const { data: currentSkill } = await supabase
+      .from('skills')
+      .select('certifications')
+      .eq('id', skillId)
+      .single();
+
+    if (currentSkill) {
+      // Remove deleted URLs from skill
+      const currentCertifications = Array.isArray(currentSkill.certifications) ? currentSkill.certifications : [];
+      const remainingCertifications = currentCertifications.filter(url => !certificateUrls.includes(url));
+
+      // Update skill with remaining certificates
+      const { error: updateError } = await supabase
+        .from('skills')
+        .update({ 
+          certifications: remainingCertifications,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', skillId);
+
+      if (updateError) {
+        throw new Error(`Database update failed: ${updateError.message}`);
+      }
+    }
+
+    console.log('✅ Skill certificates deleted successfully');
+
+    return {
+      success: true,
+      data: {
+        skillId: skillId,
+        deletedUrls: certificateUrls,
+        deletedCount: certificateUrls.length
+      },
+      message: `Successfully deleted ${certificateUrls.length} certificates`
+    };
+
+  } catch (error) {
+    console.error('❌ deleteSkillCertificates error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// =====================================================
+// CERTIFICATIONS APIs (Real Supabase Integration)
+// Add these functions to src/services/dataService.js
+// =====================================================
+
+// Get All Certifications - Public Access
+export const getCertifications = async () => {
+  try {
+    console.log('🏆 Fetching all active certifications...');
+    
+    const { data, error } = await supabase
+      .from('certifications')
+      .select('*')
+      .eq('status', 'active')
+      .order('order_index', { ascending: true })
+      .order('issue_date', { ascending: false });
+
+    if (error) {
+      console.error('❌ Certifications fetch error:', error);
+      throw new Error(`Failed to fetch certifications: ${error.message}`);
+    }
+
+    // Process URLs and ensure proper data structure
+    const processedCertifications = data.map(cert => ({
+      ...cert,
+      // Format dates for display
+      issue_date_formatted: cert.issue_date 
+        ? new Date(cert.issue_date).toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          })
+        : null,
+      expiry_date_formatted: cert.expiry_date 
+        ? new Date(cert.expiry_date).toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          })
+        : 'No expiration',
+      // Ensure skills_covered is always an array
+      skills_covered: Array.isArray(cert.skills_covered) ? cert.skills_covered : [],
+      // Calculate expiry status
+      is_expired: cert.expiry_date ? new Date(cert.expiry_date) < new Date() : false,
+      // Calculate days until expiry
+      days_until_expiry: cert.expiry_date 
+        ? Math.ceil((new Date(cert.expiry_date) - new Date()) / (1000 * 60 * 60 * 24))
+        : null
+    }));
+
+    console.log(`✅ Retrieved ${processedCertifications.length} certifications`);
+    
+    return {
+      success: true,
+      data: processedCertifications,
+      message: processedCertifications.length === 0 ? 'No certifications found' : `Found ${processedCertifications.length} certifications`
+    };
+  } catch (error) {
+    console.error('❌ getCertifications error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: []
+    };
+  }
+};
+
+// Get Single Certification by ID - Public Access
+export const getCertificationById = async (id) => {
+  try {
+    console.log('🔍 Fetching certification by ID:', id);
+    
+    if (!id) {
+      throw new Error('Certification ID is required');
+    }
+
+    const { data, error } = await supabase
+      .from('certifications')
+      .select('*')
+      .eq('id', id)
+      .eq('status', 'active')
+      .single();
+
+    if (error) {
+      console.error('❌ Certification fetch error:', error);
+      throw new Error(`Failed to fetch certification: ${error.message}`);
+    }
+
+    console.log('✅ Retrieved certification:', data?.title);
+    
+    return {
+      success: true,
+      data: data,
+      message: 'Certification retrieved successfully'
+    };
+  } catch (error) {
+    console.error('❌ getCertificationById error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Get Featured Certifications - Public Access
+export const getFeaturedCertifications = async () => {
+  try {
+    console.log('🏆 Fetching featured certifications...');
+    
+    const { data, error } = await supabase
+      .from('certifications')
+      .select('*')
+      .eq('status', 'active')
+      .eq('is_featured', true)
+      .order('order_index', { ascending: true })
+      .order('issue_date', { ascending: false });
+
+    if (error) {
+      console.error('❌ Featured certifications fetch error:', error);
+      throw new Error(`Failed to fetch featured certifications: ${error.message}`);
+    }
+
+    console.log(`✅ Retrieved ${data?.length || 0} featured certifications`);
+    
+    return {
+      success: true,
+      data: data || [],
+      message: data?.length === 0 ? 'No featured certifications found' : `Found ${data.length} featured certifications`
+    };
+  } catch (error) {
+    console.error('❌ getFeaturedCertifications error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: []
+    };
+  }
+};
+
+// Create New Certification - Admin Only
+export const createCertification = async (certificationData) => {
+  try {
+    console.log('📝 Creating new certification...');
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    // Validate required fields
+    if (!certificationData.title) {
+      throw new Error('Certification title is required');
+    }
+    if (!certificationData.issuer) {
+      throw new Error('Certification issuer is required');
+    }
+
+    // Prepare certification data for database
+    const certificationInsert = {
+      certification_number: certificationData.certification_number || null,
+      title: certificationData.title,
+      issuer: certificationData.issuer,
+      issuer_logo_url: certificationData.issuer_logo_url || null,
+      issue_date: certificationData.issue_date || null,
+      expiry_date: certificationData.expiry_date || null,
+      credential_id: certificationData.credential_id || null,
+      credential_url: certificationData.credential_url || null,
+      badge_image_url: certificationData.badge_image_url || null,
+      certificate_pdf_url: certificationData.certificate_pdf_url || null,
+      description: certificationData.description || null,
+      skills_covered: certificationData.skills_covered || [],
+      certification_type: certificationData.certification_type || null,
+      difficulty_level: certificationData.difficulty_level || null,
+      is_featured: certificationData.is_featured || false,
+      verification_status: certificationData.verification_status || 'verified',
+      order_index: certificationData.order_index || null,
+      status: certificationData.status || 'active'
+    };
+
+    const { data, error } = await supabase
+      .from('certifications')
+      .insert([certificationInsert])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('❌ Certification creation error:', error);
+      throw new Error(`Failed to create certification: ${error.message}`);
+    }
+
+    console.log('✅ Certification created successfully:', data.title);
+    
+    return {
+      success: true,
+      data: data,
+      message: 'Certification created successfully'
+    };
+  } catch (error) {
+    console.error('❌ createCertification error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Update Certification - Admin Only
+export const updateCertification = async (id, certificationData) => {
+  try {
+    console.log('📝 Updating certification:', id);
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    if (!id) {
+      throw new Error('Certification ID is required');
+    }
+
+    // Prepare update data
+    const certificationUpdate = {
+      certification_number: certificationData.certification_number,
+      title: certificationData.title,
+      issuer: certificationData.issuer,
+      issuer_logo_url: certificationData.issuer_logo_url,
+      issue_date: certificationData.issue_date,
+      expiry_date: certificationData.expiry_date,
+      credential_id: certificationData.credential_id,
+      credential_url: certificationData.credential_url,
+      badge_image_url: certificationData.badge_image_url,
+      certificate_pdf_url: certificationData.certificate_pdf_url,
+      description: certificationData.description,
+      skills_covered: certificationData.skills_covered || [],
+      certification_type: certificationData.certification_type,
+      difficulty_level: certificationData.difficulty_level,
+      is_featured: certificationData.is_featured,
+      verification_status: certificationData.verification_status,
+      order_index: certificationData.order_index,
+      status: certificationData.status,
+      updated_at: new Date().toISOString()
+    };
+
+    const { data, error } = await supabase
+      .from('certifications')
+      .update(certificationUpdate)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('❌ Certification update error:', error);
+      throw new Error(`Failed to update certification: ${error.message}`);
+    }
+
+    console.log('✅ Certification updated successfully:', data.title);
+    
+    return {
+      success: true,
+      data: data,
+      message: 'Certification updated successfully'
+    };
+  } catch (error) {
+    console.error('❌ updateCertification error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Delete Certification - Admin Only
+export const deleteCertification = async (id) => {
+  try {
+    console.log('🗑️ Deleting certification:', id);
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    if (!id) {
+      throw new Error('Certification ID is required');
+    }
+
+    // Get certification info before deletion for logging
+    const { data: certificationInfo } = await supabase
+      .from('certifications')
+      .select('title, issuer_logo_url, badge_image_url, certificate_pdf_url')
+      .eq('id', id)
+      .single();
+
+    // Delete associated files from storage if they exist
+    if (certificationInfo) {
+      const filesToDelete = [];
+      
+      if (certificationInfo.issuer_logo_url && certificationInfo.issuer_logo_url.includes('certification-badges')) {
+        const logoPath = certificationInfo.issuer_logo_url.split('/storage/v1/object/public/certification-badges/')[1];
+        if (logoPath) filesToDelete.push(logoPath);
+      }
+      
+      if (certificationInfo.badge_image_url && certificationInfo.badge_image_url.includes('certification-badges')) {
+        const badgePath = certificationInfo.badge_image_url.split('/storage/v1/object/public/certification-badges/')[1];
+        if (badgePath) filesToDelete.push(badgePath);
+      }
+      
+      if (certificationInfo.certificate_pdf_url && certificationInfo.certificate_pdf_url.includes('certification-badges')) {
+        const certPath = certificationInfo.certificate_pdf_url.split('/storage/v1/object/public/certification-badges/')[1];
+        if (certPath) filesToDelete.push(certPath);
+      }
+
+      // Delete files from storage
+      if (filesToDelete.length > 0) {
+        const { error: storageError } = await supabase.storage
+          .from('certification-badges')
+          .remove(filesToDelete);
+
+        if (storageError) {
+          console.warn('⚠️ Some files may not have been deleted from storage:', storageError);
+        }
+      }
+    }
+
+    const { error } = await supabase
+      .from('certifications')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('❌ Certification deletion error:', error);
+      throw new Error(`Failed to delete certification: ${error.message}`);
+    }
+
+    console.log('✅ Certification deleted successfully:', certificationInfo?.title || id);
+    
+    return {
+      success: true,
+      data: { id, title: certificationInfo?.title },
+      message: 'Certification deleted successfully'
+    };
+  } catch (error) {
+    console.error('❌ deleteCertification error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Reorder Certifications - Admin Only
+export const reorderCertifications = async (orderArray) => {
+  try {
+    console.log('🔄 Reordering certifications...');
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    if (!Array.isArray(orderArray) || orderArray.length === 0) {
+      throw new Error('Order array is required and must not be empty');
+    }
+
+    // Validate orderArray format: [{ id: 'uuid', order_index: number }, ...]
+    for (const item of orderArray) {
+      if (!item.id || typeof item.order_index !== 'number') {
+        throw new Error('Each order item must have id and order_index');
+      }
+    }
+
+    // Update each certification's order_index
+    const updatePromises = orderArray.map(item => 
+      supabase
+        .from('certifications')
+        .update({ 
+          order_index: item.order_index,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', item.id)
+    );
+
+    const results = await Promise.all(updatePromises);
+    
+    // Check for errors
+    const errors = results.filter(result => result.error);
+    if (errors.length > 0) {
+      console.error('❌ Some certification reorder operations failed:', errors);
+      throw new Error(`Failed to reorder ${errors.length} certifications`);
+    }
+
+    console.log(`✅ Successfully reordered ${orderArray.length} certifications`);
+    
+    return {
+      success: true,
+      data: { 
+        reorderedCount: orderArray.length,
+        orderArray: orderArray
+      },
+      message: `Successfully reordered ${orderArray.length} certifications`
+    };
+  } catch (error) {
+    console.error('❌ reorderCertifications error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Upload Issuer Logo - Admin Only
+export const uploadIssuerLogo = async (file, certificationId, issuerName) => {
+  try {
+    console.log(`🏢 Uploading issuer logo for certification: ${certificationId}`);
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    // Validate inputs
+    if (!file) {
+      throw new Error('No file provided');
+    }
+
+    if (!certificationId) {
+      throw new Error('Certification ID is required');
+    }
+
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+    // Validate file
+    if (file.size > maxSize) {
+      throw new Error('File size must be less than 5MB');
+    }
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error('Only JPEG, JPG, PNG, and WebP files are allowed');
+    }
+
+    // Create folder and filename
+    const sanitizedIssuer = (issuerName || 'issuer').toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const timestamp = Date.now();
+    const fileExtension = file.name.split('.').pop();
+    const fileName = `issuer-logo-${sanitizedIssuer}-${timestamp}.${fileExtension}`;
+    const filePath = `issuer_logos/certification_${certificationId}/${fileName}`;
+
+    console.log(`🔄 Uploading to: ${filePath}`);
+
+    // Upload to Supabase Storage
+    const {error: uploadError } = await supabase.storage
+      .from('certification-badges')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    if (uploadError) {
+      console.error(`❌ Upload failed:`, uploadError);
+      throw new Error(`Upload failed: ${uploadError.message}`);
+    }
+
+    // Get public URL
+    const { data: urlData } = supabase.storage
+      .from('certification-badges')
+      .getPublicUrl(filePath);
+
+    // Update certification with new logo URL
+    const { data: updatedCertification, error: updateError } = await supabase
+      .from('certifications')
+      .update({ 
+        issuer_logo_url: urlData.publicUrl,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', certificationId)
+      .select()
+      .single();
+
+    if (updateError) {
+      console.error('❌ Database update error:', updateError);
+      // Clean up uploaded file if database update fails
+      await supabase.storage.from('certification-badges').remove([filePath]);
+      throw new Error(`Database update failed: ${updateError.message}`);
+    }
+
+    console.log(`✅ Successfully uploaded issuer logo for ${issuerName}`);
+
+    return {
+      success: true,
+      data: {
+        fileName: fileName,
+        filePath: filePath,
+        url: urlData.publicUrl,
+        updatedCertification: updatedCertification
+      },
+      message: 'Issuer logo uploaded successfully'
+    };
+
+  } catch (error) {
+    console.error('❌ uploadIssuerLogo error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Upload Badge Image - Admin Only
+export const uploadBadgeImage = async (file, certificationId, certificationTitle) => {
+  try {
+    console.log(`🏆 Uploading badge image for certification: ${certificationId}`);
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    // Validate inputs
+    if (!file) {
+      throw new Error('No file provided');
+    }
+
+    if (!certificationId) {
+      throw new Error('Certification ID is required');
+    }
+
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+    // Validate file
+    if (file.size > maxSize) {
+      throw new Error('File size must be less than 5MB');
+    }
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error('Only JPEG, JPG, PNG, and WebP files are allowed');
+    }
+
+    // Create folder and filename
+    const sanitizedTitle = (certificationTitle || 'badge').toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const timestamp = Date.now();
+    const fileExtension = file.name.split('.').pop();
+    const fileName = `badge-${sanitizedTitle}-${timestamp}.${fileExtension}`;
+    const filePath = `badges/certification_${certificationId}/${fileName}`;
+
+    console.log(`🔄 Uploading to: ${filePath}`);
+
+    // Upload to Supabase Storage
+    const {error: uploadError } = await supabase.storage
+      .from('certification-badges')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    if (uploadError) {
+      console.error(`❌ Upload failed:`, uploadError);
+      throw new Error(`Upload failed: ${uploadError.message}`);
+    }
+
+    // Get public URL
+    const { data: urlData } = supabase.storage
+      .from('certification-badges')
+      .getPublicUrl(filePath);
+
+    // Update certification with new badge URL
+    const { data: updatedCertification, error: updateError } = await supabase
+      .from('certifications')
+      .update({ 
+        badge_image_url: urlData.publicUrl,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', certificationId)
+      .select()
+      .single();
+
+    if (updateError) {
+      console.error('❌ Database update error:', updateError);
+      // Clean up uploaded file if database update fails
+      await supabase.storage.from('certification-badges').remove([filePath]);
+      throw new Error(`Database update failed: ${updateError.message}`);
+    }
+
+    console.log(`✅ Successfully uploaded badge image for ${certificationTitle}`);
+
+    return {
+      success: true,
+      data: {
+        fileName: fileName,
+        filePath: filePath,
+        url: urlData.publicUrl,
+        updatedCertification: updatedCertification
+      },
+      message: 'Badge image uploaded successfully'
+    };
+
+  } catch (error) {
+    console.error('❌ uploadBadgeImage error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Upload Certificate PDF - Admin Only
+export const uploadCertificatePdf = async (file, certificationId, certificationTitle) => {
+  try {
+    console.log(`📄 Uploading certificate PDF for certification: ${certificationId}`);
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    // Validate inputs
+    if (!file) {
+      throw new Error('No file provided');
+    }
+
+    if (!certificationId) {
+      throw new Error('Certification ID is required');
+    }
+
+    const maxSize = 10 * 1024 * 1024; // 10MB for PDFs
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+
+    // Validate file
+    if (file.size > maxSize) {
+      throw new Error('File size must be less than 10MB');
+    }
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error('Only PDF, JPEG, JPG, and PNG files are allowed');
+    }
+
+    // Create folder and filename
+    const sanitizedTitle = (certificationTitle || 'certificate').toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const timestamp = Date.now();
+    const fileExtension = file.name.split('.').pop();
+    const fileName = `certificate-${sanitizedTitle}-${timestamp}.${fileExtension}`;
+    const filePath = `certifications/certification_${certificationId}/${fileName}`;
+
+    console.log(`🔄 Uploading to: ${filePath}`);
+
+    // Upload to Supabase Storage
+    const {error: uploadError } = await supabase.storage
+      .from('certification-badges')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    if (uploadError) {
+      console.error(`❌ Upload failed:`, uploadError);
+      throw new Error(`Upload failed: ${uploadError.message}`);
+    }
+
+    // Get public URL
+    const { data: urlData } = supabase.storage
+      .from('certification-badges')
+      .getPublicUrl(filePath);
+
+    // Update certification with new certificate URL
+    const { data: updatedCertification, error: updateError } = await supabase
+      .from('certifications')
+      .update({ 
+        certificate_pdf_url: urlData.publicUrl,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', certificationId)
+      .select()
+      .single();
+
+    if (updateError) {
+      console.error('❌ Database update error:', updateError);
+      // Clean up uploaded file if database update fails
+      await supabase.storage.from('certification-badges').remove([filePath]);
+      throw new Error(`Database update failed: ${updateError.message}`);
+    }
+
+    console.log(`✅ Successfully uploaded certificate for ${certificationTitle}`);
+
+    return {
+      success: true,
+      data: {
+        fileName: fileName,
+        filePath: filePath,
+        url: urlData.publicUrl,
+        updatedCertification: updatedCertification
+      },
+      message: 'Certificate uploaded successfully'
+    };
+
+  } catch (error) {
+    console.error('❌ uploadCertificatePdf error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// =====================================================
+// CERTIFICATIONS UTILITY FUNCTIONS
+// =====================================================
+
+// Get certifications by verification status
+export const getCertificationsByStatus = async (verificationStatus) => {
+  try {
+    console.log(`🔍 Fetching certifications by status: ${verificationStatus}`);
+    
+    const { data, error } = await supabase
+      .from('certifications')
+      .select('*')
+      .eq('status', 'active')
+      .eq('verification_status', verificationStatus)
+      .order('issue_date', { ascending: false });
+
+    if (error) {
+      throw new Error(`Failed to fetch certifications by status: ${error.message}`);
+    }
+
+    return {
+      success: true,
+      data: data || [],
+      message: `Found ${data?.length || 0} ${verificationStatus} certifications`
+    };
+  } catch (error) {
+    console.error('❌ getCertificationsByStatus error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: []
+    };
+  }
+};
+
+// Get certifications by issuer
+export const getCertificationsByIssuer = async (issuer) => {
+  try {
+    console.log(`🏢 Fetching certifications by issuer: ${issuer}`);
+    
+    const { data, error } = await supabase
+      .from('certifications')
+      .select('*')
+      .eq('status', 'active')
+      .ilike('issuer', `%${issuer}%`)
+      .order('issue_date', { ascending: false });
+
+    if (error) {
+      throw new Error(`Failed to fetch certifications by issuer: ${error.message}`);
+    }
+
+    return {
+      success: true,
+      data: data || [],
+      message: `Found ${data?.length || 0} certifications from ${issuer}`
+    };
+  } catch (error) {
+    console.error('❌ getCertificationsByIssuer error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: []
+    };
+  }
+};
+
+// Get expiring certifications (within next 90 days)
+export const getExpiringCertifications = async (daysAhead = 90) => {
+  try {
+    console.log(`⏰ Fetching certifications expiring within ${daysAhead} days...`);
+    
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + daysAhead);
+    
+    const { data, error } = await supabase
+      .from('certifications')
+      .select('*')
+      .eq('status', 'active')
+      .not('expiry_date', 'is', null)
+      .lte('expiry_date', futureDate.toISOString())
+      .gte('expiry_date', new Date().toISOString())
+      .order('expiry_date', { ascending: true });
+
+    if (error) {
+      throw new Error(`Failed to fetch expiring certifications: ${error.message}`);
+    }
+
+    return {
+      success: true,
+      data: data || [],
+      message: `Found ${data?.length || 0} certifications expiring within ${daysAhead} days`
+    };
+  } catch (error) {
+    console.error('❌ getExpiringCertifications error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: []
+    };
+  }
+};
+
+// Get certification statistics for admin dashboard
+export const getCertificationStats = async () => {
+  try {
+    console.log('📊 Fetching certification statistics...');
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    const { data, error } = await supabase
+      .from('certifications')
+      .select('status, is_featured, verification_status, expiry_date, certification_type');
+
+    if (error) {
+      throw new Error(`Failed to fetch certification stats: ${error.message}`);
+    }
+
+    const now = new Date();
+    const stats = {
+      total: data.length,
+      active: data.filter(cert => cert.status === 'active').length,
+      featured: data.filter(cert => cert.is_featured === true).length,
+      verified: data.filter(cert => cert.verification_status === 'verified').length,
+      expired: data.filter(cert => 
+        cert.expiry_date && new Date(cert.expiry_date) < now
+      ).length,
+      expiringInNext90Days: data.filter(cert => {
+        if (!cert.expiry_date) return false;
+        const expiry = new Date(cert.expiry_date);
+        const in90Days = new Date();
+        in90Days.setDate(in90Days.getDate() + 90);
+        return expiry >= now && expiry <= in90Days;
+      }).length,
+      byType: data.reduce((acc, cert) => {
+        const type = cert.certification_type || 'Other';
+        acc[type] = (acc[type] || 0) + 1;
+        return acc;
+      }, {}),
+      byStatus: data.reduce((acc, cert) => {
+        acc[cert.status] = (acc[cert.status] || 0) + 1;
+        return acc;
+      }, {})
+    };
+
+    return {
+      success: true,
+      data: stats,
+      message: 'Certification statistics retrieved successfully'
+    };
+  } catch (error) {
+    console.error('❌ getCertificationStats error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Delete certification files from storage - Admin Only
+export const deleteCertificationFiles = async (certificationId, fileTypes = ['all']) => {
+  try {
+    console.log(`🗑️ Deleting certification files for: ${certificationId}`);
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    // Get current certification data to find file paths
+    const { data: certification } = await supabase
+      .from('certifications')
+      .select('issuer_logo_url, badge_image_url, certificate_pdf_url')
+      .eq('id', certificationId)
+      .single();
+
+    if (!certification) {
+      throw new Error('Certification not found');
+    }
+
+    const filesToDelete = [];
+    const urlsToRemove = {};
+
+    // Determine which files to delete
+    if (fileTypes.includes('all') || fileTypes.includes('issuer_logo')) {
+      if (certification.issuer_logo_url) {
+        const logoPath = certification.issuer_logo_url.split('/storage/v1/object/public/certification-badges/')[1];
+        if (logoPath) {
+          filesToDelete.push(logoPath);
+          urlsToRemove.issuer_logo_url = null;
+        }
+      }
+    }
+
+    if (fileTypes.includes('all') || fileTypes.includes('badge')) {
+      if (certification.badge_image_url) {
+        const badgePath = certification.badge_image_url.split('/storage/v1/object/public/certification-badges/')[1];
+        if (badgePath) {
+          filesToDelete.push(badgePath);
+          urlsToRemove.badge_image_url = null;
+        }
+      }
+    }
+
+    if (fileTypes.includes('all') || fileTypes.includes('certificate')) {
+      if (certification.certificate_pdf_url) {
+        const certPath = certification.certificate_pdf_url.split('/storage/v1/object/public/certification-badges/')[1];
+        if (certPath) {
+          filesToDelete.push(certPath);
+          urlsToRemove.certificate_pdf_url = null;
+        }
+      }
+    }
+
+    // Delete files from storage
+    if (filesToDelete.length > 0) {
+      const { error: storageError } = await supabase.storage
+        .from('certification-badges')
+        .remove(filesToDelete);
+
+      if (storageError) {
+        console.warn('⚠️ Some files may not have been deleted from storage:', storageError);
+      }
+    }
+
+    // Update database to remove URLs
+    if (Object.keys(urlsToRemove).length > 0) {
+      const { error: updateError } = await supabase
+        .from('certifications')
+        .update({
+          ...urlsToRemove,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', certificationId);
+
+      if (updateError) {
+        throw new Error(`Failed to update certification URLs: ${updateError.message}`);
+      }
+    }
+
+    console.log('✅ Certification files deleted successfully');
+
+    return {
+      success: true,
+      data: {
+        deletedFiles: filesToDelete,
+        updatedFields: Object.keys(urlsToRemove)
+      },
+      message: `Successfully deleted ${filesToDelete.length} files`
+    };
+
+  } catch (error) {
+    console.error('❌ deleteCertificationFiles error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// =====================================================
+// ACHIEVEMENTS APIs (Real Supabase Integration)
+// Phase 2B-19.1: Complete CRUD Operations + File Upload
+// =====================================================
+
+// Get All Achievements - Public Access
+export const getAchievements = async () => {
+  try {
+    console.log('🏆 Fetching all active achievements...');
+    
+    const { data, error } = await supabase
+      .from('achievements')
+      .select('*')
+      .eq('status', 'active')
+      .order('order_index', { ascending: true })
+      .order('date_achieved', { ascending: false });
+
+    if (error) {
+      console.error('❌ Achievements fetch error:', error);
+      throw new Error(`Failed to fetch achievements: ${error.message}`);
+    }
+
+    // Process achievements data
+    const processedAchievements = data.map(achievement => ({
+      ...achievement,
+      // Calculate days since achievement
+      days_since_achievement: achievement.date_achieved 
+        ? Math.floor((new Date() - new Date(achievement.date_achieved)) / (1000 * 60 * 60 * 24))
+        : null,
+      // Format date for display
+      formatted_date: achievement.date_achieved
+        ? new Date(achievement.date_achieved + 'T00:00:00').toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          })
+        : null
+    }));
+
+    console.log(`✅ Retrieved ${processedAchievements.length} achievements`);
+    
+    return {
+      success: true,
+      data: processedAchievements,
+      message: processedAchievements.length === 0 ? 'No achievements found' : `Found ${processedAchievements.length} achievements`
+    };
+  } catch (error) {
+    console.error('❌ getAchievements error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: []
+    };
+  }
+};
+
+// Get Single Achievement by ID - Public Access
+export const getAchievementById = async (id) => {
+  try {
+    console.log('🏆 Fetching achievement by ID:', id);
+    
+    if (!id) {
+      throw new Error('Achievement ID is required');
+    }
+
+    const { data, error } = await supabase
+      .from('achievements')
+      .select('*')
+      .eq('id', id)
+      .eq('status', 'active')
+      .single();
+
+    if (error) {
+      console.error('❌ Achievement fetch error:', error);
+      throw new Error(`Failed to fetch achievement: ${error.message}`);
+    }
+
+    console.log('✅ Retrieved achievement:', data?.title);
+    
+    return {
+      success: true,
+      data: data,
+      message: 'Achievement retrieved successfully'
+    };
+  } catch (error) {
+    console.error('❌ getAchievementById error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Get Featured Achievements - Public Access
+export const getFeaturedAchievements = async () => {
+  try {
+    console.log('🏆 Fetching featured achievements...');
+    
+    const { data, error } = await supabase
+      .from('achievements')
+      .select('*')
+      .eq('status', 'active')
+      .eq('is_featured', true)
+      .order('order_index', { ascending: true })
+      .order('date_achieved', { ascending: false });
+
+    if (error) {
+      console.error('❌ Featured achievements fetch error:', error);
+      throw new Error(`Failed to fetch featured achievements: ${error.message}`);
+    }
+
+    console.log(`✅ Retrieved ${data?.length || 0} featured achievements`);
+    
+    return {
+      success: true,
+      data: data || [],
+      message: data?.length === 0 ? 'No featured achievements found' : `Found ${data.length} featured achievements`
+    };
+  } catch (error) {
+    console.error('❌ getFeaturedAchievements error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: []
+    };
+  }
+};
+
+// Create New Achievement - Admin Only
+export const createAchievement = async (achievementData) => {
+  try {
+    console.log('📝 Creating new achievement...');
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    // Validate required fields
+    if (!achievementData.title) {
+      throw new Error('Achievement title is required');
+    }
+
+    // Prepare achievement data for database
+    const achievementInsert = {
+      achievement_number: achievementData.achievement_number || null,
+      title: achievementData.title,
+      description: achievementData.description || null,
+      date_achieved: achievementData.date_achieved || null,
+      category: achievementData.category || null,
+      issuing_organization: achievementData.issuing_organization || null,
+      competition_name: achievementData.competition_name || null,
+      position: achievementData.position || null,
+      participants_count: achievementData.participants_count || null,
+      certificate_url: achievementData.certificate_url || null,
+      impact: achievementData.impact || null,
+      verification_url: achievementData.verification_url || null,
+      is_featured: achievementData.is_featured || false,
+      order_index: achievementData.order_index || null,
+      status: achievementData.status || 'active'
+    };
+
+    const { data, error } = await supabase
+      .from('achievements')
+      .insert([achievementInsert])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('❌ Achievement creation error:', error);
+      throw new Error(`Failed to create achievement: ${error.message}`);
+    }
+
+    console.log('✅ Achievement created successfully:', data.title);
+    
+    return {
+      success: true,
+      data: data,
+      message: 'Achievement created successfully'
+    };
+  } catch (error) {
+    console.error('❌ createAchievement error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Update Achievement - Admin Only
+export const updateAchievement = async (id, achievementData) => {
+  try {
+    console.log('📝 Updating achievement:', id);
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    if (!id) {
+      throw new Error('Achievement ID is required');
+    }
+
+    // Prepare update data
+    const achievementUpdate = {
+      achievement_number: achievementData.achievement_number,
+      title: achievementData.title,
+      description: achievementData.description,
+      date_achieved: achievementData.date_achieved,
+      category: achievementData.category,
+      issuing_organization: achievementData.issuing_organization,
+      competition_name: achievementData.competition_name,
+      position: achievementData.position,
+      participants_count: achievementData.participants_count,
+      certificate_url: achievementData.certificate_url,
+      impact: achievementData.impact,
+      verification_url: achievementData.verification_url,
+      is_featured: achievementData.is_featured,
+      order_index: achievementData.order_index,
+      status: achievementData.status,
+      updated_at: new Date().toISOString()
+    };
+
+    const { data, error } = await supabase
+      .from('achievements')
+      .update(achievementUpdate)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('❌ Achievement update error:', error);
+      throw new Error(`Failed to update achievement: ${error.message}`);
+    }
+
+    console.log('✅ Achievement updated successfully:', data.title);
+    
+    return {
+      success: true,
+      data: data,
+      message: 'Achievement updated successfully'
+    };
+  } catch (error) {
+    console.error('❌ updateAchievement error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Delete Achievement - Admin Only
+export const deleteAchievement = async (id) => {
+  try {
+    console.log('🗑️ Deleting achievement:', id);
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    if (!id) {
+      throw new Error('Achievement ID is required');
+    }
+
+    // Get achievement info before deletion for logging
+    const { data: achievementInfo } = await supabase
+      .from('achievements')
+      .select('title, certificate_url')
+      .eq('id', id)
+      .single();
+
+    // Delete associated certificate file if exists
+    if (achievementInfo?.certificate_url) {
+      try {
+        const filePath = achievementInfo.certificate_url.split('/storage/v1/object/public/achievement-images/')[1];
+        if (filePath) {
+          await supabase.storage
+            .from('achievement-images')
+            .remove([filePath]);
+          console.log('🗑️ Associated certificate file deleted');
+        }
+      } catch (fileError) {
+        console.warn('⚠️ Could not delete associated certificate file:', fileError);
+      }
+    }
+
+    const { error } = await supabase
+      .from('achievements')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('❌ Achievement deletion error:', error);
+      throw new Error(`Failed to delete achievement: ${error.message}`);
+    }
+
+    console.log('✅ Achievement deleted successfully:', achievementInfo?.title || id);
+    
+    return {
+      success: true,
+      data: { id, title: achievementInfo?.title },
+      message: 'Achievement deleted successfully'
+    };
+  } catch (error) {
+    console.error('❌ deleteAchievement error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Reorder Achievements - Admin Only
+export const reorderAchievements = async (orderArray) => {
+  try {
+    console.log('🔄 Reordering achievements...');
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    if (!Array.isArray(orderArray) || orderArray.length === 0) {
+      throw new Error('Order array is required and must not be empty');
+    }
+
+    // Validate orderArray format: [{ id: 'uuid', order_index: number }, ...]
+    for (const item of orderArray) {
+      if (!item.id || typeof item.order_index !== 'number') {
+        throw new Error('Each order item must have id and order_index');
+      }
+    }
+
+    // Update each achievement's order_index
+    const updatePromises = orderArray.map(item => 
+      supabase
+        .from('achievements')
+        .update({ 
+          order_index: item.order_index,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', item.id)
+    );
+
+    const results = await Promise.all(updatePromises);
+    
+    // Check for errors
+    const errors = results.filter(result => result.error);
+    if (errors.length > 0) {
+      console.error('❌ Some achievement reorder operations failed:', errors);
+      throw new Error(`Failed to reorder ${errors.length} achievements`);
+    }
+
+    console.log(`✅ Successfully reordered ${orderArray.length} achievements`);
+    
+    return {
+      success: true,
+      data: { 
+        reorderedCount: orderArray.length,
+        orderArray: orderArray
+      },
+      message: `Successfully reordered ${orderArray.length} achievements`
+    };
+  } catch (error) {
+    console.error('❌ reorderAchievements error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Upload Achievement Certificate - Admin Only
+export const uploadAchievementCertificate = async (file, achievementId, achievementTitle = 'achievement') => {
+  try {
+    console.log(`📄 Uploading certificate for achievement: ${achievementId}`);
+    
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    // Validate inputs
+    if (!file) {
+      throw new Error('No file provided');
+    }
+
+    if (!achievementId) {
+      throw new Error('Achievement ID is required');
+    }
+
+    const maxSize = 10 * 1024 * 1024; // 10MB for PDFs
+    const allowedTypes = [
+      'application/pdf',
+      'image/jpeg', 
+      'image/jpg', 
+      'image/png',
+      'image/webp'
+    ];
+
+    // Validate file
+    if (file.size > maxSize) {
+      throw new Error('File size must be less than 10MB');
+    }
+    
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error('Invalid file type. Only PDF, JPEG, JPG, PNG, and WebP files are allowed');
+    }
+
+    // Create folder name: certifications/achievement_{achievementId}
+    const folderName = `certifications/achievement_${achievementId}`;
+    const sanitizedTitle = achievementTitle.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const timestamp = Date.now();
+    const fileExtension = file.name.split('.').pop();
+    const fileName = `${sanitizedTitle}-certificate-${timestamp}.${fileExtension}`;
+    const filePath = `${folderName}/${fileName}`;
+
+    console.log(`🔄 Uploading: ${fileName}`);
+
+    // Upload to Supabase Storage
+    const {error: uploadError } = await supabase.storage
+      .from('achievement-images')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    if (uploadError) {
+      console.error(`❌ Upload failed for ${fileName}:`, uploadError);
+      throw new Error(`Upload failed for ${fileName}: ${uploadError.message}`);
+    }
+
+    // Get public URL
+    const { data: urlData } = supabase.storage
+      .from('achievement-images')
+      .getPublicUrl(filePath);
+
+    // Update achievement with certificate URL
+    const { data: updatedAchievement, error: updateError } = await supabase
+      .from('achievements')
+      .update({ 
+        certificate_url: urlData.publicUrl,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', achievementId)
+      .select()
+      .single();
+
+    if (updateError) {
+      console.error('❌ Database update error:', updateError);
+      // Clean up uploaded file if database update fails
+      await supabase.storage.from('achievement-images').remove([filePath]);
+      throw new Error(`Database update failed: ${updateError.message}`);
+    }
+
+    console.log(`✅ Successfully uploaded certificate for achievement ${achievementTitle}`);
+
+    return {
+      success: true,
+      data: {
+        achievementId: achievementId,
+        fileName: fileName,
+        filePath: filePath,
+        url: urlData.publicUrl,
+        size: file.size,
+        type: file.type,
+        updatedAchievement: updatedAchievement
+      },
+      message: 'Certificate uploaded successfully'
+    };
+
+  } catch (error) {
+    console.error('❌ uploadAchievementCertificate error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
+  }
+};
+
+// Delete Achievement Certificate - Admin Only
+export const deleteAchievementCertificate = async (achievementId, certificateUrl) => {
+  try {
+    console.log(`🗑️ Deleting certificate for achievement: ${achievementId}`);
+
+    // Verify admin authentication
+    const authResult = await requireAdminAuth();
+    if (!authResult.success) {
+      throw new Error('Authentication required');
+    }
+
+    if (!achievementId || !certificateUrl) {
+      throw new Error('Achievement ID and certificate URL are required');
+    }
+
+    // Extract file path from URL
+    const filePath = certificateUrl.split('/storage/v1/object/public/achievement-images/')[1];
+    
+    if (filePath) {
+      // Delete file from storage
+      const { error: storageError } = await supabase.storage
+        .from('achievement-images')
+        .remove([filePath]);
+
+      if (storageError) {
+        console.warn('⚠️ Could not delete file from storage:', storageError);
+      }
+    }
+
+    // Update achievement to remove certificate URL
+    const { error: updateError } = await supabase
+      .from('achievements')
+      .update({ 
+        certificate_url: null,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', achievementId);
+
+    if (updateError) {
+      throw new Error(`Database update failed: ${updateError.message}`);
+    }
+
+    console.log('✅ Achievement certificate deleted successfully');
+
+    return {
+      success: true,
+      data: {
+        achievementId: achievementId,
+        deletedUrl: certificateUrl
+      },
+      message: 'Certificate deleted successfully'
+    };
+
+  } catch (error) {
+    console.error('❌ deleteAchievementCertificate error:', error);
+    return {
+      success: false,
+      error: error.message,
+      data: null
+    };
   }
 };
