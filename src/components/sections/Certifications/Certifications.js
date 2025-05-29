@@ -1,85 +1,66 @@
-// =====================================================
-// Certifications.js - Complete Frontend Implementation
-// Yellow/Gold Theme with Certifications Grid and Badges Carousel
-// =====================================================
-
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import CertificationCard from './CertificationCard';
 import CertificateModal from './CertificateModal';
 import CertificationDetailsModal from './CertificationDetailsModal';
-import { getCertifications } from '../../../services/dataService';
+import { useSupabaseByStatus } from '../../../hooks/useSupabase';
 import LoadingSpinner from '../../common/LoadingSpinner';
 import './Certifications.css';
 
 const Certifications = () => {
-  // State management
-  const [certificationsData, setCertificationsData] = useState([]);
-  const [badgesData, setBadgesData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // 🔧 UPDATED: Database integration with useSupabase hook
+  const { data: flatCertifications, loading, error } = useSupabaseByStatus(
+    'certifications', 
+    'active',
+    {},
+    { 
+      orderBy: { column: 'issue_date', ascending: false }
+    }
+  );
+
+  // 🔧 ADDED: Process flat certifications data into sorted structure with badges filtering
+  const { certificationsData, badgesData } = useMemo(() => {
+    if (!flatCertifications || flatCertifications.length === 0) {
+      return { certificationsData: [], badgesData: [] };
+    }
+
+    console.log('✅ Certifications fetched successfully:', flatCertifications.length, 'entries');
+    
+    // Sort certifications: featured first, then by order_index, then by issue_date
+    const sortedCertifications = flatCertifications.sort((a, b) => {
+      if (a.is_featured && !b.is_featured) return -1;
+      if (!a.is_featured && b.is_featured) return 1;
+      if (a.order_index !== b.order_index) {
+        return (a.order_index || 999) - (b.order_index || 999);
+      }
+      if (a.issue_date && b.issue_date) {
+        return new Date(b.issue_date) - new Date(a.issue_date);
+      }
+      return 0;
+    });
+    
+    // Filter badges data - only entries with valid badge images from our Supabase bucket
+    const validBadges = sortedCertifications.filter(cert => 
+      cert.badge_image_url && 
+      cert.badge_image_url.trim() !== '' &&
+      cert.badge_image_url.startsWith('https://emaaaeooafqawdvdreaz.supabase.co/storage/') &&
+      cert.badge_image_url.includes('certification-badges')
+    );
+    
+    console.log('🏅 Valid badges found:', validBadges.length);
+    
+    return {
+      certificationsData: sortedCertifications || [],
+      badgesData: validBadges
+    };
+  }, [flatCertifications]);
+
+  // Modal state management
   const [selectedCertificate, setSelectedCertificate] = useState(null);
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
   // Refs for badges carousel
   const badgesCarouselRef = useRef(null);
-
-  // Fetch certifications data from API
-  useEffect(() => {
-    const fetchCertifications = async () => {
-      try {
-        console.log('🏆 Fetching certifications data...');
-        setLoading(true);
-        setError(null);
-        
-        const response = await getCertifications();
-        
-        if (response.success) {
-          console.log('✅ Certifications fetched successfully:', response.data?.length || 0, 'entries');
-          
-          // Sort certifications: featured first, then by order_index, then by issue_date
-          const sortedCertifications = response.data.sort((a, b) => {
-            if (a.is_featured && !b.is_featured) return -1;
-            if (!a.is_featured && b.is_featured) return 1;
-            if (a.order_index !== b.order_index) {
-              return (a.order_index || 999) - (b.order_index || 999);
-            }
-            if (a.issue_date && b.issue_date) {
-              return new Date(b.issue_date) - new Date(a.issue_date);
-            }
-            return 0;
-          });
-          
-          setCertificationsData(sortedCertifications || []);
-          
-          // Filter badges data - only entries with valid badge images from our Supabase bucket
-          const validBadges = sortedCertifications.filter(cert => 
-            cert.badge_image_url && 
-            cert.badge_image_url.trim() !== '' &&
-            cert.badge_image_url.startsWith('https://emaaaeooafqawdvdreaz.supabase.co/storage/') &&
-            cert.badge_image_url.includes('certification-badges')
-          );
-          setBadgesData(validBadges);
-          
-          console.log('🏅 Valid badges found:', validBadges.length);
-        } else {
-          console.error('❌ Failed to fetch certifications:', response.error);
-          setError(response.error);
-          setCertificationsData([]);
-          setBadgesData([]);
-        }
-      } catch (error) {
-        console.error('❌ Certifications fetch error:', error);
-        setError(error.message);
-        setCertificationsData([]);
-        setBadgesData([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCertifications();
-  }, []);
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -256,7 +237,7 @@ const Certifications = () => {
 
         <div className="certifications-content">
           {error ? (
-            // Error state
+            // Error state - 🔧 UPDATED: Enhanced error handling
             <div className="no-content-message glass-card">
               <div className="no-content-icon">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -265,7 +246,7 @@ const Certifications = () => {
               </div>
               <h3 className="no-content-title">Error Loading Certifications</h3>
               <p className="no-content-text">
-                {error || 'Something went wrong while loading certifications. Please try again later.'}
+                {typeof error === 'object' ? error.message : error || 'Something went wrong while loading certifications. Please try again later.'}
               </p>
               <div className="no-content-decoration">
                 <div className="floating-particle"></div>

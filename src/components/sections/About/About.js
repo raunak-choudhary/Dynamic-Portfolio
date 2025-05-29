@@ -1,55 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { portfolioData } from '../../../data/portfolioData';
-import { getAboutData } from '../../../services/dataService';
+import { useSupabase } from '../../../hooks/useSupabase';
 import LoadingSpinner from '../../common/LoadingSpinner';
 import './About.css';
 
 const About = () => {
   const [activeTab, setActiveTab] = useState('about');
-  const [aboutData, setAboutData] = useState(portfolioData.about); // Start with static data
-  const [loading, setLoading] = useState(true);
 
-  // Fetch about data on component mount
-  useEffect(() => {
-    const fetchAboutData = async () => {
-      try {
-        setLoading(true);
-        const response = await getAboutData();
-        
-        if (response.success && response.data) {
-          const apiData = response.data;
-          
-          // Smart data mapping - preserve your current structure
-          const mappedData = {
-            aboutMe: {
-              title: apiData.about_me_title || apiData.aboutMe?.title || portfolioData.about.aboutMe.title,
-              content: apiData.about_me_content || apiData.aboutMe?.content || portfolioData.about.aboutMe.content
-            },
-            basicInfo: {
-              title: apiData.basic_info_title || apiData.basicInfo?.title || portfolioData.about.basicInfo.title,
-              details: (apiData.basic_info && typeof apiData.basic_info === 'object') 
-                ? apiData.basic_info 
-                : (apiData.basicInfo?.details || portfolioData.about.basicInfo.details)
-            },
-            // Support for multiple profile images
-            profileImages: {
-              aboutMe: apiData.profile_image_about || null, // About Me tab image
-              basicInfo: apiData.profile_image_info || null // Basic Info tab image
-            }
-          };
-          
-          setAboutData(mappedData);
-        }
-      } catch (error) {
-        console.error('About API error:', error);
-        // Keep using static data on error
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Use useSupabase hook for data fetching
+  const { 
+    data: apiAboutData, 
+    loading
+  } = useSupabase('about_content', { status: 'active' }, { single: true });
 
-    fetchAboutData();
-  }, []);
+  // Smart data mapping - preserve your current structure
+  const aboutData = apiAboutData ? {
+    aboutMe: {
+      title: apiAboutData.about_me_title || apiAboutData.aboutMe?.title || portfolioData.about.aboutMe.title,
+      content: apiAboutData.about_me_content || apiAboutData.aboutMe?.content || portfolioData.about.aboutMe.content
+    },
+    basicInfo: {
+      title: apiAboutData.basic_info_title || apiAboutData.basicInfo?.title || portfolioData.about.basicInfo.title,
+      details: (apiAboutData.basic_info && typeof apiAboutData.basic_info === 'object') 
+        ? apiAboutData.basic_info 
+        : (apiAboutData.basicInfo?.details || portfolioData.about.basicInfo.details)
+    },
+    // Support for multiple profile images
+    profileImages: {
+      aboutMe: apiAboutData.profile_image_about || null, // About Me tab image
+      basicInfo: apiAboutData.profile_image_info || null // Basic Info tab image
+    }
+  } : portfolioData.about;
 
   const tabs = [
     { id: 'about', label: 'About Me', content: aboutData.aboutMe },

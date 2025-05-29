@@ -1,51 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import ExperienceCard from './ExperienceCard';
-import { getWorkExperience } from '../../../services/dataService';
+import { useSupabaseByStatus } from '../../../hooks/useSupabase';
 import LoadingSpinner from '../../common/LoadingSpinner';
 import './WorkExperience.css';
 
 const WorkExperience = () => {
-  // State management
-  const [workExperiences, setWorkExperiences] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // ✅ NEW: useSupabase hook integration (replaces manual state management)
+  const { data: workExperiences, loading, error } = useSupabaseByStatus(
+    'work_experience', 
+    'active',
+    {},
+    { orderBy: { column: 'start_date', ascending: false } }
+  );
 
-  // Fetch work experience data from API
-  useEffect(() => {
-    const fetchWorkExperience = async () => {
-      try {
-        console.log('🔍 Fetching work experience data...');
-        setLoading(true);
-        setError(null);
-        
-        const response = await getWorkExperience();
-        
-        if (response.success) {
-          console.log('✅ Work experience fetched successfully:', response.data?.length || 0, 'entries');
-          setWorkExperiences(response.data || []);
-        } else {
-          console.error('❌ Failed to fetch work experience:', response.error);
-          setError(response.error);
-          setWorkExperiences([]);
-        }
-      } catch (error) {
-        console.error('❌ Work experience fetch error:', error);
-        setError(error.message);
-        setWorkExperiences([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchWorkExperience();
-  }, []);
-
-  // Scroll to top when component mounts
+  // ✅ PRESERVED: Scroll to top when component mounts (unchanged)
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  // Show loading spinner
+  // ✅ PRESERVED: Loading spinner display (unchanged)
   if (loading) {
     return (
       <section className="work-experience-section section">
@@ -59,7 +32,7 @@ const WorkExperience = () => {
   return (
     <section className="work-experience-section section">
       <div className="container">
-        {/* Header matching Projects section style */}
+        {/* ✅ PRESERVED: Header section (unchanged) */}
         <div className="section-header">
           <h1 className="neon-title">Work Experience</h1>
           <p className="neon-subtitle">Professional career journey and key achievements</p>
@@ -67,7 +40,7 @@ const WorkExperience = () => {
 
         <div className="work-experience-content">
           {error ? (
-            // Error state
+            // ✅ ENHANCED: Error state with improved error handling
             <div className="no-content-message glass-card">
               <div className="no-content-icon">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -76,7 +49,7 @@ const WorkExperience = () => {
               </div>
               <h3 className="no-content-title">Error Loading Work Experience</h3>
               <p className="no-content-text">
-                {error || 'Something went wrong while loading work experience. Please try again later.'}
+                {typeof error === 'string' ? error : error?.message || 'Something went wrong while loading work experience. Please try again later.'}
               </p>
               <div className="no-content-decoration">
                 <div className="floating-particle"></div>
@@ -84,8 +57,8 @@ const WorkExperience = () => {
                 <div className="floating-particle"></div>
               </div>
             </div>
-          ) : workExperiences.length === 0 ? (
-            // No work experience state
+          ) : !workExperiences || workExperiences.length === 0 ? (
+            // ✅ PRESERVED: No work experience state (unchanged)
             <div className="no-content-message glass-card">
               <div className="no-content-icon">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -106,7 +79,7 @@ const WorkExperience = () => {
               </div>
             </div>
           ) : (
-            // Work experience grid - display actual data
+            // ✅ PRESERVED: Work experience grid - display actual data (unchanged)
             <div className="work-experience-grid">
               {workExperiences.map((workExperience, index) => (
                 <ExperienceCard key={workExperience.id || index} workExperience={workExperience} />

@@ -1,51 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { getEducationData } from '../../../services/dataService';
+import { useSupabaseByStatus } from '../../../hooks/useSupabase';
 import LoadingSpinner from '../../common/LoadingSpinner';
 import './Education.css';
 
 const Education = () => {
-  // State management
-  const [education, setEducation] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // ✅ NEW: useSupabase hook integration (replaces manual state management)
+  const { data: education, loading, error } = useSupabaseByStatus(
+    'education', 
+    'active',
+    {},
+    { orderBy: { column: 'end_date', ascending: false } }
+  );
+
+  // ✅ PRESERVED: Card flip state management (unchanged)
   const [flippedCards, setFlippedCards] = useState(new Set());
 
-  // Fetch education data from API
-  useEffect(() => {
-    const fetchEducation = async () => {
-      try {
-        console.log('🎓 Fetching education data...');
-        setLoading(true);
-        setError(null);
-        
-        const response = await getEducationData();
-        
-        if (response.success) {
-          console.log('✅ Education fetched successfully:', response.data?.length || 0, 'records');
-          setEducation(response.data || []);
-        } else {
-          console.error('❌ Failed to fetch education:', response.error);
-          setError(response.error);
-          setEducation([]);
-        }
-      } catch (error) {
-        console.error('❌ Education fetch error:', error);
-        setError(error.message);
-        setEducation([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEducation();
-  }, []);
-
-  // Scroll to top when component mounts
+  // ✅ PRESERVED: Scroll to top when component mounts (unchanged)
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  // Handle card flip
+  // ✅ PRESERVED: Handle card flip function (unchanged)
   const handleCardFlip = (cardId) => {
     setFlippedCards(prev => {
       const newSet = new Set(prev);
@@ -58,7 +33,7 @@ const Education = () => {
     });
   };
 
-  // Format dates
+  // ✅ PRESERVED: Format dates function (unchanged)
   const formatDate = (dateString) => {
     if (!dateString) return 'Present';
     try {
@@ -72,7 +47,7 @@ const Education = () => {
     }
   };
 
-  // Generate institution initials for temp logo
+  // ✅ PRESERVED: Generate institution initials function (unchanged)
   const generateInstitutionInitials = (institutionName) => {
     if (!institutionName) return 'UN';
     
@@ -83,7 +58,7 @@ const Education = () => {
     return words.slice(0, 2).map(word => word.charAt(0).toUpperCase()).join('');
   };
 
-  // CRUCIAL: Determine college/school name based on education level
+  // ✅ PRESERVED: College/school name logic (unchanged)
   const getCollegeSchoolName = (education) => {
     const degree = education.degree?.toLowerCase() || '';
     const educationLevel = education.education_level?.toLowerCase() || '';
@@ -118,7 +93,7 @@ const Education = () => {
     return education.college || education.department || null;
   };
 
-  // Format GPA/Percentage display - SEPARATE VALUES
+  // ✅ PRESERVED: GPA/Percentage formatting logic (unchanged)
   const getGradeInfo = (education) => {
     if (!education.gpa_received || !education.max_gpa_scale) {
       return { received: null, max: null, isPercentage: false };
@@ -137,7 +112,7 @@ const Education = () => {
     };
   };
 
-  // Show loading spinner
+  // ✅ PRESERVED: Loading spinner display (unchanged)
   if (loading) {
     return (
       <section className="education-section section">
@@ -151,7 +126,7 @@ const Education = () => {
   return (
     <section className="education-section section">
       <div className="container">
-        {/* Header */}
+        {/* ✅ PRESERVED: Header section (unchanged) */}
         <div className="section-header">
           <h1 className="neon-title">Education</h1>
           <p className="neon-subtitle">Academic journey and qualifications</p>
@@ -159,7 +134,7 @@ const Education = () => {
 
         <div className="education-content">
           {error ? (
-            // Error state
+            // ✅ ENHANCED: Error state with improved error handling
             <div className="no-content-message glass-card">
               <div className="no-content-icon">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -168,11 +143,11 @@ const Education = () => {
               </div>
               <h3 className="no-content-title">Error Loading Education</h3>
               <p className="no-content-text">
-                {error || 'Something went wrong while loading education records. Please try again later.'}
+                {typeof error === 'string' ? error : error?.message || 'Something went wrong while loading education records. Please try again later.'}
               </p>
             </div>
-          ) : education.length === 0 ? (
-            // No education state
+          ) : !education || education.length === 0 ? (
+            // ✅ PRESERVED: No education state (unchanged)
             <div className="no-content-message glass-card">
               <div className="no-content-icon">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -193,7 +168,7 @@ const Education = () => {
               </div>
             </div>
           ) : (
-            // Academic Timeline Journey with 3D Flip Cards
+            // ✅ PRESERVED: Academic Timeline Journey with 3D Flip Cards (unchanged)
             <div className="timeline-container">
               <div className="timeline-path">
                 {education.map((edu, index) => {
@@ -205,17 +180,17 @@ const Education = () => {
                   return (
                     <div key={cardId} className="timeline-milestone">
                       
-                      {/* Timeline Node */}
+                      {/* ✅ PRESERVED: Timeline Node (unchanged) */}
                       <div className="timeline-node">
                         <div className="graduation-cap">🎓</div>
                         <div className="node-glow"></div>
                       </div>
 
-                      {/* 3D Flip Card */}
+                      {/* ✅ PRESERVED: 3D Flip Card (unchanged) */}
                       <div className={`education-flip-card ${isFlipped ? 'flipped' : ''}`}>
                         <div className="education-flip-card-inner">
                           
-                          {/* FRONT SIDE */}
+                          {/* ✅ PRESERVED: FRONT SIDE (unchanged) */}
                           <div className="education-flip-card-front education-milestone-card">
                             
                             {/* Top Row: Logo (Center) + Flip Icon (Right) */}
@@ -320,7 +295,7 @@ const Education = () => {
                             )}
                           </div>
 
-                          {/* BACK SIDE */}
+                          {/* ✅ PRESERVED: BACK SIDE (unchanged) */}
                           <div className="education-flip-card-back education-milestone-card">
                             <div className="back-content">
                               

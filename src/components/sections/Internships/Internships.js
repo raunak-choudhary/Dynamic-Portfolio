@@ -1,44 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import InternshipCard from './InternshipCard';
-import { getInternships } from '../../../services/dataService';
+import { useSupabaseByStatus } from '../../../hooks/useSupabase';
 import LoadingSpinner from '../../common/LoadingSpinner';
 import './Internships.css';
 
 const Internships = () => {
-  // State management
-  const [internships, setInternships] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  // Fetch internships data from API
-  useEffect(() => {
-    const fetchInternships = async () => {
-      try {
-        console.log('🔍 Fetching internships data...');
-        setLoading(true);
-        setError(null);
-        
-        const response = await getInternships();
-        
-        if (response.success) {
-          console.log('✅ Internships fetched successfully:', response.data?.length || 0, 'internships');
-          setInternships(response.data || []);
-        } else {
-          console.error('❌ Failed to fetch internships:', response.error);
-          setError(response.error);
-          setInternships([]);
-        }
-      } catch (error) {
-        console.error('❌ Internships fetch error:', error);
-        setError(error.message);
-        setInternships([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchInternships();
-  }, []);
+  // Use useSupabase hook for cleaner data fetching with chronological ordering
+  const { data: internships, loading, error } = useSupabaseByStatus(
+    'internships', 
+    'active',
+    {},
+    {
+      orderBy: { column: 'end_date', ascending: false },
+      realtime: false
+    }
+  );
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -76,7 +52,7 @@ const Internships = () => {
               </div>
               <h3 className="no-content-title">Error Loading Internships</h3>
               <p className="no-content-text">
-                {error || 'Something went wrong while loading internships. Please try again later.'}
+                {error.message || error || 'Something went wrong while loading internships. Please try again later.'}
               </p>
               <div className="no-content-decoration">
                 <div className="floating-particle"></div>
@@ -84,7 +60,7 @@ const Internships = () => {
                 <div className="floating-particle"></div>
               </div>
             </div>
-          ) : internships.length === 0 ? (
+          ) : !internships || internships.length === 0 ? (
             // No internships state
             <div className="no-content-message glass-card">
               <div className="no-content-icon">

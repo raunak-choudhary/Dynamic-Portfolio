@@ -1,69 +1,51 @@
-// =====================================================
-// Achievements.js - Complete Frontend Implementation
-// Blue Theme with Horizontal Achievement Cards
-// =====================================================
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import AchievementCard from './AchievementCard';
 import AchievementCertificateModal from './AchievementCertificateModal';
 import AchievementDetailsModal from './AchievementDetailsModal';
-import { getAchievements } from '../../../services/dataService';
+import { useSupabaseByStatus } from '../../../hooks/useSupabase';
 import LoadingSpinner from '../../common/LoadingSpinner';
 import './Achievements.css';
 
 const Achievements = () => {
-  // State management
-  const [achievementsData, setAchievementsData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // 🔧 UPDATED: Database integration with useSupabase hook
+  const { data: flatAchievements, loading, error } = useSupabaseByStatus(
+    'achievements', 
+    'active',
+    {},
+    { 
+      orderBy: { column: 'date_achieved', ascending: false }
+    }
+  );
+
+  // 🔧 ADDED: Process flat achievements data into sorted structure
+  const achievementsData = useMemo(() => {
+    if (!flatAchievements || flatAchievements.length === 0) {
+      return [];
+    }
+
+    console.log('✅ Achievements fetched successfully:', flatAchievements.length, 'entries');
+    
+    // Sort achievements: featured first, then by order_index, then by date_achieved
+    const sortedAchievements = flatAchievements.sort((a, b) => {
+      if (a.is_featured && !b.is_featured) return -1;
+      if (!a.is_featured && b.is_featured) return 1;
+      if (a.order_index !== b.order_index) {
+        return (a.order_index || 999) - (b.order_index || 999);
+      }
+      if (a.date_achieved && b.date_achieved) {
+        return new Date(b.date_achieved) - new Date(a.date_achieved);
+      }
+      return 0;
+    });
+    
+    console.log('🏅 Processed achievements:', sortedAchievements.length);
+    return sortedAchievements || [];
+  }, [flatAchievements]);
+
+  // Modal state management
   const [selectedAchievement, setSelectedAchievement] = useState(null);
   const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-
-  // Fetch achievements data from API
-  useEffect(() => {
-    const fetchAchievements = async () => {
-      try {
-        console.log('🏆 Fetching achievements data...');
-        setLoading(true);
-        setError(null);
-        
-        const response = await getAchievements();
-        
-        if (response.success) {
-          console.log('✅ Achievements fetched successfully:', response.data?.length || 0, 'entries');
-          
-          // Sort achievements: featured first, then by order_index, then by date_achieved
-          const sortedAchievements = response.data.sort((a, b) => {
-            if (a.is_featured && !b.is_featured) return -1;
-            if (!a.is_featured && b.is_featured) return 1;
-            if (a.order_index !== b.order_index) {
-              return (a.order_index || 999) - (b.order_index || 999);
-            }
-            if (a.date_achieved && b.date_achieved) {
-              return new Date(b.date_achieved) - new Date(a.date_achieved);
-            }
-            return 0;
-          });
-          
-          setAchievementsData(sortedAchievements || []);
-          console.log('🏅 Processed achievements:', sortedAchievements.length);
-        } else {
-          console.error('❌ Failed to fetch achievements:', response.error);
-          setError(response.error);
-          setAchievementsData([]);
-        }
-      } catch (error) {
-        console.error('❌ Achievements fetch error:', error);
-        setError(error.message);
-        setAchievementsData([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAchievements();
-  }, []);
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -143,7 +125,7 @@ const Achievements = () => {
 
         <div className="accomplishments-content">
           {error ? (
-            // Error state
+            // Error state - 🔧 UPDATED: Enhanced error handling
             <div className="no-achievements-message glass-achievement-card">
               <div className="no-achievements-icon">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -152,7 +134,7 @@ const Achievements = () => {
               </div>
               <h3 className="no-achievements-title">Error Loading Achievements</h3>
               <p className="no-achievements-text">
-                {error || 'Something went wrong while loading achievements. Please try again later.'}
+                {typeof error === 'object' ? error.message : error || 'Something went wrong while loading achievements. Please try again later.'}
               </p>
               <div className="no-achievements-decoration">
                 <div className="floating-achievement-particle"></div>

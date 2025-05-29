@@ -1,51 +1,29 @@
-import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Cube3D from './Cube3D';
 import { portfolioData } from '../../../data/portfolioData';
-import { getHeroData } from '../../../services/dataService';
+import { useSupabase } from '../../../hooks/useSupabase';
 import LoadingSpinner from '../../common/LoadingSpinner';
 import './Hero.css';
 
 const Hero = () => {
-  // State for API data
-  const [heroData, setHeroData] = useState(portfolioData.hero); // Start with static data
-  const [loading, setLoading] = useState(true);
-  
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Fetch hero data on component mount
-  useEffect(() => {
-    const fetchHeroData = async () => {
-      try {
-        setLoading(true);
-        const response = await getHeroData();
-        
-        if (response.success && response.data) {
-          // Smart data mapping - preserve your current structure
-          const apiData = response.data;
-          
-          const mappedData = {
-            title: apiData.title || portfolioData.hero.title,
-            subtitle: apiData.subtitle || portfolioData.hero.subtitle,
-            description: apiData.description || portfolioData.hero.description,
-            highlights: Array.isArray(apiData.highlights) && apiData.highlights.length > 0 
-              ? apiData.highlights 
-              : portfolioData.hero.highlights
-          };
-          
-          setHeroData(mappedData);
-        }
-      } catch (error) {
-        console.error('Hero API error:', error);
-        // Keep using static data on error
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Use useSupabase hook for data fetching
+  const { 
+    data: apiHeroData, 
+    loading
+  } = useSupabase('hero_content', { status: 'active' }, { single: true });
 
-    fetchHeroData();
-  }, []);
+  // Smart data mapping - preserve your current structure
+  const heroData = apiHeroData ? {
+    title: apiHeroData.title || portfolioData.hero.title,
+    subtitle: apiHeroData.subtitle || portfolioData.hero.subtitle,
+    description: apiHeroData.description || portfolioData.hero.description,
+    highlights: Array.isArray(apiHeroData.highlights) && apiHeroData.highlights.length > 0 
+      ? apiHeroData.highlights 
+      : portfolioData.hero.highlights
+  } : portfolioData.hero;
 
   const handleNavClick = (sectionId) => {
     if (location.pathname === '/') {

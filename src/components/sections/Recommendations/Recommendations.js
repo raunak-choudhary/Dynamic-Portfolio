@@ -1,50 +1,42 @@
-// =====================================================
-// Recommendations.js - Main Component
-// =====================================================
-
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import RecommendationCard from './RecommendationCard';
-import { getRecommendations } from '../../../services/dataService';
+import { useSupabaseByStatus } from '../../../hooks/useSupabase';
 import LoadingSpinner from '../../common/LoadingSpinner';
 import './Recommendations.css';
 
 const Recommendations = () => {
-  // State management
-  const [recommendations, setRecommendations] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // 🔧 UPDATED: Database integration with useSupabase hook
+  const { data: flatRecommendations, loading, error } = useSupabaseByStatus(
+    'recommendations', 
+    'active',
+    {},
+    { 
+      orderBy: { column: 'created_at', ascending: false }
+    }
+  );
 
-  // Fetch recommendations data from API
-  useEffect(() => {
-    const fetchRecommendations = async () => {
-      try {
-        console.log('🔍 Fetching recommendations data...');
-        setLoading(true);
-        setError(null);
-        
-        const response = await getRecommendations();
-        
-        if (response.success) {
-          console.log('✅ Recommendations fetched successfully:', response.data?.length || 0, 'entries');
-          // Filter out non-public recommendations (additional safety check)
-          const publicRecommendations = response.data.filter(rec => rec.is_public !== false);
-          setRecommendations(publicRecommendations || []);
-        } else {
-          console.error('❌ Failed to fetch recommendations:', response.error);
-          setError(response.error);
-          setRecommendations([]);
-        }
-      } catch (error) {
-        console.error('❌ Recommendations fetch error:', error);
-        setError(error.message);
-        setRecommendations([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // 🔧 ADDED: Process flat recommendations data with public filtering
+  const recommendations = useMemo(() => {
+    if (!flatRecommendations || flatRecommendations.length === 0) {
+      return [];
+    }
 
-    fetchRecommendations();
-  }, []);
+    console.log('✅ Recommendations fetched successfully:', flatRecommendations.length, 'entries');
+    
+    // Filter out non-public recommendations and add featured priority sorting
+    const publicRecommendations = flatRecommendations
+      .filter(rec => rec.is_public !== false)
+      .sort((a, b) => {
+        // Featured recommendations first
+        if (a.is_featured && !b.is_featured) return -1;
+        if (!a.is_featured && b.is_featured) return 1;
+        // Then by created_at (most recent first)
+        return new Date(b.created_at) - new Date(a.created_at);
+      });
+    
+    console.log('👥 Public recommendations processed:', publicRecommendations.length);
+    return publicRecommendations || [];
+  }, [flatRecommendations]);
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -73,7 +65,7 @@ const Recommendations = () => {
 
         <div className="recommendations-content">
           {error ? (
-            // Error state
+            // Error state - 🔧 UPDATED: Enhanced error handling
             <div className="no-content-message glass-card">
               <div className="no-content-icon">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -82,7 +74,7 @@ const Recommendations = () => {
               </div>
               <h3 className="no-content-title">Error Loading Recommendations</h3>
               <p className="no-content-text">
-                {error || 'Something went wrong while loading recommendations. Please try again later.'}
+                {typeof error === 'object' ? error.message : error || 'Something went wrong while loading recommendations. Please try again later.'}
               </p>
               <div className="no-content-decoration">
                 <div className="floating-particle"></div>

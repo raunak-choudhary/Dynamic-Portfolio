@@ -1,48 +1,32 @@
-// =====================================================
-// Leadership.js - Main Component
-// =====================================================
-
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import LeadershipCard from './LeadershipCard';
-import { getLeadership } from '../../../services/dataService';
+import { useSupabaseByStatus } from '../../../hooks/useSupabase';
 import LoadingSpinner from '../../common/LoadingSpinner';
 import './Leadership.css';
 
 const Leadership = () => {
-  // State management
-  const [leadership, setLeadership] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // 🔧 UPDATED: Database integration with useSupabase hook
+  const { data: flatLeadership, loading, error } = useSupabaseByStatus(
+    'leadership', 
+    'active',
+    {},
+    { 
+      orderBy: { column: 'start_date', ascending: false }
+    }
+  );
 
-  // Fetch leadership data from API
-  useEffect(() => {
-    const fetchLeadership = async () => {
-      try {
-        console.log('🔍 Fetching leadership data...');
-        setLoading(true);
-        setError(null);
-        
-        const response = await getLeadership();
-        
-        if (response.success) {
-          console.log('✅ Leadership fetched successfully:', response.data?.length || 0, 'entries');
-          setLeadership(response.data || []);
-        } else {
-          console.error('❌ Failed to fetch leadership:', response.error);
-          setError(response.error);
-          setLeadership([]);
-        }
-      } catch (error) {
-        console.error('❌ Leadership fetch error:', error);
-        setError(error.message);
-        setLeadership([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchLeadership();
-  }, []);
+  // Add featured priority sorting
+  const leadership = useMemo(() => {
+    if (!flatLeadership || flatLeadership.length === 0) return [];
+    
+    return flatLeadership.sort((a, b) => {
+      // Featured items first
+      if (a.is_featured && !b.is_featured) return -1;
+      if (!a.is_featured && b.is_featured) return 1;
+      // Then by start_date (most recent first)
+      return new Date(b.start_date) - new Date(a.start_date);
+    });
+  }, [flatLeadership]);
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -71,7 +55,7 @@ const Leadership = () => {
 
         <div className="leadership-content">
           {error ? (
-            // Error state
+            // Error state - 🔧 UPDATED: Enhanced error handling
             <div className="no-content-message glass-card">
               <div className="no-content-icon">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -80,7 +64,7 @@ const Leadership = () => {
               </div>
               <h3 className="no-content-title">Error Loading Leadership</h3>
               <p className="no-content-text">
-                {error || 'Something went wrong while loading leadership positions. Please try again later.'}
+                {typeof error === 'object' ? error.message : error || 'Something went wrong while loading leadership positions. Please try again later.'}
               </p>
               <div className="no-content-decoration">
                 <div className="floating-particle"></div>
@@ -88,7 +72,7 @@ const Leadership = () => {
                 <div className="floating-particle"></div>
               </div>
             </div>
-          ) : leadership.length === 0 ? (
+          ) : !leadership || leadership.length === 0 ? (
             // No leadership state
             <div className="no-content-message glass-card">
               <div className="no-content-icon">

@@ -1,70 +1,65 @@
-// =====================================================
-// Skills.js - Complete Frontend Implementation
-// Red/Coral Theme with Carousel Layout and Modal System
-// =====================================================
-
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import SkillCard from './SkillCard';
 import SkillModal from './SkillModal';
-import { getSkills } from '../../../services/dataService';
+import { useSupabaseByStatus } from '../../../hooks/useSupabase';
 import LoadingSpinner from '../../common/LoadingSpinner';
 import './Skills.css';
 
 const Skills = () => {
-  // State management
-  const [skillCategories, setSkillCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  //Database integration with useSupabase hook (returns flat array)
+  const { data: flatSkills, loading, error } = useSupabaseByStatus(
+    'skills', 
+    'active',
+    {},
+    { 
+      orderBy: { column: 'order_index', ascending: true }
+    }
+  );
+
+  // 🔧 ADDED: Group flat skills by skill_type into categories structure
+  const skillCategories = useMemo(() => {
+    if (!flatSkills || flatSkills.length === 0) return [];
+
+    console.log('✅ Skills fetched successfully:', flatSkills.length, 'skills');
+    
+    // Group skills by skill_type
+    const grouped = flatSkills.reduce((acc, skill) => {
+      const category = skill.skill_type || 'Other';
+      
+      if (!acc[category]) {
+        acc[category] = {
+          category,
+          skills: []
+        };
+      }
+      
+      acc[category].skills.push(skill);
+      return acc;
+    }, {});
+
+    // Convert to array and sort categories and skills
+    const sortedCategories = Object.values(grouped).map(category => ({
+      ...category,
+      skills: category.skills.sort((a, b) => {
+        // Featured skills first, then by order_index, then by name
+        if (a.is_featured && !b.is_featured) return -1;
+        if (!a.is_featured && b.is_featured) return 1;
+        if (a.order_index !== b.order_index) {
+          return (a.order_index || 999) - (b.order_index || 999);
+        }
+        return a.skill_name.localeCompare(b.skill_name);
+      })
+    }));
+
+    return sortedCategories;
+  }, [flatSkills]);
+
+  // Modal state management
   const [selectedSkill, setSelectedSkill] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Refs for carousel touch handling
   const carouselRefs = useRef({});
-
-  // Fetch skills data from API
-  useEffect(() => {
-    const fetchSkills = async () => {
-      try {
-        console.log('🔍 Fetching skills data...');
-        setLoading(true);
-        setError(null);
-        
-        const response = await getSkills();
-        
-        if (response.success) {
-          console.log('✅ Skills fetched successfully:', response.data?.length || 0, 'categories');
-          
-          // Sort categories and prioritize featured skills within each category
-          const sortedCategories = response.data.map(category => ({
-            ...category,
-            skills: category.skills.sort((a, b) => {
-              // Featured skills first, then by order_index, then by name
-              if (a.is_featured && !b.is_featured) return -1;
-              if (!a.is_featured && b.is_featured) return 1;
-              if (a.order_index !== b.order_index) {
-                return (a.order_index || 999) - (b.order_index || 999);
-              }
-              return a.skill_name.localeCompare(b.skill_name);
-            })
-          }));
-          
-          setSkillCategories(sortedCategories || []);
-        } else {
-          console.error('❌ Failed to fetch skills:', response.error);
-          setError(response.error);
-          setSkillCategories([]);
-        }
-      } catch (error) {
-        console.error('❌ Skills fetch error:', error);
-        setError(error.message);
-        setSkillCategories([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSkills();
-  }, []);
 
   // Scroll to top when component mounts
   useEffect(() => {
@@ -129,6 +124,8 @@ const Skills = () => {
 
   // Setup touch swipe for mobile carousels
   useEffect(() => {
+    if (!skillCategories || skillCategories.length === 0) return;
+
     skillCategories.forEach((category, index) => {
       const carouselId = `carousel-${index}`;
       const carousel = carouselRefs.current[carouselId];
@@ -234,7 +231,7 @@ const Skills = () => {
 
         <div className="skills-content">
           {error ? (
-            // Error state
+            // Error state - 🔧 UPDATED: Enhanced error handling
             <div className="no-content-message glass-card">
               <div className="no-content-icon">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -243,7 +240,7 @@ const Skills = () => {
               </div>
               <h3 className="no-content-title">Error Loading Skills</h3>
               <p className="no-content-text">
-                {error || 'Something went wrong while loading skills. Please try again later.'}
+                {typeof error === 'object' ? error.message : error || 'Something went wrong while loading skills. Please try again later.'}
               </p>
               <div className="no-content-decoration">
                 <div className="floating-particle"></div>
@@ -251,7 +248,7 @@ const Skills = () => {
                 <div className="floating-particle"></div>
               </div>
             </div>
-          ) : skillCategories.length === 0 ? (
+          ) : !skillCategories || skillCategories.length === 0 ? (
             // No skills state
             <div className="no-content-message glass-card">
               <div className="no-content-icon">
@@ -289,7 +286,7 @@ const Skills = () => {
                       ref={el => carouselRefs.current[`carousel-${categoryIndex}`] = el}
                     >
                       <div className="skills-track">
-                        {category.skills.map((skill, skillIndex) => (
+                        {category.skills && category.skills.map((skill, skillIndex) => (
                           <SkillCard 
                             key={skill.id || skillIndex} 
                             skill={skill} 
