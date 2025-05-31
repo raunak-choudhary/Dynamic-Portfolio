@@ -1,3 +1,5 @@
+// src/components/sections/Hero/Hero.js - CLEAN PRODUCTION VERSION
+
 import { useNavigate, useLocation } from 'react-router-dom';
 import Cube3D from './Cube3D';
 import { portfolioData } from '../../../data/portfolioData';
@@ -9,32 +11,38 @@ const Hero = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Use useSupabase hook for data fetching
+  // Fetch hero data with real-time updates
   const { 
-    data: apiHeroData, 
+    data: heroData, 
     loading
-  } = useSupabase('hero_content', { status: 'active' }, { single: true });
+  } = useSupabase('hero_content', {}, { 
+    orderBy: { column: 'created_at', ascending: false },
+    limit: 1,
+    single: true,
+    realtime: true,
+    cacheKey: 'hero-public-display'
+  });
 
-  // Smart data mapping - preserve your current structure
-  const heroData = apiHeroData ? {
-    title: apiHeroData.title || portfolioData.hero.title,
-    subtitle: apiHeroData.subtitle || portfolioData.hero.subtitle,
-    description: apiHeroData.description || portfolioData.hero.description,
-    highlights: Array.isArray(apiHeroData.highlights) && apiHeroData.highlights.length > 0 
-      ? apiHeroData.highlights 
-      : portfolioData.hero.highlights
+  // Smart data mapping with database structure
+  const displayData = heroData ? {
+    title: heroData.title || portfolioData.hero.title,
+    subtitle: heroData.subtitle || portfolioData.hero.subtitle,
+    description: heroData.description || portfolioData.hero.description,
+    highlights: Array.isArray(heroData.highlights) && heroData.highlights.length > 0 
+      ? heroData.highlights 
+      : portfolioData.hero.highlights,
+    cta_text: heroData.cta_text || 'View My Work',
+    cta_link: heroData.cta_link || '#navigation'
   } : portfolioData.hero;
 
   const handleNavClick = (sectionId) => {
     if (location.pathname === '/') {
-      // Already on landing page, just scroll to section
       const element = document.getElementById(sectionId);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth' });
         window.history.pushState(null, '', `/#${sectionId}`);
       }
     } else {
-      // Navigate to landing page then scroll to section
       navigate(`/#${sectionId}`);
       setTimeout(() => {
         const element = document.getElementById(sectionId);
@@ -45,12 +53,26 @@ const Hero = () => {
     }
   };
 
-  // Show loading only initially, not affecting layout
-  if (loading) {
+  const handleCTAClick = () => {
+    if (displayData.cta_link) {
+      if (displayData.cta_link.startsWith('#')) {
+        handleNavClick(displayData.cta_link.substring(1));
+      } else if (displayData.cta_link.startsWith('/')) {
+        navigate(displayData.cta_link);
+      } else {
+        window.open(displayData.cta_link, '_blank');
+      }
+    } else {
+      handleNavClick('navigation');
+    }
+  };
+
+  // Show loading only initially
+  if (loading && !heroData) {
     return (
       <section className="hero-section">
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-          <LoadingSpinner size="large" message="Loading..." />
+          <LoadingSpinner size="large" message="Loading hero content..." />
         </div>
       </section>
     );
@@ -77,18 +99,18 @@ const Hero = () => {
         {/* Left Side: Introduction Text */}
         <div className="hero-text">
           <h1 className="hero-title">
-            <span className="shimmer-text">{heroData.title}</span>
+            <span className="shimmer-text">{displayData.title}</span>
           </h1>
           <h2 className="hero-subtitle text-glow">
-            {heroData.subtitle}
+            {displayData.subtitle}
           </h2>
           <p className="hero-description">
-            {heroData.description}
+            {displayData.description}
           </p>
           
           {/* Highlights */}
           <div className="hero-highlights">
-            {heroData.highlights.map((highlight, index) => (
+            {displayData.highlights.map((highlight, index) => (
               <div 
                 key={index} 
                 className={`hero-highlight animate-fade-in-up animate-delay-${(index + 1) * 200}`}
@@ -103,9 +125,9 @@ const Hero = () => {
           <div className="hero-actions">
             <button 
               className="neon-button primary"
-              onClick={() => handleNavClick('navigation')}
+              onClick={handleCTAClick}
             >
-              View My Work
+              {displayData.cta_text || 'View My Work'}
             </button>
             <button 
               className="neon-button secondary"

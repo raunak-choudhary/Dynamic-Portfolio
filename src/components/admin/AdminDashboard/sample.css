@@ -1,4 +1,5 @@
-/* src/components/admin/AdminDashboard/AdminDashboard.css - PART 1 OF 4 */
+/* src/components/admin/AdminDashboard/AdminDashboard.css - FULLY UPDATED */
+
 /* =================================
    ADMIN DASHBOARD - CORE STYLES
    Layout, Variables, Base Components
@@ -71,7 +72,6 @@
   --admin-z-sidebar: 1020;
   --admin-z-modal: 1030;
   --admin-z-preview: 1040;
-  --admin-z-particles: 999; /* Below everything else */
 }
 
 /* ===== LIGHT THEME OVERRIDES ===== */
@@ -138,65 +138,6 @@
   );
 }
 
-/* ===== NEW: PARTICLE ANIMATION BACKGROUND ===== */
-.admin-dashboard::after {
-  content: '';
-  position: fixed;
-  top: 80px; /* Start below header */
-  left: 0;
-  width: 100vw;
-  height: calc(100vh - 80px); /* Full height minus header */
-  background-image:
-    /* Large floating particles */
-    radial-gradient(circle at 15% 25%, var(--admin-neon-cyan) 2px, transparent 2px),
-    radial-gradient(circle at 85% 15%, var(--admin-neon-purple) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 65% 35%, var(--admin-neon-pink) 1px, transparent 1px),
-    radial-gradient(circle at 25% 75%, var(--admin-neon-orange) 2px, transparent 2px),
-    radial-gradient(circle at 75% 85%, var(--admin-neon-green) 1px, transparent 1px),
-    radial-gradient(circle at 45% 65%, var(--admin-neon-blue) 1.5px, transparent 1.5px),
-    /* Medium particles */
-    radial-gradient(circle at 35% 45%, var(--admin-neon-yellow) 1px, transparent 1px),
-    radial-gradient(circle at 55% 55%, var(--admin-neon-red) 0.8px, transparent 0.8px),
-    radial-gradient(circle at 90% 40%, var(--admin-neon-cyan) 1.2px, transparent 1.2px),
-    radial-gradient(circle at 10% 60%, var(--admin-neon-purple) 0.8px, transparent 0.8px),
-    /* Small particles */
-    radial-gradient(circle at 20% 20%, var(--admin-neon-pink) 0.5px, transparent 0.5px),
-    radial-gradient(circle at 80% 30%, var(--admin-neon-green) 0.5px, transparent 0.5px),
-    radial-gradient(circle at 30% 80%, var(--admin-neon-blue) 0.5px, transparent 0.5px),
-    radial-gradient(circle at 70% 70%, var(--admin-neon-orange) 0.5px, transparent 0.5px);
-  background-size: 
-    300px 300px, 250px 250px, 200px 200px, 350px 350px, 180px 180px, 220px 220px,
-    150px 150px, 170px 170px, 280px 280px, 190px 190px,
-    100px 100px, 120px 120px, 140px 140px, 160px 160px;
-  animation: admin-particles-float-slow 25s linear infinite;
-  opacity: 0.4;
-  pointer-events: none;
-  z-index: var(--admin-z-particles);
-}
-
-/* Light theme particles */
-[data-theme="light"] .admin-dashboard::after {
-  background-image:
-    /* Large floating particles */
-    radial-gradient(circle at 15% 25%, var(--admin-light-neon-title-1) 2px, transparent 2px),
-    radial-gradient(circle at 85% 15%, var(--admin-light-neon-title-2) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 65% 35%, var(--admin-light-neon-title-3) 1px, transparent 1px),
-    radial-gradient(circle at 25% 75%, var(--admin-light-neon-title-4) 2px, transparent 2px),
-    radial-gradient(circle at 75% 85%, var(--admin-light-neon-title-5) 1px, transparent 1px),
-    radial-gradient(circle at 45% 65%, var(--admin-light-neon-subtitle-1) 1.5px, transparent 1.5px),
-    /* Medium particles */
-    radial-gradient(circle at 35% 45%, var(--admin-light-neon-subtitle-2) 1px, transparent 1px),
-    radial-gradient(circle at 55% 55%, var(--admin-light-neon-subtitle-3) 0.8px, transparent 0.8px),
-    radial-gradient(circle at 90% 40%, var(--admin-light-neon-subtitle-4) 1.2px, transparent 1.2px),
-    radial-gradient(circle at 10% 60%, var(--admin-light-neon-subtitle-5) 0.8px, transparent 0.8px),
-    /* Small particles */
-    radial-gradient(circle at 20% 20%, var(--admin-light-neon-title-1) 0.5px, transparent 0.5px),
-    radial-gradient(circle at 80% 30%, var(--admin-light-neon-title-2) 0.5px, transparent 0.5px),
-    radial-gradient(circle at 30% 80%, var(--admin-light-neon-title-3) 0.5px, transparent 0.5px),
-    radial-gradient(circle at 70% 70%, var(--admin-light-neon-title-4) 0.5px, transparent 0.5px);
-  opacity: 0.3; /* Slightly less opacity for light theme */
-}
-
 /* ===== ADMIN LOADING STATE ===== */
 .admin-loading {
   display: flex;
@@ -220,7 +161,7 @@
   text-align: center;
 }
 
-/* ===== ADMIN HEADER WITH MOBILE SCROLL FIX ===== */
+/* ===== ADMIN HEADER ===== */
 .admin-header {
   position: sticky;
   top: 0;
@@ -235,43 +176,6 @@
   padding: 0 var(--admin-spacing-xl);
   z-index: var(--admin-z-header);
   box-shadow: var(--admin-glass-shadow);
-  /* MOBILE SCROLL FIX - Added for 468px screens */
-  overflow-x: auto;
-  overflow-y: hidden;
-  min-width: 100%;
-}
-
-/* Mobile scroll styling for header */
-@media (max-width: 468px) {
-  .admin-header {
-    overflow-x: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--admin-neon-cyan) transparent;
-  }
-  
-  .admin-header::-webkit-scrollbar {
-    height: 4px;
-  }
-  
-  .admin-header::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
-  .admin-header::-webkit-scrollbar-thumb {
-    background: var(--admin-neon-cyan);
-    border-radius: 2px;
-  }
-  
-  [data-theme="light"] .admin-header::-webkit-scrollbar-thumb {
-    background: var(--admin-neon-purple);
-  }
-  
-  /* Prevent header items from shrinking on mobile */
-  .header-left,
-  .header-right {
-    flex-shrink: 0;
-    min-width: max-content;
-  }
 }
 
 /* Header Left Section */
@@ -292,7 +196,6 @@
   padding: 0;
   background: transparent;
   border: none;
-  flex-shrink: 0; /* Prevent shrinking on mobile */
 }
 
 .admin-logo:hover {
@@ -341,7 +244,6 @@
   background-clip: text;
   -webkit-text-fill-color: transparent;
   text-transform: uppercase;
-  white-space: nowrap; /* Prevent wrapping on mobile */
 }
 
 /* Navigation Controls */
@@ -349,7 +251,6 @@
   display: flex;
   align-items: center;
   gap: var(--admin-spacing-lg);
-  flex-shrink: 0; /* Prevent shrinking on mobile */
 }
 
 .nav-control-btn {
@@ -363,7 +264,6 @@
   font-size: 1.1rem;
   font-weight: 600;
   backdrop-filter: var(--admin-glass-backdrop);
-  white-space: nowrap; /* Prevent wrapping */
 }
 
 .nav-control-btn:hover:not(:disabled) {
@@ -400,7 +300,6 @@
   transition: all var(--admin-transition-fast);
   padding: var(--admin-spacing-xs) var(--admin-spacing-sm);
   border-radius: var(--admin-radius-sm);
-  white-space: nowrap; /* Prevent wrapping */
 }
 
 .breadcrumb-home:hover {
@@ -428,7 +327,6 @@
   padding: var(--admin-spacing-xs) var(--admin-spacing-sm);
   border-radius: var(--admin-radius-sm);
   border: 1px solid var(--admin-glass-border);
-  white-space: nowrap; /* Prevent wrapping */
 }
 
 /* Header Right Section */
@@ -436,7 +334,6 @@
   display: flex;
   align-items: center;
   gap: var(--admin-spacing-lg);
-  flex-shrink: 0; /* Prevent shrinking on mobile */
 }
 
 /* Header Actions */
@@ -444,7 +341,6 @@
   display: flex;
   align-items: center;
   gap: var(--admin-spacing-md);
-  flex-shrink: 0; /* Prevent shrinking on mobile */
 }
 
 .preview-btn,
@@ -465,10 +361,7 @@
   backdrop-filter: var(--admin-glass-backdrop);
   position: relative;
   overflow: hidden;
-  white-space: nowrap; /* Prevent wrapping */
 }
-
-/* src/components/admin/AdminDashboard/AdminDashboard.css - PART 2 OF 4 */
 
 .preview-btn::before,
 .refresh-btn::before,
@@ -544,7 +437,6 @@
   border: 1px solid var(--admin-glass-border);
   border-radius: var(--admin-radius-lg);
   backdrop-filter: var(--admin-glass-backdrop);
-  flex-shrink: 0; /* Prevent shrinking on mobile */
 }
 
 .profile-info {
@@ -562,7 +454,6 @@
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  white-space: nowrap; /* Prevent wrapping */
 }
 
 .profile-role {
@@ -571,7 +462,6 @@
   color: var(--admin-text-muted);
   text-transform: uppercase;
   letter-spacing: 1px;
-  white-space: nowrap; /* Prevent wrapping */
 }
 
 .signout-btn {
@@ -587,7 +477,6 @@
   display: flex;
   align-items: center;
   gap: var(--admin-spacing-sm);
-  white-space: nowrap; /* Prevent wrapping */
 }
 
 .signout-btn:hover {
@@ -633,7 +522,7 @@
   padding: var(--admin-spacing-md) var(--admin-spacing-lg);
   color: var(--admin-text-secondary);
   cursor: pointer;
-  transition: all var(--admin-transition-normal), transform 0.2s ease-out;
+  transition: all var(--admin-transition-normal), transform 0.2s ease-out; /* UPDATED: Added transform to transition */
   display: flex;
   align-items: center;
   gap: var(--admin-spacing-md);
@@ -661,7 +550,7 @@
 }
 
 .nav-item:hover {
-  transform: translateX(8px);
+  transform: translateX(8px); /* Keep hover transform distinct from active */
   border-color: var(--admin-neon-cyan);
   color: var(--admin-text-primary);
   box-shadow: 0 8px 25px rgba(0, 255, 255, 0.2);
@@ -672,21 +561,25 @@
   box-shadow: 0 8px 25px rgba(139, 43, 255, 0.15);
 }
 
+/* --- UPDATED ACTIVE STYLES START HERE --- */
+
 /* Base active style properties */
 .nav-item.active {
-  font-weight: 700;
-  border-color: transparent;
-  transform: translateX(10px) scale(1.02);
+  font-weight: 700; /* Bolder text for active items */
+  border-color: transparent; /* Remove border, rely on glow/background */
+  transform: translateX(10px) scale(1.02); /* Pop out and slightly enlarge */
+  /* transition is inherited from .nav-item, ensure transform is included there */
+  /* Ensure text color is vibrant and readable on the new backgrounds */
 }
 
 /* Dark Theme Active Styles - Strong Neon Glow */
 .nav-item[data-section="dashboard"].active {
   background-color: var(--admin-neon-cyan);
-  color: #003333;
+  color: #003333; /* Darker cyan/teal for text contrast */
   box-shadow: 0 0 10px 2px var(--admin-neon-cyan),
-              0 0 20px 5px rgba(0, 255, 255, 0.7),
-              0 0 30px 10px rgba(0, 255, 255, 0.4),
-              inset 0 0 5px rgba(255, 255, 255, 0.5);
+              0 0 20px 5px rgba(0, 255, 255, 0.7), /* Brighter, wider cyan glow */
+              0 0 30px 10px rgba(0, 255, 255, 0.4), /* Softer outer cyan glow */
+              inset 0 0 5px rgba(255, 255, 255, 0.5); /* Subtle inner highlight */
 }
 
 .nav-item[data-section="hero"].active {
@@ -718,7 +611,7 @@
 
 .nav-item[data-section="internships"].active {
   background-color: var(--admin-neon-green);
-  color: #00331a;
+  color: #00331a; /* Dark green for text */
   box-shadow: 0 0 10px 2px var(--admin-neon-green),
               0 0 20px 5px rgba(0, 255, 136, 0.7), 
               0 0 30px 10px rgba(0, 255, 136, 0.4),
@@ -727,7 +620,7 @@
 
 .nav-item[data-section="education"].active {
   background-color: var(--admin-neon-orange);
-  color: #331a00;
+  color: #331a00; /* Dark orange/brown for text */
   box-shadow: 0 0 10px 2px var(--admin-neon-orange),
               0 0 20px 5px rgba(255, 102, 0, 0.7), 
               0 0 30px 10px rgba(255, 102, 0, 0.4),
@@ -745,15 +638,15 @@
 
 .nav-item[data-section="skills"].active {
   background-color: var(--admin-neon-yellow);
-  color: #333300;
+  color: #333300; /* Dark yellow/olive for text */
   box-shadow: 0 0 10px 2px var(--admin-neon-yellow),
               0 0 20px 5px rgba(255, 255, 0, 0.7), 
               0 0 30px 10px rgba(255, 255, 0, 0.4),
-              inset 0 0 5px rgba(50, 50, 0, 0.3);
+              inset 0 0 5px rgba(50, 50, 0, 0.3); /* Darker inner highlight for yellow */
 }
 
 .nav-item[data-section="certifications"].active {
-  background-color: #6366f1;
+  background-color: #6366f1; /* Indigo */
   color: white;
   box-shadow: 0 0 10px 2px #6366f1,
               0 0 20px 5px rgba(99, 102, 241, 0.7), 
@@ -762,7 +655,7 @@
 }
 
 .nav-item[data-section="recommendations"].active {
-  background-color: #14b8a6;
+  background-color: #14b8a6; /* Teal */
   color: white;
   box-shadow: 0 0 10px 2px #14b8a6,
               0 0 20px 5px rgba(20, 184, 166, 0.7), 
@@ -771,8 +664,8 @@
 }
 
 .nav-item[data-section="achievements"].active {
-  background-color: #84cc16;
-  color: #1a2903;
+  background-color: #84cc16; /* Lime */
+  color: #1a2903; /* Dark lime/green for text */
   box-shadow: 0 0 10px 2px #84cc16,
               0 0 20px 5px rgba(132, 204, 22, 0.7), 
               0 0 30px 10px rgba(132, 204, 22, 0.4),
@@ -780,7 +673,7 @@
 }
 
 .nav-item[data-section="leadership"].active {
-  background-color: #8b5cf6;
+  background-color: #8b5cf6; /* Violet */
   color: white;
   box-shadow: 0 0 10px 2px #8b5cf6,
               0 0 20px 5px rgba(139, 92, 246, 0.7), 
@@ -789,7 +682,7 @@
 }
 
 .nav-item[data-section="contact"].active {
-  background-color: #f43f5e;
+  background-color: #f43f5e; /* Rose */
   color: white;
   box-shadow: 0 0 10px 2px #f43f5e,
               0 0 20px 5px rgba(244, 63, 94, 0.7), 
@@ -799,7 +692,7 @@
 
 /* Light Theme Active States - Strong Neon Glow */
 [data-theme="light"] .nav-item[data-section="dashboard"].active {
-  background-color: var(--admin-neon-purple);
+  background-color: var(--admin-neon-purple); /* Using a distinct color for light theme active */
   color: white; 
   box-shadow: 0 0 10px 2px var(--admin-neon-purple),
               0 0 20px 5px rgba(139, 43, 255, 0.6), 
@@ -817,7 +710,7 @@
 }
 
 [data-theme="light"] .nav-item[data-section="about"].active {
-  background-color: var(--admin-neon-pink);
+  background-color: var(--admin-neon-pink); /* Matching dark theme for consistency, or choose another */
   color: white;
   box-shadow: 0 0 10px 2px var(--admin-neon-pink),
               0 0 20px 5px rgba(255, 20, 147, 0.6),
@@ -836,20 +729,20 @@
 
 [data-theme="light"] .nav-item[data-section="internships"].active {
   background-color: var(--admin-neon-green);
-  color: #00331a;
+  color: #00331a; /* Dark green for text */
   box-shadow: 0 0 10px 2px var(--admin-neon-green),
               0 0 20px 5px rgba(0, 255, 136, 0.6),
               0 0 30px 10px rgba(0, 255, 136, 0.3),
-              inset 0 0 5px rgba(200, 255, 200, 0.4);
+              inset 0 0 5px rgba(200, 255, 200, 0.4); /* Lighter inner green highlight */
 }
 
 [data-theme="light"] .nav-item[data-section="education"].active {
-  background-color: var(--admin-neon-orange);
-  color: white;
+  background-color: var(--admin-neon-orange); /* Re-using orange, maybe a lighter shade? */
+  color: white; /* White text might be better on a brighter orange */
   box-shadow: 0 0 10px 2px var(--admin-neon-orange),
               0 0 20px 5px rgba(255, 102, 0, 0.6),  
               0 0 30px 10px rgba(255, 102, 0, 0.3),
-              inset 0 0 5px rgba(255, 220, 200, 0.5);
+              inset 0 0 5px rgba(255, 220, 200, 0.5); /* Lighter orange inner highlight */
 }
 
 [data-theme="light"] .nav-item[data-section="work"].active {
@@ -858,62 +751,63 @@
   box-shadow: 0 0 10px 2px var(--admin-neon-red),
               0 0 20px 5px rgba(255, 0, 68, 0.6),   
               0 0 30px 10px rgba(255, 0, 68, 0.3),
-              inset 0 0 5px rgba(255, 200, 200, 0.5);
+              inset 0 0 5px rgba(255, 200, 200, 0.5); /* Lighter red inner highlight */
 }
 
 [data-theme="light"] .nav-item[data-section="skills"].active {
   background-color: var(--admin-neon-yellow);
-  color: #535313;
+  color: #535313; /* Darker yellow/olive for text */
   box-shadow: 0 0 10px 2px var(--admin-neon-yellow),
               0 0 20px 5px rgba(255, 255, 0, 0.6),  
               0 0 30px 10px rgba(255, 255, 0, 0.3),
-              inset 0 0 5px rgba(100, 100, 0, 0.2);
+              inset 0 0 5px rgba(100, 100, 0, 0.2); 
 }
 
 [data-theme="light"] .nav-item[data-section="certifications"].active {
-  background-color: #6366f1;
+  background-color: #6366f1; /* Indigo */
   color: white;
   box-shadow: 0 0 10px 2px #6366f1,
               0 0 20px 5px rgba(99, 102, 241, 0.6), 
               0 0 30px 10px rgba(99, 102, 241, 0.3),
-              inset 0 0 5px rgba(220, 220, 255, 0.5);
+              inset 0 0 5px rgba(220, 220, 255, 0.5); /* Lighter indigo inner highlight */
 }
 
 [data-theme="light"] .nav-item[data-section="recommendations"].active {
-  background-color: #14b8a6;
+  background-color: #14b8a6; /* Teal */
   color: white; 
   box-shadow: 0 0 10px 2px #14b8a6,
               0 0 20px 5px rgba(20, 184, 166, 0.6), 
               0 0 30px 10px rgba(20, 184, 166, 0.3),
-              inset 0 0 5px rgba(200, 255, 255, 0.5);
+              inset 0 0 5px rgba(200, 255, 255, 0.5); /* Lighter teal inner highlight */
 }
 
 [data-theme="light"] .nav-item[data-section="achievements"].active {
-  background-color: #84cc16;
+  background-color: #84cc16; /* Lime */
   color: #1a2903; 
   box-shadow: 0 0 10px 2px #84cc16,
               0 0 20px 5px rgba(132, 204, 22, 0.6), 
               0 0 30px 10px rgba(132, 204, 22, 0.3),
-              inset 0 0 5px rgba(220, 255, 200, 0.5);
+              inset 0 0 5px rgba(220, 255, 200, 0.5); /* Lighter lime inner highlight */
 }
 
 [data-theme="light"] .nav-item[data-section="leadership"].active {
-  background-color: #8b5cf6;
+  background-color: #8b5cf6; /* Violet */
   color: white;
   box-shadow: 0 0 10px 2px #8b5cf6,
               0 0 20px 5px rgba(139, 92, 246, 0.6), 
               0 0 30px 10px rgba(139, 92, 246, 0.3),
-              inset 0 0 5px rgba(220, 200, 255, 0.5);
+              inset 0 0 5px rgba(220, 200, 255, 0.5); /* Lighter violet inner highlight */
 }
 
 [data-theme="light"] .nav-item[data-section="contact"].active {
-  background-color: #f43f5e;
+  background-color: #f43f5e; /* Rose */
   color: white;
   box-shadow: 0 0 10px 2px #f43f5e,
               0 0 20px 5px rgba(244, 63, 94, 0.6), 
               0 0 30px 10px rgba(244, 63, 94, 0.3),
-              inset 0 0 5px rgba(255, 200, 220, 0.5);
+              inset 0 0 5px rgba(255, 200, 220, 0.5); /* Lighter rose inner highlight */
 }
+/* --- END OF UPDATED ACTIVE STYLES --- */
 
 .nav-icon {
   font-size: 1.2rem;
@@ -961,49 +855,6 @@
   background: transparent;
 }
 
-/* ===== MOBILE SIDEBAR TOGGLE ===== */
-.sidebar-toggle-btn {
-  display: none;
-  background: var(--admin-glass-bg);
-  border: 1px solid var(--admin-glass-border);
-  border-radius: var(--admin-radius-sm);
-  padding: var(--admin-spacing-sm) var(--admin-spacing-md);
-  color: var(--admin-text-primary);
-  cursor: pointer;
-  transition: all var(--admin-transition-fast);
-  font-size: 1.1rem;
-  backdrop-filter: var(--admin-glass-backdrop);
-}
-
-.sidebar-toggle-btn:hover {
-  border-color: var(--admin-neon-cyan);
-  color: var(--admin-neon-cyan);
-  box-shadow: 0 4px 15px rgba(0, 255, 255, 0.2);
-}
-
-[data-theme="light"] .sidebar-toggle-btn:hover {
-  border-color: var(--admin-neon-purple);
-  color: var(--admin-neon-purple);
-  box-shadow: 0 4px 15px rgba(139, 43, 255, 0.15);
-}
-
-/* Mobile Sidebar Overlay */
-.admin-sidebar-overlay {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(5px);
-  z-index: var(--admin-z-modal);
-}
-
-.admin-sidebar-overlay.active {
-  display: block;
-}
-
 /* ===== ANIMATIONS ===== */
 @keyframes admin-logo-pulse {
   0%, 100% {
@@ -1049,26 +900,163 @@
   }
 }
 
-/* NEW: Particle Animation Keyframes */
-@keyframes admin-particles-float-slow {
-  0% {
-    transform: translateY(0px) translateX(0px) rotate(0deg);
+/* ===== MOBILE SIDEBAR TOGGLE ===== */
+.sidebar-toggle-btn {
+  display: none;
+  background: var(--admin-glass-bg);
+  border: 1px solid var(--admin-glass-border);
+  border-radius: var(--admin-radius-sm);
+  padding: var(--admin-spacing-sm) var(--admin-spacing-md);
+  color: var(--admin-text-primary);
+  cursor: pointer;
+  transition: all var(--admin-transition-fast);
+  font-size: 1.1rem;
+  backdrop-filter: var(--admin-glass-backdrop);
+}
+
+.sidebar-toggle-btn:hover {
+  border-color: var(--admin-neon-cyan);
+  color: var(--admin-neon-cyan);
+  box-shadow: 0 4px 15px rgba(0, 255, 255, 0.2);
+}
+
+[data-theme="light"] .sidebar-toggle-btn:hover {
+  border-color: var(--admin-neon-purple);
+  color: var(--admin-neon-purple);
+  box-shadow: 0 4px 15px rgba(139, 43, 255, 0.15);
+}
+
+/* Mobile Sidebar Overlay */
+.admin-sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  z-index: var(--admin-z-modal);
+}
+
+.admin-sidebar-overlay.active {
+  display: block;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 1024px) {
+  .admin-header {
+    padding: 0 var(--admin-spacing-lg);
   }
-  25% {
-    transform: translateY(-15px) translateX(10px) rotate(90deg);
+  
+  .admin-sidebar {
+    width: 250px;
   }
-  50% {
-    transform: translateY(-8px) translateX(-5px) rotate(180deg);
+  
+  .header-left {
+    gap: var(--admin-spacing-lg);
   }
-  75% {
-    transform: translateY(-20px) translateX(-15px) rotate(270deg);
+  
+  .header-right {
+    gap: var(--admin-spacing-md);
   }
-  100% {
-    transform: translateY(0px) translateX(0px) rotate(360deg);
+  
+  .admin-main {
+    padding: var(--admin-spacing-lg);
   }
 }
 
-/* src/components/admin/AdminDashboard/AdminDashboard.css - PART 3 OF 4 */
+@media (max-width: 768px) {
+  .admin-header {
+    height: 70px;
+    padding: 0 var(--admin-spacing-md);
+  }
+  
+  /* Show sidebar toggle button */
+  .sidebar-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--admin-spacing-sm);
+  }
+  
+  /* Hide sidebar by default on mobile */
+  .admin-sidebar {
+    position: fixed;
+    top: 70px; /* Match header height */
+    left: -280px; /* Hide off-screen */
+    width: 280px;
+    height: calc(100vh - 70px); /* Full height minus header */
+    transition: left var(--admin-transition-normal);
+    z-index: var(--admin-z-modal); /* Ensure it's above content but below modal overlay */
+  }
+  
+  .admin-sidebar.mobile-open {
+    left: 0; /* Slide in */
+  }
+  
+  .logo-image {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .navigation-controls {
+    display: none; /* Hide breadcrumbs and nav buttons on smaller screens */
+  }
+  
+  .header-actions {
+    gap: var(--admin-spacing-sm);
+  }
+  
+  .profile-info {
+    display: none; /* Hide profile text on mobile, icon remains */
+  }
+  
+  .admin-main {
+    padding: var(--admin-spacing-md);
+    width: 100%; /* Ensure main content takes full width when sidebar is hidden/overlayed */
+  }
+  
+  .nav-item {
+    padding: var(--admin-spacing-sm) var(--admin-spacing-md);
+    font-size: 0.9rem;
+  }
+  
+  .nav-icon {
+    font-size: 1rem;
+  }
+}
+
+/* ===== SCROLLBAR STYLING ===== */
+.admin-sidebar::-webkit-scrollbar,
+.admin-main::-webkit-scrollbar {
+  width: 6px;
+}
+
+.admin-sidebar::-webkit-scrollbar-track,
+.admin-main::-webkit-scrollbar-track {
+  background: var(--admin-bg-secondary);
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb,
+.admin-main::-webkit-scrollbar-thumb {
+  background: var(--admin-glass-border);
+  border-radius: 3px;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb:hover,
+.admin-main::-webkit-scrollbar-thumb:hover {
+  background: var(--admin-neon-cyan);
+}
+
+[data-theme="light"] .admin-sidebar::-webkit-scrollbar-thumb:hover,
+[data-theme="light"] .admin-main::-webkit-scrollbar-thumb:hover {
+  background: var(--admin-neon-purple);
+}
+
+/* =================================
+   ADMIN DASHBOARD - PART 2
+   Content Areas, Preview Modal & Mobile
+   ================================= */
 
 /* ===== DASHBOARD OVERVIEW CONTENT ===== */
 .dashboard-overview {
@@ -1100,25 +1088,25 @@
 }
 
 [data-theme="light"] .gradient-text {
-  background: linear-gradient(135deg, #0047AB, #C2185B, #E65100);
-  background-size: 200% 200%;
+  background: linear-gradient(135deg, #0047AB, #C2185B, #E65100); /* Example: Cobalt Blue -> Strong Pink/Red -> Dark Orange */
+  background-size: 200% 200%; /* Keep animation properties if desired */
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: admin-gradient-shift 4s ease-in-out infinite;
+  animation: admin-gradient-shift 4s ease-in-out infinite; /* Keep animation */
 }
 
 .overview-subtitle {
   font-size: 1.2rem;
-  color: var(--admin-text-secondary);
+  color: var(--admin-text-secondary); /* Base color */
   font-weight: 500;
   margin: 0;
 }
 
+/* UPDATED: Light theme overview subtitle color (This was the previous attempt) */
 [data-theme="light"] .overview-subtitle {
-  color: #212121;
+  color: #212121; /* A much darker gray, close to black, for very high contrast */
 }
-
 /* ===== STATISTICS GRID ===== */
 .stats-grid {
   display: grid;
@@ -1224,12 +1212,15 @@
   line-height: 1;
 }
 
+/* === ADD THIS NEW RULE HERE === */
 [data-theme="light"] .stat-content h3 {
-  background: linear-gradient(135deg, var(--admin-neon-purple), var(--admin-light-neon-title-5));
+  background: linear-gradient(135deg, var(--admin-neon-purple), var(--admin-light-neon-title-5)); /* Purple to Deep Purple */
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+/* === END OF NEW RULE === */
+
 
 .stat-content p {
   font-size: 1rem;
@@ -1326,6 +1317,8 @@
   box-shadow: 0 15px 30px rgba(255, 20, 147, 0.2);
 }
 
+/* .btn-icon is already defined, ensure it's suitable here or make specific if needed */
+
 /* Last Updated Info */
 .last-updated {
   text-align: center;
@@ -1352,7 +1345,7 @@
   padding-bottom: var(--admin-spacing-xl);
   border-bottom: 1px solid var(--admin-glass-border);
   position: relative;
-  overflow: hidden;
+  overflow: hidden; /* Keep this to contain effects */
 }
 
 /* Animated Background Elements for Section Header */
@@ -1365,8 +1358,8 @@
   height: 200%;
   background: radial-gradient(
     circle,
-    rgba(0, 255, 255, 0.03) 0%,
-    rgba(139, 43, 255, 0.02) 25%,
+    rgba(0, 255, 255, 0.03) 0%, /* Cyan */
+    rgba(139, 43, 255, 0.02) 25%, /* Purple */
     transparent 50%
   );
   animation: admin-section-bg-rotate 20s linear infinite;
@@ -1376,8 +1369,8 @@
 [data-theme="light"] .admin-section-header::before {
   background: radial-gradient(
     circle,
-    rgba(139, 43, 255, 0.02) 0%,
-    rgba(255, 102, 0, 0.015) 25%,
+    rgba(139, 43, 255, 0.02) 0%, /* Purple */
+    rgba(255, 102, 0, 0.015) 25%, /* Orange */
     transparent 50%
   );
 }
@@ -1386,19 +1379,20 @@
   font-size: 2.2rem;
   font-weight: 800;
   margin: 0 0 var(--admin-spacing-md);
-  display: flex;
+  display: flex; /* This remains to allow gap if icon was present */
   align-items: center;
   justify-content: center;
-  gap: var(--admin-spacing-md);
+  gap: var(--admin-spacing-md); /* This gap will now only apply if other elements are added inside .admin-section-title */
+  /* Initial gradient, will be animated */
   background: linear-gradient(135deg, 
     var(--admin-neon-cyan), 
     var(--admin-neon-purple), 
     var(--admin-neon-pink), 
     var(--admin-neon-green),
     var(--admin-neon-orange),
-    var(--admin-neon-cyan)
+    var(--admin-neon-cyan) /* Loop back for smooth animation */
   );
-  background-size: 400% 100%;
+  background-size: 400% 100%; /* Increased size for wider gradient animation */
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -1414,7 +1408,7 @@
     var(--admin-light-neon-title-3),
     var(--admin-light-neon-title-4),
     var(--admin-light-neon-title-5),
-    var(--admin-light-neon-title-1)
+    var(--admin-light-neon-title-1) /* Loop back */
   );
   background-size: 400% 100%;
   -webkit-background-clip: text;
@@ -1424,7 +1418,8 @@
              admin-title-soft-glow-light 3s ease-in-out infinite alternate;
 }
 
-/* Creative floating particles around title */
+
+/* Creative floating particles around title (existing) */
 .admin-section-title::after {
   content: '';
   position: absolute;
@@ -1450,14 +1445,15 @@
     radial-gradient(circle at 80% 80%, var(--admin-light-neon-title-2) 1px, transparent 1px),
     radial-gradient(circle at 60% 10%, var(--admin-light-neon-title-3) 1.5px, transparent 1.5px),
     radial-gradient(circle at 10% 80%, var(--admin-light-neon-title-4) 1px, transparent 1px);
-  opacity: 0.7;
+  opacity: 0.7; /* Slightly more visible on light theme */
 }
 
-/* Hide the icon within .admin-section-title */
+/* MODIFICATION: Hide the icon within .admin-section-title */
 .admin-section-title .admin-section-icon {
   display: none;
 }
 
+/* Existing .admin-section-icon styles (will not apply if display: none is active on the element itself) */
 .admin-section-icon {
   font-size: 2.5rem;
   filter: drop-shadow(0 0 15px currentColor);
@@ -1465,6 +1461,7 @@
   position: relative;
 }
 
+/* Icon breathing effect (existing, will not apply if icon is hidden) */
 .admin-section-icon::before {
   content: '';
   position: absolute;
@@ -1493,6 +1490,7 @@
 
 .admin-section-subtitle {
   font-size: 1.1rem;
+  /* color is animated */
   margin: 0;
   font-weight: 500;
   position: relative;
@@ -1507,14 +1505,15 @@
              admin-subtitle-soft-glow-light 3.5s ease-in-out infinite alternate;
 }
 
-/* Animated underline for subtitle */
+
+/* Animated underline for subtitle (existing, color can be enhanced) */
 .admin-section-subtitle::after {
   content: '';
   position: absolute;
   bottom: -8px;
   left: 50%;
   transform: translateX(-50%);
-  width: 0;
+  width: 0; /* Expands via animation */
   height: 2px;
   background: linear-gradient(90deg, 
     var(--admin-neon-cyan), 
@@ -1522,7 +1521,7 @@
     var(--admin-neon-pink)
   );
   animation: admin-underline-expand 1.5s ease-out 1s both,
-             admin-underline-color-shift 6s linear infinite alternate;
+             admin-underline-color-shift 6s linear infinite alternate; /* NEW: color shift for underline */
 }
 
 [data-theme="light"] .admin-section-subtitle::after {
@@ -1532,10 +1531,11 @@
     var(--admin-light-neon-subtitle-3)
   );
    animation: admin-underline-expand 1.5s ease-out 1s both,
-             admin-underline-color-shift-light 6s linear infinite alternate;
+             admin-underline-color-shift-light 6s linear infinite alternate; /* NEW: color shift for underline */
 }
 
-/* Wave effect on section header */
+
+/* Wave effect on section header (existing) */
 .admin-section-header::after {
   content: '';
   position: absolute;
@@ -1591,24 +1591,24 @@
   line-height: 1.6;
 }
 
-/* "Return to Dashboard" Button Styling */
+/* === "Return to Dashboard" Button Styling === */
 .placeholder-btn {
-  background-size: 200% 100%;
+  background-size: 200% 100%; /* For gradient animation */
   border: none;
   border-radius: var(--admin-radius-md);
   padding: var(--admin-spacing-md) var(--admin-spacing-xl);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all var(--admin-transition-normal), transform 0.1s ease-out;
+  transition: all var(--admin-transition-normal), transform 0.1s ease-out; /* Added transform for click effect */
   position: relative;
-  overflow: hidden;
+  overflow: hidden; /* To contain shimmer effect */
 }
 
 /* Dark Theme Button */
 .placeholder-btn {
   background-image: linear-gradient(135deg, var(--admin-neon-blue), var(--admin-neon-cyan), var(--admin-neon-blue));
-  color: var(--admin-bg-primary);
+  color: var(--admin-bg-primary); /* Dark text on light neon */
   text-shadow: 0 0 5px rgba(0,0,0,0.2);
   animation: admin-button-gradient-scroll-dark 6s linear infinite;
 }
@@ -1626,7 +1626,7 @@
 /* Light Theme Button */
 [data-theme="light"] .placeholder-btn {
   background-image: linear-gradient(135deg, var(--admin-light-neon-title-1), var(--admin-light-neon-title-5), var(--admin-light-neon-title-1));
-  color: #ffffff;
+  color: #ffffff; /* White text on vibrant colors */
   text-shadow: 0 0 5px rgba(0,0,0,0.3);
   animation: admin-button-gradient-scroll-light 6s linear infinite;
 }
@@ -1641,7 +1641,7 @@
   box-shadow: 0 8px 20px rgba(81, 45, 168, 0.25), 0 0 10px var(--admin-light-neon-title-1) inset;
 }
 
-/* Shimmer effect on hover for button */
+/* Optional: Shimmer effect on hover for button */
 .placeholder-btn::before {
   content: '';
   position: absolute;
@@ -1653,12 +1653,10 @@
   transform: skewX(-25deg);
   transition: left 0.6s ease-in-out;
 }
-
 .placeholder-btn:hover::before {
   left: 150%;
 }
 
-/* src/components/admin/AdminDashboard/AdminDashboard.css - PART 4 OF 4 */
 
 /* ===== PREVIEW MODAL SYSTEM - LIGHT THEME FRIENDLY ===== */
 .preview-modal {
@@ -1819,8 +1817,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--admin-spacing-xl);
-  background: var(--admin-bg-secondary);
+  padding: var(--admin-spacing-xl); /* */
+  background: var(--admin-bg-secondary); /* */
   overflow: auto;
 }
 
@@ -1901,87 +1899,11 @@
   color: var(--admin-neon-purple);
 }
 
-/* ===== RESPONSIVE DESIGN ===== */
-@media (max-width: 1024px) {
-  .admin-header {
-    padding: 0 var(--admin-spacing-lg);
-  }
-  
-  .admin-sidebar {
-    width: 250px;
-  }
-  
-  .header-left {
-    gap: var(--admin-spacing-lg);
-  }
-  
-  .header-right {
-    gap: var(--admin-spacing-md);
-  }
-  
-  .admin-main {
-    padding: var(--admin-spacing-lg);
-  }
-}
+/* ===== MOBILE RESPONSIVE DESIGN (Part 2) ===== */
 
+/* Standard Tablets (768px and down) */
 @media (max-width: 768px) {
-  .admin-header {
-    height: 70px;
-    padding: 0 var(--admin-spacing-md);
-  }
-  
-  /* Show sidebar toggle button */
-  .sidebar-toggle-btn {
-    display: flex;
-    align-items: center;
-    gap: var(--admin-spacing-sm);
-  }
-  
-  /* Hide sidebar by default on mobile */
-  .admin-sidebar {
-    position: fixed;
-    top: 70px;
-    left: -280px;
-    width: 280px;
-    height: calc(100vh - 70px);
-    transition: left var(--admin-transition-normal);
-    z-index: var(--admin-z-modal);
-  }
-  
-  .admin-sidebar.mobile-open {
-    left: 0;
-  }
-  
-  .logo-image {
-    width: 35px;
-    height: 35px;
-  }
-  
-  .navigation-controls {
-    display: none;
-  }
-  
-  .header-actions {
-    gap: var(--admin-spacing-sm);
-  }
-  
-  .profile-info {
-    display: none;
-  }
-  
-  .admin-main {
-    padding: var(--admin-spacing-md);
-    width: 100%;
-  }
-  
-  .nav-item {
-    padding: var(--admin-spacing-sm) var(--admin-spacing-md);
-    font-size: 0.9rem;
-  }
-  
-  .nav-icon {
-    font-size: 1rem;
-  }
+  /* .dashboard-body adjustments already in Part 1 */
   
   .overview-title {
     font-size: 1.8rem;
@@ -2017,6 +1939,9 @@
     gap: var(--admin-spacing-sm);
   }
   
+  /* .admin-section-icon will be hidden by the new rule, but if it were visible: */
+  /* .admin-section-title .admin-section-icon { font-size: 2rem; } */
+  
   .preview-container {
     width: 100vw;
     height: 100vh;
@@ -2047,8 +1972,10 @@
   }
 }
 
-/* Mobile Phones (480px and down) */
+/* Large Mobile Phones (480px and down) */
 @media (max-width: 480px) {
+  /* .admin-main adjustments already in Part 1 */
+  
   .dashboard-overview {
     padding: var(--admin-spacing-md);
   }
@@ -2142,34 +2069,7 @@
   }
 }
 
-/* ===== SCROLLBAR STYLING ===== */
-.admin-sidebar::-webkit-scrollbar,
-.admin-main::-webkit-scrollbar {
-  width: 6px;
-}
-
-.admin-sidebar::-webkit-scrollbar-track,
-.admin-main::-webkit-scrollbar-track {
-  background: var(--admin-bg-secondary);
-}
-
-.admin-sidebar::-webkit-scrollbar-thumb,
-.admin-main::-webkit-scrollbar-thumb {
-  background: var(--admin-glass-border);
-  border-radius: 3px;
-}
-
-.admin-sidebar::-webkit-scrollbar-thumb:hover,
-.admin-main::-webkit-scrollbar-thumb:hover {
-  background: var(--admin-neon-cyan);
-}
-
-[data-theme="light"] .admin-sidebar::-webkit-scrollbar-thumb:hover,
-[data-theme="light"] .admin-main::-webkit-scrollbar-thumb:hover {
-  background: var(--admin-neon-purple);
-}
-
-/* ===== ANIMATIONS ===== */
+/* ===== ANIMATIONS (Part 2) ===== */
 @keyframes admin-gradient-shift {
   0% {
     background-position: 0% 50%;
@@ -2203,7 +2103,9 @@
   }
 }
 
-@keyframes admin-particles-float {
+/* Removed admin-title-glow as it's replaced */
+
+@keyframes admin-particles-float { /* Existing, seems fine */
   0% {
     transform: translateY(0px) rotate(0deg);
   }
@@ -2221,7 +2123,7 @@
   }
 }
 
-@keyframes admin-icon-pulse {
+@keyframes admin-icon-pulse { /* Existing, seems fine */
   0%, 100% {
     transform: scale(1);
     filter: drop-shadow(0 0 15px currentColor);
@@ -2232,7 +2134,7 @@
   }
 }
 
-@keyframes admin-icon-breathing {
+@keyframes admin-icon-breathing { /* Existing, seems fine */
   0%, 100% {
     transform: scale(1);
     opacity: 0.2;
@@ -2243,7 +2145,7 @@
   }
 }
 
-@keyframes admin-subtitle-fade-in {
+@keyframes admin-subtitle-fade-in { /* Existing, seems fine */
   from {
     opacity: 0;
     transform: translateY(20px);
@@ -2254,7 +2156,7 @@
   }
 }
 
-@keyframes admin-underline-expand {
+@keyframes admin-underline-expand { /* Existing, seems fine */
   from {
     width: 0;
   }
@@ -2263,7 +2165,7 @@
   }
 }
 
-@keyframes admin-wave-flow {
+@keyframes admin-wave-flow { /* Existing, seems fine */
   0% {
     background-position: -100% 0;
   }
@@ -2272,12 +2174,13 @@
   }
 }
 
+/* === NEW ANIMATIONS FOR TITLE, SUBTITLE, BUTTON === */
+
 /* Title Gradient Scroll Animations */
 @keyframes admin-title-gradient-scroll-dark {
   0% { background-position: 0% 50%; }
   100% { background-position: 100% 50%; }
 }
-
 @keyframes admin-title-gradient-scroll-light {
   0% { background-position: 0% 50%; }
   100% { background-position: 100% 50%; }
@@ -2285,29 +2188,12 @@
 
 /* Title Soft Glow Animations */
 @keyframes admin-title-soft-glow {
-  0%, 100% { 
-    text-shadow: 0 0 5px var(--admin-neon-cyan), 
-                 0 0 10px var(--admin-neon-cyan), 
-                 0 0 15px rgba(0,255,255,0.3); 
-  }
-  50% { 
-    text-shadow: 0 0 8px var(--admin-neon-purple), 
-                 0 0 15px var(--admin-neon-purple), 
-                 0 0 20px rgba(139,43,255,0.4); 
-  }
+  0%, 100% { text-shadow: 0 0 5px var(--admin-neon-cyan), 0 0 10px var(--admin-neon-cyan), 0 0 15px rgba(0,255,255,0.3); }
+  50% { text-shadow: 0 0 8px var(--admin-neon-purple), 0 0 15px var(--admin-neon-purple), 0 0 20px rgba(139,43,255,0.4); }
 }
-
 @keyframes admin-title-soft-glow-light {
-  0%, 100% { 
-    text-shadow: 0 0 4px var(--admin-light-neon-title-1), 
-                 0 0 8px var(--admin-light-neon-title-1), 
-                 0 0 12px rgba(0,123,255,0.3); 
-  }
-  50% { 
-    text-shadow: 0 0 6px var(--admin-light-neon-title-2), 
-                 0 0 12px var(--admin-light-neon-title-2), 
-                 0 0 18px rgba(233,30,99,0.4); 
-  }
+  0%, 100% { text-shadow: 0 0 4px var(--admin-light-neon-title-1), 0 0 8px var(--admin-light-neon-title-1), 0 0 12px rgba(0,123,255,0.3); }
+  50% { text-shadow: 0 0 6px var(--admin-light-neon-title-2), 0 0 12px var(--admin-light-neon-title-2), 0 0 18px rgba(233,30,99,0.4); }
 }
 
 /* Subtitle Color Cycle Animations */
@@ -2318,7 +2204,6 @@
   60% { color: var(--admin-neon-green); }
   80% { color: var(--admin-neon-orange); }
 }
-
 @keyframes admin-subtitle-color-cycle-light {
   0%, 100% { color: var(--admin-light-neon-subtitle-1); }
   20% { color: var(--admin-light-neon-subtitle-2); }
@@ -2329,68 +2214,30 @@
 
 /* Subtitle Soft Glow Animations */
 @keyframes admin-subtitle-soft-glow {
-  0%, 100% { 
-    text-shadow: 0 0 3px var(--admin-neon-cyan), 
-                 0 0 6px rgba(0,255,255,0.2); 
-  }
-  50% { 
-    text-shadow: 0 0 5px var(--admin-neon-pink), 
-                 0 0 8px rgba(255,20,147,0.3); 
-  }
+  0%, 100% { text-shadow: 0 0 3px var(--admin-neon-cyan), 0 0 6px rgba(0,255,255,0.2); }
+  50% { text-shadow: 0 0 5px var(--admin-neon-pink), 0 0 8px rgba(255,20,147,0.3); }
 }
-
 @keyframes admin-subtitle-soft-glow-light {
-  0%, 100% { 
-    text-shadow: 0 0 2px var(--admin-light-neon-subtitle-1), 
-                 0 0 4px rgba(0,86,179,0.2); 
-  }
-  50% { 
-    text-shadow: 0 0 4px var(--admin-light-neon-subtitle-3), 
-                 0 0 6px rgba(245,124,0,0.3); 
-  }
+  0%, 100% { text-shadow: 0 0 2px var(--admin-light-neon-subtitle-1), 0 0 4px rgba(0,86,179,0.2); }
+  50% { text-shadow: 0 0 4px var(--admin-light-neon-subtitle-3), 0 0 6px rgba(245,124,0,0.3); }
 }
 
 /* Animated Underline Color Shift */
 @keyframes admin-underline-color-shift {
-  0%, 100% { 
-    background: linear-gradient(90deg, 
-      var(--admin-neon-cyan), 
-      var(--admin-neon-purple), 
-      var(--admin-neon-pink)
-    ); 
-  }
-  50% { 
-    background: linear-gradient(90deg, 
-      var(--admin-neon-green), 
-      var(--admin-neon-orange), 
-      var(--admin-neon-red)
-    ); 
-  }
+  0%, 100% { background: linear-gradient(90deg, var(--admin-neon-cyan), var(--admin-neon-purple), var(--admin-neon-pink)); }
+  50% { background: linear-gradient(90deg, var(--admin-neon-green), var(--admin-neon-orange), var(--admin-neon-red)); }
+}
+@keyframes admin-underline-color-shift-light {
+  0%, 100% { background: linear-gradient(90deg, var(--admin-light-neon-subtitle-1), var(--admin-light-neon-subtitle-2), var(--admin-light-neon-subtitle-3)); }
+  50% { background: linear-gradient(90deg, var(--admin-light-neon-subtitle-4), var(--admin-light-neon-subtitle-5), var(--admin-light-neon-subtitle-1)); }
 }
 
-@keyframes admin-underline-color-shift-light {
-  0%, 100% { 
-    background: linear-gradient(90deg, 
-      var(--admin-light-neon-subtitle-1), 
-      var(--admin-light-neon-subtitle-2), 
-      var(--admin-light-neon-subtitle-3)
-    ); 
-  }
-  50% { 
-    background: linear-gradient(90deg, 
-      var(--admin-light-neon-subtitle-4), 
-      var(--admin-light-neon-subtitle-5), 
-      var(--admin-light-neon-subtitle-1)
-    ); 
-  }
-}
 
 /* "Return to Dashboard" Button Gradient Scroll Animations */
 @keyframes admin-button-gradient-scroll-dark {
   0% { background-position: 0% 50%; }
   100% { background-position: 100% 50%; }
 }
-
 @keyframes admin-button-gradient-scroll-light {
   0% { background-position: 0% 50%; }
   100% { background-position: 100% 50%; }

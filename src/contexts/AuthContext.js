@@ -91,7 +91,7 @@ export const withAuth = (WrappedComponent) => {
 
     // Redirect to login if not authenticated
     if (!isAuthenticated) {
-      window.location.href = '/adminview';
+      window.location.href = '/adminlogin';
       return null;
     }
 

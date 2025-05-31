@@ -1,21 +1,21 @@
-// src/hooks/useSupabase.js
+// src/hooks/useSupabase.js - CLEAN PRODUCTION VERSION
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../services/supabaseClient';
 
 /**
- * Custom hook for Supabase data fetching with loading states and error handling
- * 
- * @param {string} table - Supabase table name
- * @param {Object} filters - Query filters object
- * @param {Object} options - Additional options for the query
- * @returns {Object} { data, loading, error, refetch }
+ * Custom hook for Supabase data fetching with real-time updates
  */
 export const useSupabase = (table, filters = {}, options = {}) => {
   // State management
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [lastRefresh, setLastRefresh] = useState(Date.now());
+
+  // Refs for cleanup
+  const subscriptionRef = useRef(null);
+  const mountedRef = useRef(true);
 
   // Destructure options with defaults
   const {
@@ -24,7 +24,8 @@ export const useSupabase = (table, filters = {}, options = {}) => {
     limit = null,
     single = false,
     enabled = true,
-    realtime = false
+    realtime = true,
+    cacheKey = null
   } = options;
 
   // Stringify objects to prevent infinite re-renders
@@ -34,9 +35,8 @@ export const useSupabase = (table, filters = {}, options = {}) => {
   /**
    * Main data fetching function
    */
-  const fetchData = useCallback(async () => {
-    // Don't fetch if disabled
-    if (!enabled || !table) {
+  const fetchData = useCallback(async (forceRefresh = false) => {
+    if (!enabled || !table || !mountedRef.current) {
       setLoading(false);
       return;
     }
@@ -45,46 +45,28 @@ export const useSupabase = (table, filters = {}, options = {}) => {
       setLoading(true);
       setError(null);
 
-      // Parse back the stringified filters and orderBy
       const parsedFilters = JSON.parse(filtersString);
       const parsedOrderBy = JSON.parse(orderByString);
 
-      console.log(`🔍 useSupabase: Fetching data from ${table}`, { filters: parsedFilters, options });
-
-      // Build Supabase query
+      // Build query
       let query = supabase.from(table).select(select);
 
-      // Apply filters dynamically
+      // Apply filters
       Object.entries(parsedFilters).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
           if (Array.isArray(value)) {
             query = query.in(key, value);
           } else if (typeof value === 'object' && value.operator) {
-            // Handle custom operators like { operator: 'gte', value: '2023-01-01' }
+            // Handle custom operators
             switch (value.operator) {
-              case 'gte':
-                query = query.gte(key, value.value);
-                break;
-              case 'lte':
-                query = query.lte(key, value.value);
-                break;
-              case 'gt':
-                query = query.gt(key, value.value);
-                break;
-              case 'lt':
-                query = query.lt(key, value.value);
-                break;
-              case 'like':
-                query = query.like(key, value.value);
-                break;
-              case 'ilike':
-                query = query.ilike(key, value.value);
-                break;
-              case 'neq':
-                query = query.neq(key, value.value);
-                break;
-              default:
-                query = query.eq(key, value.value);
+              case 'gte': query = query.gte(key, value.value); break;
+              case 'lte': query = query.lte(key, value.value); break;
+              case 'gt': query = query.gt(key, value.value); break;
+              case 'lt': query = query.lt(key, value.value); break;
+              case 'like': query = query.like(key, value.value); break;
+              case 'ilike': query = query.ilike(key, value.value); break;
+              case 'neq': query = query.neq(key, value.value); break;
+              default: query = query.eq(key, value.value);
             }
           } else {
             query = query.eq(key, value);
@@ -95,17 +77,17 @@ export const useSupabase = (table, filters = {}, options = {}) => {
       // Apply ordering
       if (parsedOrderBy) {
         if (Array.isArray(parsedOrderBy)) {
-          // Multiple order columns: [{ column: 'created_at', ascending: false }]
           parsedOrderBy.forEach(order => {
             query = query.order(order.column, { ascending: order.ascending !== false });
           });
         } else if (typeof parsedOrderBy === 'object') {
-          // Single order object: { column: 'created_at', ascending: false }
           query = query.order(parsedOrderBy.column, { ascending: parsedOrderBy.ascending !== false });
         } else {
-          // Simple string: 'created_at'
           query = query.order(parsedOrderBy, { ascending: false });
         }
+      } else {
+        // Default ordering by created_at if no order specified
+        query = query.order('created_at', { ascending: false });
       }
 
       // Apply limit
@@ -118,42 +100,55 @@ export const useSupabase = (table, filters = {}, options = {}) => {
         ? await query.single()
         : await query;
 
-      if (queryError) {
+      if (queryError && queryError.code !== 'PGRST116') {
         throw queryError;
       }
 
-      console.log(`✅ useSupabase: Successfully fetched ${single ? 'single record' : `${result?.length || 0} records`} from ${table}`);
+      // Handle "no rows returned" for single queries
+      if (queryError && queryError.code === 'PGRST116' && single) {
+        if (mountedRef.current) {
+          setData(null);
+          setError(null);
+          setLastRefresh(Date.now());
+        }
+        return;
+      }
       
-      setData(result);
-      setError(null);
-
-    } catch (err) {
-      console.error(`❌ useSupabase: Error fetching from ${table}:`, err);
-      
-      // Provide user-friendly error messages
-      let userFriendlyError = err.message;
-      
-      if (err.code === 'PGRST116') {
-        userFriendlyError = single 
-          ? `No ${table.replace(/_/g, ' ')} record found`
-          : `No ${table.replace(/_/g, ' ')} records found`;
-      } else if (err.message?.includes('JWT')) {
-        userFriendlyError = 'Authentication expired. Please refresh the page.';
-      } else if (err.message?.includes('permission denied')) {
-        userFriendlyError = 'Permission denied. You may not have access to this data.';
-      } else if (err.message?.includes('relation') && err.message?.includes('does not exist')) {
-        userFriendlyError = `Database table '${table}' not found.`;
+      if (mountedRef.current) {
+        setData(result);
+        setError(null);
+        setLastRefresh(Date.now());
       }
 
-      setError({
-        message: userFriendlyError,
-        code: err.code || 'UNKNOWN_ERROR',
-        details: err.message,
-        table: table
-      });
-      setData(null);
+    } catch (err) {
+      if (mountedRef.current) {
+        // Provide user-friendly error messages
+        let userFriendlyError = err.message;
+        
+        if (err.code === 'PGRST116') {
+          userFriendlyError = single 
+            ? `No ${table.replace(/_/g, ' ')} record found`
+            : `No ${table.replace(/_/g, ' ')} records found`;
+        } else if (err.message?.includes('JWT')) {
+          userFriendlyError = 'Authentication expired. Please refresh the page.';
+        } else if (err.message?.includes('permission denied')) {
+          userFriendlyError = 'Permission denied. You may not have access to this data.';
+        } else if (err.message?.includes('relation') && err.message?.includes('does not exist')) {
+          userFriendlyError = `Database table '${table}' not found.`;
+        }
+
+        setError({
+          message: userFriendlyError,
+          code: err.code || 'UNKNOWN_ERROR',
+          details: err.message,
+          table: table
+        });
+        setData(null);
+      }
     } finally {
-      setLoading(false);
+      if (mountedRef.current) {
+        setLoading(false);
+      }
     }
   }, [table, filtersString, orderByString, select, limit, single, enabled]);
 
@@ -161,66 +156,124 @@ export const useSupabase = (table, filters = {}, options = {}) => {
    * Manual refetch function
    */
   const refetch = useCallback(async () => {
-    await fetchData();
+    await fetchData(true);
   }, [fetchData]);
 
   /**
    * Clear data and reset states
    */
   const reset = useCallback(() => {
-    setData(null);
-    setError(null);
-    setLoading(false);
+    if (mountedRef.current) {
+      setData(null);
+      setError(null);
+      setLoading(false);
+    }
   }, []);
 
-  // Initial data fetch and dependency updates
+  // Initial data fetch
   useEffect(() => {
+    mountedRef.current = true;
     fetchData();
+
+    return () => {
+      mountedRef.current = false;
+    };
   }, [fetchData]);
 
-  // Real-time subscription (optional)
+  // Real-time subscription
   useEffect(() => {
-    if (!realtime || !table || !enabled) return;
+    if (!realtime || !table || !enabled || !mountedRef.current) return;
 
-    console.log(`🔴 useSupabase: Setting up real-time subscription for ${table}`);
+    const channelName = `public:${table}:${cacheKey || Date.now()}`;
+    
+    // Clean up existing subscription
+    if (subscriptionRef.current) {
+      supabase.removeChannel(subscriptionRef.current);
+    }
 
     const subscription = supabase
-      .channel(`public:${table}`)
+      .channel(channelName)
       .on('postgres_changes', { 
         event: '*', 
         schema: 'public', 
         table: table 
       }, (payload) => {
-        console.log(`🔄 useSupabase: Real-time update for ${table}:`, payload);
-        
-        // Refetch data on any change
-        refetch();
+        if (mountedRef.current) {
+          // Add a small delay to ensure database consistency
+          setTimeout(() => {
+            if (mountedRef.current) {
+              refetch();
+            }
+          }, 300);
+        }
       })
       .subscribe();
 
-    // Cleanup subscription
+    subscriptionRef.current = subscription;
+
+    // Cleanup function
     return () => {
-      console.log(`🔴 useSupabase: Cleaning up real-time subscription for ${table}`);
-      supabase.removeChannel(subscription);
+      if (subscriptionRef.current) {
+        supabase.removeChannel(subscriptionRef.current);
+        subscriptionRef.current = null;
+      }
     };
-  }, [table, realtime, enabled, refetch]);
+  }, [table, realtime, enabled, refetch, cacheKey]);
+
+  // Global refresh listener for admin changes
+  useEffect(() => {
+    const handleAdminRefresh = (event) => {
+      if ((event.detail?.table === table || event.detail?.table === 'all') && mountedRef.current) {
+        setTimeout(() => {
+          if (mountedRef.current) {
+            refetch();
+          }
+        }, 100);
+      }
+    };
+
+    const handlePortfolioUpdate = (event) => {
+      if ((event.detail?.table === table || event.detail?.table === 'all') && mountedRef.current) {
+        setTimeout(() => {
+          if (mountedRef.current) {
+            refetch();
+          }
+        }, 100);
+      }
+    };
+
+    window.addEventListener('adminDataChange', handleAdminRefresh);
+    window.addEventListener('portfolioDataUpdated', handlePortfolioUpdate);
+    
+    return () => {
+      window.removeEventListener('adminDataChange', handleAdminRefresh);
+      window.removeEventListener('portfolioDataUpdated', handlePortfolioUpdate);
+    };
+  }, [table, refetch]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+      if (subscriptionRef.current) {
+        supabase.removeChannel(subscriptionRef.current);
+        subscriptionRef.current = null;
+      }
+    };
+  }, []);
 
   return {
     data,
     loading,
     error,
     refetch,
-    reset
+    reset,
+    lastRefresh
   };
 };
 
 /**
- * Specialized hook for fetching a single record by ID
- * 
- * @param {string} table - Supabase table name
- * @param {string} id - Record ID
- * @param {Object} options - Additional options
- * @returns {Object} { data, loading, error, refetch }
+ * Get record by ID
  */
 export const useSupabaseById = (table, id, options = {}) => {
   return useSupabase(
@@ -235,123 +288,31 @@ export const useSupabaseById = (table, id, options = {}) => {
 };
 
 /**
- * Hook for fetching data with status filter (common pattern)
- * 
- * @param {string} table - Supabase table name
- * @param {string} status - Status filter value (default: 'active')
- * @param {Object} additionalFilters - Additional filters
- * @param {Object} options - Additional options
- * @returns {Object} { data, loading, error, refetch }
+ * Get records by status with enhanced filtering
  */
 export const useSupabaseByStatus = (table, status = 'active', additionalFilters = {}, options = {}) => {
-  return useSupabase(
-    table,
-    {
-      status,
-      ...additionalFilters
-    },
-    options
-  );
+  const filters = status === 'active' 
+    ? { ...additionalFilters }
+    : { status, ...additionalFilters };
+
+  return useSupabase(table, filters, options);
 };
 
 /**
- * Hook for fetching paginated data
- * 
- * @param {string} table - Supabase table name
- * @param {Object} filters - Query filters
- * @param {number} page - Current page (0-based)
- * @param {number} pageSize - Items per page
- * @param {Object} options - Additional options
- * @returns {Object} { data, loading, error, refetch, pagination }
+ * Paginated data fetching
  */
 export const useSupabasePaginated = (table, filters = {}, page = 0, pageSize = 10, options = {}) => {
-  const from = page * pageSize;
-  const to = from + pageSize - 1;
-
-  const [totalCount, setTotalCount] = useState(0);
-  const [paginatedData, setPaginatedData] = useState(null);
-  const [paginatedLoading, setPaginatedLoading] = useState(true);
-  const [paginatedError, setPaginatedError] = useState(null);
-
-  // Stringify objects to prevent infinite re-renders
-  const filtersString = JSON.stringify(filters);
-  const optionsString = JSON.stringify(options);
-
-  // Fetch paginated data
-  const fetchPaginated = useCallback(async () => {
-    if (!table) return;
-
-    try {
-      setPaginatedLoading(true);
-      setPaginatedError(null);
-      
-      // Parse back the stringified values
-      const parsedFilters = JSON.parse(filtersString);
-      const parsedOptions = JSON.parse(optionsString);
-      
-      // Get total count
-      const { count } = await supabase
-        .from(table)
-        .select('*', { count: 'exact', head: true });
-      
-      setTotalCount(count || 0);
-
-      // Get paginated data
-      let query = supabase.from(table).select(parsedOptions.select || '*');
-      
-      // Apply filters
-      Object.entries(parsedFilters).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== '') {
-          query = query.eq(key, value);
-        }
-      });
-
-      // Apply ordering
-      if (parsedOptions.orderBy) {
-        query = query.order(parsedOptions.orderBy.column || parsedOptions.orderBy, { 
-          ascending: parsedOptions.orderBy.ascending !== false 
-        });
-      }
-
-      // Apply pagination
-      query = query.range(from, to);
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-
-      setPaginatedData(data);
-
-    } catch (error) {
-      console.error('Pagination fetch error:', error);
-      setPaginatedError(error);
-      setPaginatedData(null);
-    } finally {
-      setPaginatedLoading(false);
+  const offset = page * pageSize;
+  
+  return useSupabase(
+    table,
+    filters,
+    {
+      ...options,
+      limit: pageSize,
+      offset: offset
     }
-  }, [table, filtersString, optionsString, from, to]);
-
-  const pagination = {
-    page,
-    pageSize,
-    totalCount,
-    totalPages: Math.ceil(totalCount / pageSize),
-    hasNext: (page + 1) * pageSize < totalCount,
-    hasPrev: page > 0
-  };
-
-  // Fetch data when dependencies change
-  useEffect(() => {
-    fetchPaginated();
-  }, [fetchPaginated]);
-
-  return {
-    data: paginatedData,
-    loading: paginatedLoading,
-    error: paginatedError,
-    pagination,
-    refetch: fetchPaginated
-  };
+  );
 };
 
 export default useSupabase;

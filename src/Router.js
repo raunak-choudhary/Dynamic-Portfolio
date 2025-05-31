@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
+import { withAuth } from './contexts/AuthContext';
 
 // Page Components
 import LandingPage from './pages/LandingPage';
@@ -17,6 +18,14 @@ import RecommendationsPage from './pages/RecommendationsPage';
 import AchievementsPage from './pages/AchievementsPage';
 import LeadershipPage from './pages/LeadershipPage';
 
+// Admin Components
+import AdminLogin from './components/admin/AdminLogin/AdminLogin';
+import AdminWelcome from './components/admin/AdminWelcome/AdminWelcome';
+import AdminSignOut from './components/admin/AdminSignOut/AdminSignOut';
+
+// Protected Admin Components (wrapped with authentication)
+const ProtectedAdminWelcome = withAuth(AdminWelcome);
+
 const ScrollToTop = () => {
   const { pathname } = useLocation();
 
@@ -29,13 +38,24 @@ const ScrollToTop = () => {
 };
 
 const AppRouter = () => {
+  const location = useLocation();
+  
+  // Check if current route is admin-related
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  
   return (
     <div className="app-layout">
       <ScrollToTop />
-      <Header />
+      
+      {/* Show Header/Footer only for public routes */}
+      {!isAdminRoute && <Header />}
       
       <main className="main-content">
         <Routes>
+          {/* ============================================ */}
+          {/* PUBLIC PORTFOLIO ROUTES                      */}
+          {/* ============================================ */}
+          
           {/* Landing Page */}
           <Route path="/" element={<LandingPage />} />
           
@@ -50,30 +70,100 @@ const AppRouter = () => {
           <Route path="/achievements" element={<AchievementsPage />} />
           <Route path="/leadership" element={<LeadershipPage />} />
           
+          {/* ============================================ */}
+          {/* ADMIN ROUTES                                 */}
+          {/* ============================================ */}
+          
+          {/* Admin Login Page */}
+          <Route path="/adminlogin" element={<AdminLogin />} />
+          
+          {/* Admin Dashboard with Welcome Animation */}
+          <Route path="/admindashboard" element={<ProtectedAdminWelcome />} />
+
+          {/* Admin Sign Out Animation */}
+          <Route path="/adminsignout" element={<AdminSignOut />} />
+          
+          {/* ============================================ */}
+          {/* FALLBACK ROUTES                              */}
+          {/* ============================================ */}
+          
           {/* 404 Page */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
       
-      <Footer />
+      {/* Show Footer only for public routes */}
+      {!isAdminRoute && <Footer />}
     </div>
   );
 };
 
-// Simple 404 Page Component
+// Enhanced 404 Page Component
 const NotFoundPage = () => {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  
   return (
-    <div className="not-found-page">
+    <div className={`not-found-page ${isAdminRoute ? 'admin-404' : 'public-404'}`}>
       <div className="container">
         <div className="not-found-content">
-          <h1 className="not-found-title shimmer-text">404</h1>
-          <h2 className="not-found-subtitle">Page Not Found</h2>
+          <div className="not-found-animation">
+            <div className="error-code shimmer-text">404</div>
+            <div className="error-icon">🚀</div>
+          </div>
+          
+          <h1 className="not-found-title">
+            {isAdminRoute ? 'Admin Page Not Found' : 'Page Not Found'}
+          </h1>
+          
           <p className="not-found-description">
-            The page you're looking for doesn't exist or has been moved.
+            {isAdminRoute 
+              ? 'The admin page you\'re looking for doesn\'t exist or you don\'t have permission to access it.'
+              : 'The page you\'re looking for doesn\'t exist or has been moved.'
+            }
           </p>
-          <a href="/" className="neon-button">
-            Return Home
-          </a>
+          
+          <div className="not-found-actions">
+            {isAdminRoute ? (
+              <>
+                <a href="/admindashboard" className="neon-button primary">
+                  Admin Dashboard
+                </a>
+                <a href="/adminlogin" className="neon-button secondary">
+                  Admin Login
+                </a>
+              </>
+            ) : (
+              <>
+                <a href="/" className="neon-button primary">
+                  Return Home
+                </a>
+                <a href="/projects" className="neon-button secondary">
+                  View Projects
+                </a>
+              </>
+            )}
+          </div>
+          
+          {/* Helpful Links */}
+          <div className="helpful-links">
+            <p className="helpful-title">Quick Navigation:</p>
+            <div className="link-grid">
+              {isAdminRoute ? (
+                <>
+                  <a href="/" className="helpful-link">Public Portfolio</a>
+                  <a href="/adminlogin" className="helpful-link">Admin Login</a>
+                </>
+              ) : (
+                <>
+                  <a href="/projects" className="helpful-link">Projects</a>
+                  <a href="/work-experience" className="helpful-link">Experience</a>
+                  <a href="/skills" className="helpful-link">Skills</a>
+                  <a href="/#contact" className="helpful-link">Contact</a>
+                </>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

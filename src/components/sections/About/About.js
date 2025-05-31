@@ -1,65 +1,108 @@
+// src/components/sections/About/About.js - FIXED FOR ARRAY FORMAT
+
 import React, { useState } from 'react';
 import { portfolioData } from '../../../data/portfolioData';
 import { useSupabase } from '../../../hooks/useSupabase';
 import LoadingSpinner from '../../common/LoadingSpinner';
 import './About.css';
 
+// Helper function to convert array format to object format for display
+const convertBasicInfoToObject = (basicInfoArray) => {
+  // Handle null/undefined
+  if (!basicInfoArray) return {};
+  
+  // If it's already an object (legacy format), return as-is
+  if (typeof basicInfoArray === 'object' && !Array.isArray(basicInfoArray)) {
+    return basicInfoArray;
+  }
+  
+  // If it's an array (new format), convert to object
+  if (Array.isArray(basicInfoArray)) {
+    const obj = {};
+    basicInfoArray
+      .sort((a, b) => (a.order_index || 0) - (b.order_index || 0)) // Sort by order
+      .forEach(item => {
+        if (item && item.key && item.value) {
+          obj[item.key] = item.value;
+        }
+      });
+    return obj;
+  }
+  
+  // Fallback
+  return {};
+};
+
 const About = () => {
   const [activeTab, setActiveTab] = useState('about');
 
-  // Use useSupabase hook for data fetching
+  // Fetch about data with real-time updates
   const { 
-    data: apiAboutData, 
+    data: aboutData, 
     loading
-  } = useSupabase('about_content', { status: 'active' }, { single: true });
+  } = useSupabase('about_content', {}, { 
+    orderBy: { column: 'created_at', ascending: false },
+    limit: 1,
+    single: true,
+    realtime: true,
+    cacheKey: 'about-public-display'
+  });
 
-  // Smart data mapping - preserve your current structure
-  const aboutData = apiAboutData ? {
+  // Smart data mapping with database structure - FIXED FOR ARRAY FORMAT
+  const displayData = aboutData ? {
     aboutMe: {
-      title: apiAboutData.about_me_title || apiAboutData.aboutMe?.title || portfolioData.about.aboutMe.title,
-      content: apiAboutData.about_me_content || apiAboutData.aboutMe?.content || portfolioData.about.aboutMe.content
+      title: aboutData.about_me_title || portfolioData.about.aboutMe.title,
+      content: aboutData.about_me_content || portfolioData.about.aboutMe.content
     },
     basicInfo: {
-      title: apiAboutData.basic_info_title || apiAboutData.basicInfo?.title || portfolioData.about.basicInfo.title,
-      details: (apiAboutData.basic_info && typeof apiAboutData.basic_info === 'object') 
-        ? apiAboutData.basic_info 
-        : (apiAboutData.basicInfo?.details || portfolioData.about.basicInfo.details)
+      title: aboutData.basic_info_title || portfolioData.about.basicInfo.title,
+      details: convertBasicInfoToObject(aboutData.basic_info) || portfolioData.about.basicInfo.details
     },
-    // Support for multiple profile images
     profileImages: {
-      aboutMe: apiAboutData.profile_image_about || null, // About Me tab image
-      basicInfo: apiAboutData.profile_image_info || null // Basic Info tab image
+      aboutMe: aboutData.profile_image_about || null,
+      basicInfo: aboutData.profile_image_info || null,
+      legacy: aboutData.profile_image_url || null
     }
   } : portfolioData.about;
 
   const tabs = [
-    { id: 'about', label: 'About Me', content: aboutData.aboutMe },
-    { id: 'info', label: 'Basic Info', content: aboutData.basicInfo }
+    { id: 'about', label: 'About Me', content: displayData.aboutMe },
+    { id: 'info', label: 'Basic Info', content: displayData.basicInfo }
   ];
 
-  // Smart profile image selection with multiple image support
+  // Smart profile image selection with multiple fallbacks
   const getProfileImageSrc = () => {
-    // Check if we have API images for different tabs
-    if (aboutData.profileImages) {
-      const apiImage = activeTab === 'about' 
-        ? aboutData.profileImages.aboutMe 
-        : aboutData.profileImages.basicInfo;
-      
-      if (apiImage) {
-        return apiImage;
+    let imageUrl = null;
+
+    // Try API images first
+    if (displayData.profileImages) {
+      if (activeTab === 'about' && displayData.profileImages.aboutMe) {
+        imageUrl = displayData.profileImages.aboutMe;
+      } else if (activeTab === 'info' && displayData.profileImages.basicInfo) {
+        imageUrl = displayData.profileImages.basicInfo;
+      } else if (displayData.profileImages.legacy) {
+        imageUrl = displayData.profileImages.legacy;
+      } else if (displayData.profileImages.aboutMe) {
+        imageUrl = displayData.profileImages.aboutMe;
+      } else if (displayData.profileImages.basicInfo) {
+        imageUrl = displayData.profileImages.basicInfo;
       }
     }
-    
-    // Fallback to your original tab-based image logic
-    return activeTab === 'about' ? '/profile_pic_1.jpg' : '/profile_pic_2.jpg';
+
+    // Fallback to static images
+    if (!imageUrl) {
+      imageUrl = activeTab === 'about' ? '/profile_pic_1.jpg' : '/profile_pic_2.jpg';
+    }
+
+    return imageUrl;
   };
 
-  // Show loading only initially, not affecting layout
-  if (loading) {
+  // Show loading only initially
+  if (loading && !aboutData) {
     return (
       <section id="about" className="about-section section">
         <div className="container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-          <LoadingSpinner size="large" message="Loading..." />
+          <LoadingSpinner size="large" message="Loading about content..." />
         </div>
       </section>
     );
@@ -88,9 +131,9 @@ const About = () => {
             <div className="tab-content">
               {activeTab === 'about' && (
                 <div className="tab-panel animate-fade-in">
-                  <h3 className="tab-title">{aboutData.aboutMe.title}</h3>
+                  <h3 className="tab-title">{displayData.aboutMe.title}</h3>
                   <div className="about-text-content">
-                    {aboutData.aboutMe.content.split('\n\n').map((paragraph, index) => (
+                    {displayData.aboutMe.content.split('\n\n').map((paragraph, index) => (
                       <p key={index} className="about-paragraph">
                         {paragraph}
                       </p>
@@ -101,9 +144,9 @@ const About = () => {
 
               {activeTab === 'info' && (
                 <div className="tab-panel animate-fade-in">
-                  <h3 className="tab-title">{aboutData.basicInfo.title}</h3>
+                  <h3 className="tab-title">{displayData.basicInfo.title}</h3>
                   <div className="basic-info-grid">
-                    {Object.entries(aboutData.basicInfo.details).map(([key, value]) => (
+                    {Object.entries(displayData.basicInfo.details).map(([key, value]) => (
                       <div key={key} className="info-item glass-card">
                         <div className="info-label">
                           {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
@@ -119,7 +162,7 @@ const About = () => {
             </div>
           </div>
 
-          {/* Right Side: Profile Picture - Absolute positioned */}
+          {/* Right Side: Profile Picture */}
           <div className="about-image">
             <div className="profile-picture-container">
               <div className="profile-picture profile-neon">
@@ -128,15 +171,16 @@ const About = () => {
                   alt="Raunak Choudhary" 
                   className="profile-img"
                   onError={(e) => {
-                    // Enhanced fallback logic for multiple images
+                    // Progressive fallback for image loading errors
                     if (e.target.src.includes('profile_pic_1.jpg')) {
                       e.target.src = '/profile_pic_2.jpg';
                     } else if (e.target.src.includes('profile_pic_2.jpg')) {
                       e.target.src = '/logo.png';
                     } else if (e.target.src.includes('/storage/')) {
-                      // If Supabase image fails, fall back to local images
+                      // Supabase image failed, try static
                       e.target.src = activeTab === 'about' ? '/profile_pic_1.jpg' : '/profile_pic_2.jpg';
                     } else {
+                      // Final fallback
                       e.target.src = '/logo.png';
                     }
                   }}

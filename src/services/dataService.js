@@ -19,6 +19,91 @@ const handleApiError = (error, context = 'API') => {
 };
 
 // =====================================================
+// ADMIN CONTENT APIs (Real Supabase Integration)
+// =====================================================
+
+// Portfolio Statistics for Admin Dashboard
+export const getPortfolioStats = async () => {
+  try {
+    const [
+      projectsResult,
+      internshipsResult,
+      educationResult,
+      workExperienceResult,
+      skillsResult,
+      certificationsResult,
+      recommendationsResult,
+      achievementsResult,
+      leadershipResult,
+      contactMessagesResult
+    ] = await Promise.all([
+      supabase.from('projects').select('*', { count: 'exact' }),
+      supabase.from('internships').select('*', { count: 'exact' }),
+      supabase.from('education').select('*', { count: 'exact' }),
+      supabase.from('work_experience').select('*', { count: 'exact' }),
+      supabase.from('skills').select('*', { count: 'exact' }),
+      supabase.from('certifications').select('*', { count: 'exact' }),
+      supabase.from('recommendations').select('*', { count: 'exact' }),
+      supabase.from('achievements').select('*', { count: 'exact' }),
+      supabase.from('leadership').select('*', { count: 'exact' }),
+      supabase.from('contact_messages').select('*', { count: 'exact' }).eq('status', 'unread')
+    ]);
+
+    // Check for errors
+    const results = [
+      projectsResult,
+      internshipsResult,
+      educationResult,
+      workExperienceResult,
+      skillsResult,
+      certificationsResult,
+      recommendationsResult,
+      achievementsResult,
+      leadershipResult,
+      contactMessagesResult
+    ];
+
+    for (const result of results) {
+      if (result.error) {
+        console.error('Database error:', result.error);
+      }
+    }
+
+    return {
+      projects: projectsResult.count || 0,
+      internships: internshipsResult.count || 0,
+      education: educationResult.count || 0,
+      workExperience: workExperienceResult.count || 0,
+      skills: skillsResult.count || 0,
+      certifications: certificationsResult.count || 0,
+      recommendations: recommendationsResult.count || 0,
+      achievements: achievementsResult.count || 0,
+      leadership: leadershipResult.count || 0,
+      messages: contactMessagesResult.count || 0,
+      totalSections: 9,
+      lastUpdated: new Date().toISOString()
+    };
+  } catch (error) {
+    console.error('Error fetching portfolio stats:', error);
+    // Return fallback stats
+    return {
+      projects: 0,
+      internships: 0,
+      education: 0,
+      workExperience: 0,
+      skills: 0,
+      certifications: 0,
+      recommendations: 0,
+      achievements: 0,
+      leadership: 0,
+      messages: 0,
+      totalSections: 9,
+      lastUpdated: new Date().toISOString()
+    };
+  }
+};
+
+// =====================================================
 // HERO CONTENT APIs (Real Supabase Integration)
 // =====================================================
 

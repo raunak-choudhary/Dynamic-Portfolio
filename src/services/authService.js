@@ -7,7 +7,7 @@ import bcrypt from 'bcryptjs';
 const AUTH_CONFIG = {
   saltRounds: 12,
   sessionKey: 'portfolio_admin_session',
-  tokenExpiry: 24 * 60 * 60 * 1000, // 24 hours
+  tokenExpiry: 12 * 60 * 60 * 1000, // 12 hours (changed from 24)
   refreshThreshold: 2 * 60 * 60 * 1000 // 2 hours before expiry
 };
 
@@ -16,21 +16,28 @@ const AUTH_CONFIG = {
 // =============================================
 
 /**
- * Enhanced password verification with $2a/$2b compatibility
+ * Enhanced password verification with better $2a/$2b compatibility
  * @param {string} password - Plain text password
  * @param {string} hash - Stored password hash
  * @returns {boolean} Password match result
  */
 const verifyPasswordCompatible = async (password, hash) => {
   try {
-    // First, try direct comparison
+    console.log('🔐 Verifying password...');
+    console.log('- Password:', password);
+    console.log('- Hash format:', hash.substring(0, 10) + '...');
+    
+    // Method 1: Direct comparison with bcryptjs (should work for $2a$)
+    console.log('🔄 Trying direct bcrypt.compare...');
     const directMatch = await bcrypt.compare(password, hash);
     if (directMatch) {
+      console.log('✅ Password verified using direct comparison');
       return true;
     }
 
-    // If hash starts with $2a$, try converting to $2b$ for compatibility
+    // Method 2: If direct doesn't work and it's $2a$, try $2b$ conversion
     if (hash.startsWith('$2a$')) {
+      console.log('🔄 Trying $2a$ to $2b$ conversion...');
       const convertedHash = hash.replace('$2a$', '$2b$');
       const convertedMatch = await bcrypt.compare(password, convertedHash);
       if (convertedMatch) {
@@ -39,8 +46,9 @@ const verifyPasswordCompatible = async (password, hash) => {
       }
     }
 
-    // If hash starts with $2b$, try converting to $2a$ for compatibility
+    // Method 3: If it's $2b$, try $2a$ conversion
     if (hash.startsWith('$2b$')) {
+      console.log('🔄 Trying $2b$ to $2a$ conversion...');
       const convertedHash = hash.replace('$2b$', '$2a$');
       const convertedMatch = await bcrypt.compare(password, convertedHash);
       if (convertedMatch) {
@@ -49,12 +57,60 @@ const verifyPasswordCompatible = async (password, hash) => {
       }
     }
 
+    // Method 4: Manual debugging (temporary)
+    console.log('🔍 Debug info:');
+    console.log('- bcrypt module loaded:', typeof bcrypt !== 'undefined');
+    console.log('- Hash length:', hash.length);
+    console.log('- Password length:', password.length);
+    
+    console.warn('❌ All password verification methods failed');
     return false;
+
   } catch (error) {
-    console.error('Password verification error:', error);
+    console.error('❌ Password verification error:', error);
+    console.error('Error details:', error.message);
     return false;
   }
 };
+
+// =================================================================
+// ADD THIS DEBUG FUNCTION (after verifyPasswordCompatible)
+// =================================================================
+
+/**
+ * Debug function to test password hashing - ADD THIS TO YOUR authService.js
+ * Call this from browser console to test: window.debugPasswordTest()
+ */
+export const debugPasswordTest = async () => {
+  const testPassword = 'password';
+  const testHash = '$2a$12$fKAP565IGiXpl860vJJCUeqB/jGHAsHSa87j5low0eJGpLESORKXy';
+  
+  console.log('🧪 Testing password verification...');
+  console.log('Password:', testPassword);
+  console.log('Hash:', testHash);
+  
+  try {
+    // Test with bcryptjs directly
+    console.log('Testing bcrypt.compare directly...');
+    const directResult = await bcrypt.compare(testPassword, testHash);
+    console.log('Direct bcrypt result:', directResult);
+    
+    // Test with our compatibility function
+    console.log('Testing verifyPasswordCompatible...');
+    const compatResult = await verifyPasswordCompatible(testPassword, testHash);
+    console.log('Compatibility function result:', compatResult);
+    
+    return { direct: directResult, compatible: compatResult };
+  } catch (error) {
+    console.error('Debug test error:', error);
+    return { error: error.message };
+  }
+};
+
+// Make it available in window for browser console testing
+if (typeof window !== 'undefined') {
+  window.debugPasswordTest = debugPasswordTest;
+}
 
 // =============================================
 // ADMIN AUTHENTICATION FUNCTIONS

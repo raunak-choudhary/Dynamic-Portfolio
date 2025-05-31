@@ -109,7 +109,7 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .nav-link::before {

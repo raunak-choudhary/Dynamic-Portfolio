@@ -287,7 +287,7 @@ export const useRequireAuth = (redirectOnFail = true) => {
         setAuthRequired(true);
         if (redirectOnFail && typeof window !== 'undefined') {
           // Redirect to admin login
-          window.location.href = '/adminview';
+          window.location.href = '/adminlogin';
         }
       } else {
         setAuthRequired(false);
