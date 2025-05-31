@@ -197,7 +197,7 @@
   min-width: 0;
 }
 
-.manager-title {
+.education-manager-title {
   font-size: 2.2rem;
   font-weight: 800;
   margin: 0 0 var(--edu-space-md);
@@ -214,7 +214,7 @@
   position: relative;
 }
 
-.title-icon {
+.education-title-icon {
   font-size: 2.5rem;
   filter: drop-shadow(0 0 10px var(--edu-course-text));
   animation: eduIconFloat 2s ease-in-out infinite;
@@ -351,7 +351,8 @@
   overflow: hidden;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  min-width: 120px;
+  min-width: 140px;
+  margin-right: var(--edu-space-lg);
   white-space: nowrap;
   z-index: 1;
 }
@@ -1279,7 +1280,7 @@
     grid-template-columns: 1fr;
   }
   
-  .education-content-manager .manager-title {
+  .education-content-manager .education-manager-title {
     font-size: 1.8rem;
   }
 
@@ -1334,14 +1335,14 @@
     font-size: 0.9rem;
   }
   
-  .education-content-manager .manager-title {
+  .education-content-manager .education-manager-title {
     font-size: 1.5rem;
     flex-direction: column;
     gap: var(--edu-space-sm);
     text-align: center;
   }
   
-  .education-content-manager .title-icon {
+  .education-content-manager .education-title-icon {
     font-size: 2rem;
   }
 
@@ -1390,7 +1391,7 @@
     padding: var(--edu-space-sm);
   }
   
-  .education-content-manager .manager-title {
+  .education-content-manager .education-manager-title {
     font-size: 1.3rem;
   }
 
@@ -2670,8 +2671,8 @@
   .education-content-manager .coursework-item,
   .education-content-manager .achievement-item,
   .education-content-manager .activity-item,
-  .education-content-manager .manager-title,
-  .education-content-manager .title-icon,
+  .education-content-manager .education-manager-title,
+  .education-content-manager .education-title-icon,
   .education-content-manager .preview-icon,
   .education-content-manager .status-icon,
   .education-content-manager .add-coursework::before,
@@ -2939,7 +2940,7 @@
 
 @media (prefers-contrast: more) {
   .education-content-manager .form-label,
-  .education-content-manager .manager-title,
+  .education-content-manager .education-manager-title,
   .education-content-manager .preview-degree-title {
     color: var(--edu-text-primary);
     -webkit-text-fill-color: var(--edu-text-primary);

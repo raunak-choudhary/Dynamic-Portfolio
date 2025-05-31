@@ -469,8 +469,8 @@ const HeroContentManager = () => {
       {/* Header Section */}
       <div className="hero-manager-header">
         <div className="header-content">
-          <h2 className="manager-title">
-            <span className="title-icon">🚀</span>
+          <h2 className="hero-manager-title">
+            <span className="hero-title-icon">🚀</span>
             Hero Section Management
           </h2>
           <p className="manager-subtitle">

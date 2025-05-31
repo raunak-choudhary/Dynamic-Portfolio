@@ -199,7 +199,7 @@
   min-width: 0;
 }
 
-.manager-title {
+.projects-manager-title {
   font-size: 2.2rem;
   font-weight: 800;
   margin: 0 0 var(--proj-space-md);
@@ -216,7 +216,7 @@
   position: relative;
 }
 
-.title-icon {
+.projects-title-icon {
   font-size: 2.5rem;
   filter: drop-shadow(0 0 10px var(--proj-tech-text));
   animation: projIconFloat 2s ease-in-out infinite;
@@ -353,7 +353,8 @@
   overflow: hidden;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  min-width: 120px;
+  min-width: 140px;
+  margin-right: var(--proj-space-lg);
   white-space: nowrap;
   z-index: 1;
 }
@@ -1241,7 +1242,7 @@
     grid-template-columns: 1fr;
   }
   
-  .projects-content-manager .manager-title {
+  .projects-content-manager .projects-manager-title {
     font-size: 1.8rem;
   }
 
@@ -1296,14 +1297,14 @@
     font-size: 0.9rem;
   }
   
-  .projects-content-manager .manager-title {
+  .projects-content-manager .projects-manager-title {
     font-size: 1.5rem;
     flex-direction: column;
     gap: var(--proj-space-sm);
     text-align: center;
   }
   
-  .projects-content-manager .title-icon {
+  .projects-content-manager .projects-title-icon {
     font-size: 2rem;
   }
 
@@ -1348,7 +1349,7 @@
     padding: var(--proj-space-sm);
   }
   
-  .projects-content-manager .manager-title {
+  .projects-content-manager .projects-manager-title {
     font-size: 1.3rem;
   }
 
@@ -2685,8 +2686,8 @@
   .projects-content-manager .github-url-item,
   .projects-content-manager .feature-item,
   .projects-content-manager .image-item,
-  .projects-content-manager .manager-title,
-  .projects-content-manager .title-icon,
+  .projects-content-manager .projects-manager-title,
+  .projects-content-manager .projects-title-icon,
   .projects-content-manager .preview-icon,
   .projects-content-manager .status-icon,
   .projects-content-manager .checkbox-custom,
@@ -2885,7 +2886,7 @@
     image-rendering: crisp-edges;
   }
 
-  .projects-content-manager .manager-title,
+  .projects-content-manager .projects-manager-title,
   .projects-content-manager .preview-project-title {
     text-rendering: optimizeLegibility;
   }
@@ -2992,7 +2993,7 @@
 
 @media (prefers-contrast: more) {
   .projects-content-manager .form-label,
-  .projects-content-manager .manager-title,
+  .projects-content-manager .projects-manager-title,
   .projects-content-manager .preview-project-title {
     color: var(--proj-text-primary);
     -webkit-text-fill-color: var(--proj-text-primary);

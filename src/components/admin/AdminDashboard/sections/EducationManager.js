@@ -890,8 +890,8 @@ const EducationManager = () => {
       {/* Header Section */}
       <div className="education-manager-header">
         <div className="header-content">
-          <h2 className="manager-title">
-            <span className="title-icon">🎓</span>
+          <h2 className="education-manager-title">
+            <span className="education-title-icon">🎓</span>
             Education Management
           </h2>
           <p className="manager-subtitle">

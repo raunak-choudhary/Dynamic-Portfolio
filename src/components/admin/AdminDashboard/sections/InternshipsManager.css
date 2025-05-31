@@ -24,15 +24,15 @@
   --intern-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.15);
   --intern-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.2);
   
-  --intern-glow-purple: 0 0 15px rgba(139, 43, 255, 0.3);
-  --intern-glow-pink: 0 0 15px rgba(255, 20, 147, 0.25);
+  --intern-glow-purple: 0 0 15px rgba(0, 255, 136, 0.3);
+  --intern-glow-pink: 0 0 15px rgba(0, 255, 136, 0.25);
   --intern-glow-orange: 0 0 15px rgba(255, 102, 0, 0.25);
   --intern-glow-green: 0 0 15px rgba(0, 255, 136, 0.25);
   --intern-glow-red: 0 0 15px rgba(255, 0, 68, 0.25);
-  --intern-glow-cyan: 0 0 15px rgba(0, 255, 255, 0.25);
+  --intern-glow-cyan: 0 0 15px rgba(0, 255, 136, 0.25);
   
-  --intern-grad-primary: linear-gradient(135deg, #8b2bff, #ff1493);
-  --intern-grad-secondary: linear-gradient(135deg, #ff1493, #ff6600);
+  --intern-grad-primary: linear-gradient(135deg, #00ff88, #00ffcc);
+  --intern-grad-secondary: linear-gradient(135deg, #00ffcc, #66ff99);
   --intern-grad-success: linear-gradient(135deg, #00ff88, #00ffff);
   --intern-grad-error: linear-gradient(135deg, #ff0044, #ff6600);
   
@@ -41,9 +41,9 @@
   --intern-glass-backdrop: blur(20px);
   --intern-glass-hover: rgba(255, 255, 255, 0.08);
   
-  --intern-tech-bg: rgba(139, 43, 255, 0.1);
-  --intern-tech-border: rgba(139, 43, 255, 0.3);
-  --intern-tech-text: #8b2bff;
+  --intern-tech-bg: rgba(0, 255, 136, 0.1);
+  --intern-tech-border: rgba(0, 255, 136, 0.3);
+  --intern-tech-text: #00ff88;
   
   --intern-resp-bg: rgba(255, 20, 147, 0.1);
   --intern-resp-border: rgba(255, 20, 147, 0.3);
@@ -57,14 +57,14 @@
   --intern-skill-border: rgba(0, 255, 136, 0.3);
   --intern-skill-text: #00ff88;
   
-  --intern-cert-bg: rgba(255, 0, 255, 0.1);
-  --intern-cert-border: rgba(255, 0, 255, 0.3);
-  --intern-cert-text: #ff00ff;
+  --intern-cert-bg: rgba(0, 255, 136, 0.1);
+  --intern-cert-border: rgba(0, 255, 136, 0.3);
+  --intern-cert-text: #00ff88;
   
   --intern-text-primary: #ffffff;
   --intern-text-secondary: #cccccc;
   --intern-text-muted: #888888;
-  --intern-text-accent: #ff1493;
+  --intern-text-accent: #00ff88;
   
   --intern-bg-primary: #0a0a0a;
   --intern-bg-secondary: #111111;
@@ -76,15 +76,15 @@
   --intern-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
   --intern-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
   
-  --intern-glow-purple: 0 0 15px rgba(139, 43, 255, 0.15);
-  --intern-glow-pink: 0 0 15px rgba(255, 20, 147, 0.15);
+  --intern-glow-purple: 0 0 15px rgba(0, 255, 136, 0.15);
+  --intern-glow-pink: 0 0 15px rgba(0, 255, 136, 0.15);
   --intern-glow-orange: 0 0 15px rgba(255, 152, 0, 0.15);
   --intern-glow-green: 0 0 15px rgba(76, 175, 80, 0.15);
   --intern-glow-red: 0 0 15px rgba(244, 67, 54, 0.15);
-  --intern-glow-cyan: 0 0 15px rgba(0, 188, 212, 0.15);
+  --intern-glow-cyan: 0 0 15px rgba(0, 255, 136, 0.15);
   
-  --intern-grad-primary: linear-gradient(135deg, #8b2bff, #e91e63);
-  --intern-grad-secondary: linear-gradient(135deg, #e91e63, #ff9800);
+  --intern-grad-primary: linear-gradient(135deg, #00ff88, #00cc66);
+  --intern-grad-secondary: linear-gradient(135deg, #00cc66, #33ff99);
   --intern-grad-success: linear-gradient(135deg, #4caf50, #00bcd4);
   --intern-grad-error: linear-gradient(135deg, #f44336, #ff5722);
   
@@ -92,9 +92,9 @@
   --intern-glass-border: rgba(0, 0, 0, 0.1);
   --intern-glass-hover: rgba(240, 240, 240, 0.95);
   
-  --intern-tech-bg: rgba(139, 43, 255, 0.08);
-  --intern-tech-border: rgba(139, 43, 255, 0.2);
-  --intern-tech-text: #673ab7;
+  --intern-tech-bg: rgba(0, 255, 136, 0.08);
+  --intern-tech-border: rgba(0, 255, 136, 0.2);
+  --intern-tech-text: #00cc66;
   
   --intern-resp-bg: rgba(233, 30, 99, 0.08);
   --intern-resp-border: rgba(233, 30, 99, 0.2);
@@ -108,14 +108,14 @@
   --intern-skill-border: rgba(76, 175, 80, 0.2);
   --intern-skill-text: #4caf50;
   
-  --intern-cert-bg: rgba(156, 39, 176, 0.08);
-  --intern-cert-border: rgba(156, 39, 176, 0.2);
-  --intern-cert-text: #9c27b0;
+  --intern-cert-bg: rgba(0, 255, 136, 0.08);
+  --intern-cert-border: rgba(0, 255, 136, 0.2);
+  --intern-cert-text: #00cc66;
   
   --intern-text-primary: #1a1a1a;
   --intern-text-secondary: #444444;
   --intern-text-muted: #666666;
-  --intern-text-accent: #8b2bff;
+  --intern-text-accent: #00cc66;
   
   --intern-bg-primary: #fafafa;
   --intern-bg-secondary: #ffffff;
@@ -139,13 +139,13 @@
   left: 0;
   right: 0;
   height: 200px;
-  background: radial-gradient(ellipse at top center, rgba(139, 43, 255, 0.05) 0%, transparent 70%);
+  background: radial-gradient(ellipse at top center, rgba(0, 255, 136, 0.05) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
 }
 
 [data-theme="light"] .internships-content-manager::before {
-  background: radial-gradient(ellipse at top center, rgba(139, 43, 255, 0.03) 0%, transparent 70%);
+  background: radial-gradient(ellipse at top center, rgba(0, 255, 136, 0.03) 0%, transparent 70%);
 }
 
 .internships-content-manager::after {
@@ -156,10 +156,10 @@
   width: 100vw;
   height: calc(100vh - 80px);
   background-image:
-    radial-gradient(circle at 15% 25%, var(--intern-tech-text) 1px, transparent 1px),
-    radial-gradient(circle at 85% 15%, var(--intern-resp-text) 1.5px, transparent 1.5px),
-    radial-gradient(circle at 35% 75%, var(--intern-achieve-text) 1px, transparent 1px),
-    radial-gradient(circle at 75% 60%, var(--intern-skill-text) 1.2px, transparent 1.2px);
+    radial-gradient(circle at 15% 25%, #00ff88 1px, transparent 1px),
+    radial-gradient(circle at 85% 15%, #00ffcc 1.5px, transparent 1.5px),
+    radial-gradient(circle at 35% 75%, #66ff99 1px, transparent 1px),
+    radial-gradient(circle at 75% 60%, #33ff99 1.2px, transparent 1.2px);
   background-size: 350px 350px, 300px 300px, 400px 400px, 320px 320px;
   animation: internParticlesFloat 25s linear infinite;
   opacity: 0.3;
@@ -207,7 +207,7 @@
   min-width: 0;
 }
 
-.manager-title {
+.internships-manager-title {
   font-size: 2.2rem;
   font-weight: 800;
   margin: 0 0 var(--intern-space-md);
@@ -224,7 +224,7 @@
   position: relative;
 }
 
-.title-icon {
+.internships-title-icon {
   font-size: 2.5rem;
   filter: drop-shadow(0 0 10px var(--intern-tech-text));
   animation: internIconFloat 2s ease-in-out infinite;
@@ -361,7 +361,8 @@
   overflow: hidden;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  min-width: 120px;
+  min-width: 140px;
+  margin-right: var(--intern-space-lg);
   white-space: nowrap;
   z-index: 1;
 }
@@ -399,11 +400,11 @@
 }
 
 .internships-content-manager .action-btn.primary {
-  background: var(--intern-grad-primary);
+  background: linear-gradient(135deg, #00ff88, #00ffcc);
   border-color: transparent;
   color: var(--intern-bg-primary);
   font-weight: 700;
-  box-shadow: var(--intern-glow-purple);
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
 }
 
 .internships-content-manager .action-btn.primary:hover:not(:disabled) {
@@ -421,9 +422,9 @@
 }
 
 .internships-content-manager .add-btn:hover:not(:disabled) {
-  border-color: var(--intern-tech-text);
-  color: var(--intern-tech-text);
-  box-shadow: var(--intern-glow-purple);
+  border-color: #00ff88;
+  color: #00ff88;
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
 }
 
 .internships-content-manager .preview-btn:hover:not(:disabled) {
@@ -1408,8 +1409,8 @@
 .internships-content-manager .form-textarea:focus,
 .internships-content-manager .form-select:focus {
   outline: none;
-  border-color: var(--intern-tech-text);
-  box-shadow: 0 0 0 3px var(--intern-tech-bg), 0 0 20px var(--intern-glow-purple);
+  border-color: #00ff88;
+  box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.15), 0 0 20px rgba(0, 255, 136, 0.2);
   background: var(--intern-glass-hover);
   transform: translateY(-1px);
 }
@@ -1417,8 +1418,8 @@
 [data-theme="light"] .internships-content-manager .form-input:focus,
 [data-theme="light"] .internships-content-manager .form-textarea:focus,
 [data-theme="light"] .internships-content-manager .form-select:focus {
-  border-color: var(--intern-resp-text);
-  box-shadow: 0 0 0 3px var(--intern-resp-bg), 0 0 20px var(--intern-glow-pink);
+  border-color: #00cc66;
+  box-shadow: 0 0 0 3px rgba(0, 204, 102, 0.15), 0 0 20px rgba(0, 204, 102, 0.2);
   background: var(--intern-glass-hover);
 }
 
@@ -1862,8 +1863,8 @@
 }
 
 .internships-content-manager .certificates-grid:hover {
-  border-color: var(--intern-cert-text);
-  background: var(--intern-cert-bg);
+  border-color: #00ff88;
+  background: rgba(0, 255, 136, 0.1);
 }
 
 .internships-content-manager .certificate-item {
@@ -1978,13 +1979,13 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, var(--intern-cert-bg), transparent);
+  background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.1), transparent);
   transition: left var(--intern-transition-slow);
 }
 
 .internships-content-manager .upload-section:hover {
-  border-color: var(--intern-cert-border);
-  background: var(--intern-cert-bg);
+  border-color: rgba(0, 255, 136, 0.3);
+  background: rgba(0, 255, 136, 0.1);
   border-style: solid;
 }
 
@@ -2589,7 +2590,7 @@
     grid-template-columns: 1fr;
   }
   
-  .internships-content-manager .manager-title {
+  .internships-content-manager .internships-manager-title {
     font-size: 1.8rem;
   }
 
@@ -2644,14 +2645,14 @@
     font-size: 0.9rem;
   }
   
-  .internships-content-manager .manager-title {
+  .internships-content-manager .internships-manager-title {
     font-size: 1.5rem;
     flex-direction: column;
     gap: var(--intern-space-sm);
     text-align: center;
   }
   
-  .internships-content-manager .title-icon {
+  .internships-content-manager .internships-title-icon {
     font-size: 2rem;
   }
 
@@ -2756,7 +2757,7 @@
     padding: var(--intern-space-sm);
   }
   
-  .internships-content-manager .manager-title {
+  .internships-content-manager .internships-manager-title {
     font-size: 1.3rem;
   }
 
@@ -2878,8 +2879,8 @@
   .internships-content-manager .achievement-item,
   .internships-content-manager .skill-item,
   .internships-content-manager .certificate-item,
-  .internships-content-manager .manager-title,
-  .internships-content-manager .title-icon,
+  .internships-content-manager .internships-manager-title,
+  .internships-content-manager .internships-title-icon,
   .internships-content-manager .preview-icon,
   .internships-content-manager .status-icon,
   .internships-content-manager .add-responsibility::before,
@@ -2926,7 +2927,7 @@
 .internships-content-manager .search-input:focus-visible,
 .internships-content-manager .filter-select:focus-visible,
 .internships-content-manager .action-btn-mini:focus-visible {
-  outline: 3px solid var(--intern-tech-text);
+  outline: 3px solid #00ff88;
   outline-offset: 2px;
 }
 
@@ -2947,5 +2948,5 @@
 [data-theme="light"] .internships-content-manager .search-input:focus-visible,
 [data-theme="light"] .internships-content-manager .filter-select:focus-visible,
 [data-theme="light"] .internships-content-manager .action-btn-mini:focus-visible {
-  outline-color: var(--intern-resp-text);
+  outline-color: #00cc66;
 }

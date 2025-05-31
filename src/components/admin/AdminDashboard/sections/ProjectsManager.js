@@ -811,8 +811,8 @@ const ProjectsManager = () => {
       {/* Header Section */}
       <div className="projects-manager-header">
         <div className="header-content">
-          <h2 className="manager-title">
-            <span className="title-icon">💻</span>
+          <h2 className="projects-manager-title">
+            <span className="projects-title-icon">💻</span>
             Projects Management
           </h2>
           <p className="manager-subtitle">

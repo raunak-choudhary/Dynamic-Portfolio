@@ -944,8 +944,8 @@ const InternshipsManager = () => {
      {/* Header Section */}
      <div className="internships-manager-header">
        <div className="header-content">
-         <h2 className="manager-title">
-           <span className="title-icon">🏢</span>
+         <h2 className="internships-manager-title">
+          <span className="internships-title-icon">🏢</span>
            Internships Management
          </h2>
          <p className="manager-subtitle">

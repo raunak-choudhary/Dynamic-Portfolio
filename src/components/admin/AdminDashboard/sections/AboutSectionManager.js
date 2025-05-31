@@ -618,8 +618,8 @@ const AboutSectionManager = () => {
       {/* Header Section */}
       <div className="about-manager-header">
         <div className="header-content">
-          <h2 className="manager-title">
-            <span className="title-icon">👤</span>
+          <h2 className="about-manager-title">
+            <span className="about-title-icon">👤</span>
             About Section Management
           </h2>
           <p className="manager-subtitle">
