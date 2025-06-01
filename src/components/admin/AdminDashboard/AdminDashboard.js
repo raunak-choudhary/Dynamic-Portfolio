@@ -14,6 +14,13 @@ import AboutSectionManager from './sections/AboutSectionManager';
 import ProjectsManager from './sections/ProjectsManager';
 import InternshipsManager from './sections/InternshipsManager';
 import EducationManager from './sections/EducationManager';
+import WorkExperienceManager from './sections/WorkExperienceManager';
+import SkillsManager from './sections/SkillsManager';
+import CertificationsManager from './sections/CertificationsManager';
+import RecommendationsManager from './sections/RecommendationsManager';
+import AchievementsManager from './sections/AchievementsManager';
+import LeadershipManager from './sections/LeadershipManager';
+import ContactMessagesManager from './sections/ContactMessagesManager';
 
 const AdminDashboard = () => {
   const { signOut } = useAuth();
@@ -555,6 +562,18 @@ const AdminDashboard = () => {
 
             case 'education':
                 return <EducationManager />;
+
+            case 'work':
+                return <WorkExperienceManager />;
+
+            case 'achievements':
+                return <AchievementsManager />;
+
+            case 'leadership':
+                return <LeadershipManager />;
+
+            case 'contact':
+                return <ContactMessagesManager />;
             
             // Future sections will go here:
             // case 'projects':
