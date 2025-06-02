@@ -566,6 +566,15 @@ const AdminDashboard = () => {
             case 'work':
                 return <WorkExperienceManager />;
 
+            case 'skills':
+                return <SkillsManager />;
+
+            case 'certifications':
+                return <CertificationsManager />;
+
+            case 'recommendations':
+                return <RecommendationsManager />;
+
             case 'achievements':
                 return <AchievementsManager />;
 
@@ -574,10 +583,6 @@ const AdminDashboard = () => {
 
             case 'contact':
                 return <ContactMessagesManager />;
-            
-            // Future sections will go here:
-            // case 'projects':
-            //   return <ProjectsManager />;
             
             default:
             // Placeholder for sections not yet implemented
