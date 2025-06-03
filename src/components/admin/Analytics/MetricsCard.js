@@ -31,15 +31,6 @@ const MetricsCard = ({
     return `${sign}${changeVal.toFixed(1)}%`;
   };
 
-  const getTrendDirection = () => {
-    if (!trend || trend.length < 2) return 'neutral';
-    const first = trend[0];
-    const last = trend[trend.length - 1];
-    if (last > first) return 'up';
-    if (last < first) return 'down';
-    return 'neutral';
-  };
-
   const renderSparkline = () => {
     if (!showTrend || !trend || trend.length < 2) return null;
 

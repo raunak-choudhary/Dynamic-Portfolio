@@ -2395,3 +2395,30 @@
   0% { background-position: 0% 50%; }
   100% { background-position: 100% 50%; }
 }
+
+/* ===== ANALYTICS STAT CARD GLOW ===== */
+/* Analytics Stat Card Glow */
+.stat-card.emerald-glow:hover {
+  border-color: var(--admin-neon-green);
+  box-shadow: 0 20px 40px rgba(0, 255, 136, 0.2);
+}
+
+/* Analytics Navigation Active State */
+.nav-item[data-section="analytics"].active {
+  background-color: var(--admin-neon-green);
+  color: #00331a;
+  box-shadow: 0 0 10px 2px var(--admin-neon-green),
+              0 0 20px 5px rgba(0, 255, 136, 0.7), 
+              0 0 30px 10px rgba(0, 255, 136, 0.4),
+              inset 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+/* Light Theme Analytics Active State */
+[data-theme="light"] .nav-item[data-section="analytics"].active {
+  background-color: var(--admin-neon-green);
+  color: #00331a;
+  box-shadow: 0 0 10px 2px var(--admin-neon-green),
+              0 0 20px 5px rgba(0, 255, 136, 0.6),
+              0 0 30px 10px rgba(0, 255, 136, 0.3),
+              inset 0 0 5px rgba(200, 255, 200, 0.4);
+}

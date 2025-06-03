@@ -96,6 +96,18 @@ const AdminSignOut = () => {
               // After 3 seconds of floating, redirect
               setTimeout(() => {
                 setAnimationPhase('complete');
+
+                // ANALYTICS CLEANUP - Ensure session is properly ended
+                try {
+                  const analyticsSession = JSON.parse(localStorage.getItem('admin_analytics_session') || '{}');
+                  if (analyticsSession.sessionId) {
+                    localStorage.removeItem('admin_analytics_session');
+                    console.log('📊 Analytics session cleaned up during sign out animation');
+                  }
+                } catch (error) {
+                  console.warn('⚠️ Analytics cleanup failed:', error);
+                }
+
                 navigate('/adminlogin');
               }, 3000);
             }

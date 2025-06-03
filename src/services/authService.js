@@ -261,8 +261,34 @@ export const signOutAdmin = async () => {
       console.log(`👋 Admin logout: ${session.user.username}`);
     }
 
-    // Clear localStorage
+    // ANALYTICS TRACKING - Track Session End (Backup)
+    try {
+      const analyticsSession = JSON.parse(localStorage.getItem('admin_analytics_session') || '{}');
+      if (analyticsSession.sessionId && analyticsSession.startTime) {
+        const endTime = new Date();
+        const startTime = new Date(analyticsSession.startTime);
+        const sectionsVisited = analyticsSession.sectionsVisited || ['dashboard'];
+        const actionsPerformed = analyticsSession.actionsPerformed || 1;
+
+        // Import analyticsService at the top of this file if not already imported
+        const { trackAdminSession } = await import('./analyticsService');
+        
+        await trackAdminSession(
+          startTime,
+          endTime,
+          sectionsVisited,
+          actionsPerformed
+        );
+
+        console.log('📊 Analytics session tracked during signOut');
+      }
+    } catch (analyticsError) {
+      console.warn('⚠️ Analytics tracking during signOut failed:', analyticsError);
+    }
+
+    // Clear localStorage (including analytics session)
     localStorage.removeItem(AUTH_CONFIG.sessionKey);
+    localStorage.removeItem('admin_analytics_session');
     
     // Clear auth header
     clearAuthHeader();

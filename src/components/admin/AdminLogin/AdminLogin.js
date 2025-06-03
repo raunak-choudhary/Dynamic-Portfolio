@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import LoadingSpinner from '../../common/LoadingSpinner';
 import './AdminLogin.css';
+import analyticsService from '../../../services/analyticsService';
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -104,6 +105,20 @@ const AdminLogin = () => {
       const result = await signIn(formData.username.trim(), formData.password);
 
       if (result.success) {
+        // START ANALYTICS SESSION - ANALYTICS INTEGRATION
+        try {
+          const analyticsSession = analyticsService.startAdminSession();
+          localStorage.setItem('admin_analytics_session', JSON.stringify({
+            sessionId: analyticsSession.sessionId,
+            startTime: analyticsSession.startTime.toISOString(),
+            sectionsVisited: ['dashboard'],
+            actionsPerformed: 1 // Login counts as 1 action
+          }));
+          console.log('📊 Analytics session started:', analyticsSession.sessionId);
+        } catch (analyticsError) {
+          console.warn('⚠️ Analytics tracking failed:', analyticsError);
+        }
+        
         // Success - redirect will happen via useEffect
         console.log('✅ Login successful, redirecting to /admindashboard...');
       } else {

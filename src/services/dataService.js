@@ -3,7 +3,7 @@
 // All APIs completed successfully.
 
 import { supabase } from './supabaseClient';
-import { getCurrentAdmin, requireAdminAuth } from './authService';
+import { requireAdminAuth } from './authService';
 import { portfolioData } from '../data/portfolioData';
 
 

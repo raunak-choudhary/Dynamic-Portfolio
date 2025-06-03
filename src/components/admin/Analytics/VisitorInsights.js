@@ -1,5 +1,5 @@
 // src/components/admin/Analytics/VisitorInsights.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import analyticsService from '../../../services/analyticsService';
 import MetricsCard from './MetricsCard';
 import './VisitorInsights.css';
@@ -11,22 +11,42 @@ const VisitorInsights = ({ dateRange = '30d' }) => {
   const [peakHours, setPeakHours] = useState([]);
   const [popularSubjects, setPopularSubjects] = useState([]);
   const [contactTrends, setContactTrends] = useState([]);
+  const [error, setError] = useState(null);
 
-  // Parse date range helper
-  const parseDateRange = (range) => {
-    switch (range) {
-      case '7d': return 7;
-      case '30d': return 30;
-      case '90d': return 90;
-      case '1y': return 365;
-      default: return 30;
+  // Calculate real trend change from historical data
+  const calculateTrendChange = useCallback((current, historical) => {
+    if (!historical || !Array.isArray(historical) || historical.length < 2) {
+      return 0;
     }
-  };
 
-  // Process contact analytics data
-  const processContactData = (contactAnalytics) => {
+    const previousPeriod = historical[historical.length - 2]?.value || 0;
+    const currentPeriod = current || 0;
+
+    if (previousPeriod === 0) return currentPeriod > 0 ? 100 : 0;
+    
+    return Math.round(((currentPeriod - previousPeriod) / previousPeriod) * 100 * 10) / 10;
+  }, []);
+
+  // Get trend type based on change value
+  const getTrendType = useCallback((change) => {
+    if (change > 5) return 'positive';
+    if (change < -5) return 'negative';
+    return 'neutral';
+  }, []);
+
+  // Process contact analytics data with real trend calculations
+  const processContactData = useCallback((contactAnalytics) => {
     const total = contactAnalytics.totalMessages || 0;
     const types = contactAnalytics.contactTypes || {};
+    const historical = contactAnalytics.historicalData || [];
+    
+    // Calculate real trend changes from historical data
+    const totalTrend = calculateTrendChange(total, historical.filter(h => h.metric === 'total'));
+    const hrTrend = calculateTrendChange(types.hr || types['HR Representative'] || 0, historical.filter(h => h.metric === 'hr'));
+    const recruiterTrend = calculateTrendChange(types.recruiter || types['Recruiter'] || 0, historical.filter(h => h.metric === 'recruiter'));
+    const managerTrend = calculateTrendChange(types.manager || types['Manager'] || 0, historical.filter(h => h.metric === 'manager'));
+    const otherTrend = calculateTrendChange(types.other || types['Other'] || 0, historical.filter(h => h.metric === 'other'));
+    const responseTrend = calculateTrendChange(contactAnalytics.avgResponseTime || 0, historical.filter(h => h.metric === 'response_time'));
     
     return [
       {
@@ -34,8 +54,8 @@ const VisitorInsights = ({ dateRange = '30d' }) => {
         value: total,
         icon: '📬',
         color: 'blue',
-        change: calculateTrendChange(total),
-        changeType: getTrendType(calculateTrendChange(total)),
+        change: totalTrend,
+        changeType: getTrendType(totalTrend),
         description: `Messages received in ${dateRange}`
       },
       {
@@ -43,8 +63,8 @@ const VisitorInsights = ({ dateRange = '30d' }) => {
         value: types.hr || types['HR Representative'] || 0,
         icon: '👔',
         color: 'emerald',
-        change: 0,
-        changeType: 'neutral',
+        change: hrTrend,
+        changeType: getTrendType(hrTrend),
         description: 'HR professional inquiries'
       },
       {
@@ -52,8 +72,8 @@ const VisitorInsights = ({ dateRange = '30d' }) => {
         value: types.recruiter || types['Recruiter'] || 0,
         icon: '🎯',
         color: 'purple',
-        change: 0,
-        changeType: 'neutral',
+        change: recruiterTrend,
+        changeType: getTrendType(recruiterTrend),
         description: 'Recruitment opportunities'
       },
       {
@@ -61,8 +81,8 @@ const VisitorInsights = ({ dateRange = '30d' }) => {
         value: types.manager || types['Manager'] || 0,
         icon: '👨‍💼',
         color: 'orange',
-        change: 0,
-        changeType: 'neutral',
+        change: managerTrend,
+        changeType: getTrendType(managerTrend),
         description: 'Management inquiries'
       },
       {
@@ -70,37 +90,31 @@ const VisitorInsights = ({ dateRange = '30d' }) => {
         value: types.other || types['Other'] || 0,
         icon: '💼',
         color: 'pink',
-        change: 0,
-        changeType: 'neutral',
+        change: otherTrend,
+        changeType: getTrendType(otherTrend),
         description: 'General inquiries'
       },
       {
         title: 'Avg Response Time',
-        value: `${contactAnalytics.avgResponseTime || 0}h`,
+        value: `${Math.round((contactAnalytics.avgResponseTime || 0) * 10) / 10}h`,
         icon: '⏱️',
         color: 'blue',
-        change: 0,
-        changeType: 'neutral',
+        change: responseTrend,
+        changeType: getTrendType(responseTrend),
         description: 'Average response time'
       }
     ];
-  };
+  }, [dateRange, calculateTrendChange, getTrendType]);
 
-  // Calculate trend change (mock calculation)
-  const calculateTrendChange = (current) => {
-    // In real implementation, this would compare with previous period
-    return Math.random() * 30 - 15; // Random -15% to +15%
-  };
-
-  // Get trend type
-  const getTrendType = (change) => {
-    if (change > 5) return 'positive';
-    if (change < -5) return 'negative';
-    return 'neutral';
-  };
+  // Format hour for display
+  const formatHour = useCallback((hour) => {
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 || 12;
+    return `${displayHour}${ampm}`;
+  }, []);
 
   // Process peak hours data
-  const processPeakHours = (peakHoursData) => {
+  const processPeakHours = useCallback((peakHoursData) => {
     if (!peakHoursData || typeof peakHoursData !== 'object') return [];
     
     const hours = [];
@@ -112,37 +126,31 @@ const VisitorInsights = ({ dateRange = '30d' }) => {
         isActive: (peakHoursData[i] || 0) > 0
       });
     }
-    
-    return hours.sort((a, b) => b.count - a.count);
-  };
 
-  // Format hour for display
-  const formatHour = (hour) => {
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const displayHour = hour % 12 || 12;
-    return `${displayHour}${ampm}`;
-  };
+    return hours.sort((a, b) => b.count - a.count);
+  }, [formatHour]);
+
+  // Calculate day percentage
+  const calculateDayPercentage = useCallback((dayCount, allDays) => {
+    const maxCount = Math.max(...allDays.map(d => d.count));
+    return maxCount > 0 ? (dayCount / maxCount) * 100 : 0;
+  }, []);
 
   // Process daily trends
-  const processDailyTrends = (dailyTrend) => {
+  const processDailyTrends = useCallback((dailyTrend) => {
     if (!dailyTrend || !Array.isArray(dailyTrend)) return [];
     
     return dailyTrend.map(day => ({
       ...day,
       percentage: calculateDayPercentage(day.count, dailyTrend)
     }));
-  };
-
-  // Calculate day percentage
-  const calculateDayPercentage = (dayCount, allDays) => {
-    const maxCount = Math.max(...allDays.map(d => d.count));
-    return maxCount > 0 ? (dayCount / maxCount) * 100 : 0;
-  };
+  }, [calculateDayPercentage]);
 
   // Load visitor insights data
-  const loadVisitorData = async () => {
+  const loadVisitorData = useCallback(async () => {
     try {
       setIsLoading(true);
+      setError(null);
       
       const contactAnalytics = await analyticsService.getContactAnalytics(dateRange);
       
@@ -165,18 +173,24 @@ const VisitorInsights = ({ dateRange = '30d' }) => {
 
     } catch (error) {
       console.error('Error loading visitor data:', error);
+      setError('Failed to load visitor insights. Please try again.');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [dateRange, processContactData, processPeakHours, processDailyTrends]);
 
   // Load data when component mounts or dateRange changes
   useEffect(() => {
     loadVisitorData();
-  }, [dateRange]);
+  }, [loadVisitorData]);
+
+  // Handle retry when error occurs
+  const handleRetry = useCallback(() => {
+    loadVisitorData();
+  }, [loadVisitorData]);
 
   // Get contact type distribution for chart
-  const getContactTypeDistribution = () => {
+  const getContactTypeDistribution = useCallback(() => {
     const types = visitorData.contactTypes || {};
     return [
       { name: 'HR Representatives', value: types.hr || types['HR Representative'] || 0, color: 'var(--neon-emerald)' },
@@ -184,10 +198,26 @@ const VisitorInsights = ({ dateRange = '30d' }) => {
       { name: 'Managers', value: types.manager || types['Manager'] || 0, color: 'var(--neon-orange)' },
       { name: 'Other', value: types.other || types['Other'] || 0, color: 'var(--neon-pink)' }
     ].filter(item => item.value > 0);
-  };
+  }, [visitorData.contactTypes]);
 
   const contactDistribution = getContactTypeDistribution();
   const totalContacts = contactDistribution.reduce((sum, item) => sum + item.value, 0);
+
+  // Error state
+  if (error) {
+    return (
+      <div className="visitor-insights visitor-insights--error">
+        <div className="error-state">
+          <div className="error-icon">⚠️</div>
+          <h3 className="error-title">Unable to Load Visitor Insights</h3>
+          <p className="error-message">{error}</p>
+          <button onClick={handleRetry} className="retry-button">
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="visitor-insights">
@@ -206,7 +236,7 @@ const VisitorInsights = ({ dateRange = '30d' }) => {
       <div className="contact-metrics-grid">
         {contactMetrics.map((metric, index) => (
           <MetricsCard
-            key={index}
+            key={`contact-metric-${index}`}
             title={metric.title}
             value={metric.value}
             icon={metric.icon}
@@ -238,7 +268,7 @@ const VisitorInsights = ({ dateRange = '30d' }) => {
                       
                       return (
                         <circle
-                          key={index}
+                          key={`donut-${index}`}
                           cx="50"
                           cy="50"
                           r="30"
@@ -260,7 +290,7 @@ const VisitorInsights = ({ dateRange = '30d' }) => {
               </div>
               <div className="distribution-legend">
                 {contactDistribution.map((item, index) => (
-                  <div key={index} className="legend-item">
+                  <div key={`legend-${index}`} className="legend-item">
                     <div 
                       className="legend-color" 
                       style={{ backgroundColor: item.color }}
@@ -287,11 +317,12 @@ const VisitorInsights = ({ dateRange = '30d' }) => {
           {peakHours.length > 0 && peakHours.some(h => h.count > 0) ? (
             <div className="peak-hours-chart">
               {peakHours.slice(0, 12).map((hour, index) => (
-                <div key={index} className="hour-bar">
+                <div key={`hour-${index}`} className="hour-bar">
                   <div 
                     className="hour-bar-fill"
                     style={{ 
-                      height: `${hour.count > 0 ? Math.max(20, (hour.count / Math.max(...peakHours.map(h => h.count))) * 100) : 0}%` 
+                      height: `${hour.count > 0 ? Math.max(20, (hour.count / Math.max(...peakHours.map(h => h.count))) * 100) : 0}%`,
+                      transition: 'height 0.3s ease-in-out'
                     }}
                   ></div>
                   <div className="hour-label">{hour.label}</div>
@@ -314,7 +345,7 @@ const VisitorInsights = ({ dateRange = '30d' }) => {
           <h3 className="subjects-title">Popular Inquiry Topics</h3>
           <div className="subjects-grid">
             {popularSubjects.slice(0, 8).map((subject, index) => (
-              <div key={index} className="subject-card">
+              <div key={`subject-${index}`} className="subject-card">
                 <div className="subject-rank">#{index + 1}</div>
                 <div className="subject-content">
                   <div className="subject-name">{subject.subject}</div>
@@ -326,7 +357,8 @@ const VisitorInsights = ({ dateRange = '30d' }) => {
                   <div 
                     className="subject-bar-fill"
                     style={{ 
-                      width: `${(subject.count / Math.max(...popularSubjects.map(s => s.count))) * 100}%` 
+                      width: `${(subject.count / Math.max(...popularSubjects.map(s => s.count))) * 100}%`,
+                      transition: 'width 0.3s ease-in-out'
                     }}
                   ></div>
                 </div>
@@ -342,10 +374,13 @@ const VisitorInsights = ({ dateRange = '30d' }) => {
           <h3 className="trends-title">Daily Contact Trends</h3>
           <div className="trends-chart">
             {contactTrends.map((day, index) => (
-              <div key={index} className="trend-day">
+              <div key={`trend-${index}`} className="trend-day">
                 <div 
                   className="trend-bar"
-                  style={{ height: `${Math.max(10, day.percentage)}%` }}
+                  style={{ 
+                    height: `${Math.max(10, day.percentage)}%`,
+                    transition: 'height 0.3s ease-in-out'
+                  }}
                   title={`${day.day}: ${day.count} contacts`}
                 ></div>
                 <div className="trend-label">{day.day}</div>
@@ -407,6 +442,17 @@ const VisitorInsights = ({ dateRange = '30d' }) => {
           <span className="last-updated">
             Data last updated: {visitorData.lastUpdated.toLocaleString()}
           </span>
+        </div>
+      )}
+
+      {/* Empty State */}
+      {!isLoading && contactMetrics.every(m => m.value === 0) && (
+        <div className="empty-state">
+          <div className="empty-icon">📧</div>
+          <h3 className="empty-title">No Visitor Data Available</h3>
+          <p className="empty-description">
+            Contact form submissions will appear here once visitors start reaching out through your portfolio.
+          </p>
         </div>
       )}
     </div>

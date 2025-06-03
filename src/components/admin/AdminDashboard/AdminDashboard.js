@@ -6,6 +6,7 @@ import { getPortfolioStats } from '../../../services/dataService'; // Assuming p
 import LoadingSpinner from '../../common/LoadingSpinner'; // Assuming path is correct
 import ThemeToggle from '../../common/ThemeToggle'; // Assuming path is correct
 import logoImage from '../../../assets/images/logo.png'; // Assuming path is correct
+import analyticsService from '../../../services/analyticsService';
 import './AdminDashboard.css';
 
 import HeroContentManager from './sections/HeroContentManager';
@@ -21,6 +22,7 @@ import RecommendationsManager from './sections/RecommendationsManager';
 import AchievementsManager from './sections/AchievementsManager';
 import LeadershipManager from './sections/LeadershipManager';
 import ContactMessagesManager from './sections/ContactMessagesManager';
+import AnalyticsDashboard from '../Analytics/AnalyticsDashboard';
 
 const AdminDashboard = () => {
   const { signOut } = useAuth();
@@ -55,7 +57,8 @@ const AdminDashboard = () => {
     { id: 'recommendations', name: 'Recommendations', icon: '⭐', color: 'teal', shortcut: 'r' },
     { id: 'achievements', name: 'Achievements', icon: '🥇', color: 'lime', shortcut: 'm' },
     { id: 'leadership', name: 'Leadership', icon: '👑', color: 'violet', shortcut: 'l' },
-    { id: 'contact', name: 'Contact Messages', icon: '📧', color: 'rose', shortcut: '3' }
+    { id: 'contact', name: 'Contact Messages', icon: '📧', color: 'rose', shortcut: '3' },
+    { id: 'analytics', name: 'Analytics', icon: '📈', color: 'emerald', shortcut: 'b' }
   ];
 
   // Section-specific state management (assuming this structure is intended)
@@ -97,6 +100,40 @@ const AdminDashboard = () => {
       setSectionLoading(true);
       setActiveSection(sectionId); // Set active section immediately for UI feedback
 
+      // ANALYTICS TRACKING - Section Visit
+      try {
+        const analyticsSession = JSON.parse(localStorage.getItem('admin_analytics_session') || '{}');
+        if (analyticsSession.sessionId) {
+          // Track section visit
+          await analyticsService.trackEvent(
+            'section_visit',
+            'admin',
+            'visit_section',
+            sectionId,
+            1,
+            { 
+              fromSection: activeSection,
+              timestamp: new Date().toISOString(),
+              sessionDuration: Date.now() - new Date(analyticsSession.startTime).getTime()
+            },
+            'admin',
+            analyticsSession.sessionId
+          );
+
+          // Update sections visited
+          const updatedSession = {
+            ...analyticsSession,
+            sectionsVisited: [...new Set([...(analyticsSession.sectionsVisited || []), sectionId])],
+            actionsPerformed: (analyticsSession.actionsPerformed || 0) + 1
+          };
+          localStorage.setItem('admin_analytics_session', JSON.stringify(updatedSession));
+          
+          console.log('📊 Section visit tracked:', sectionId);
+        }
+      } catch (analyticsError) {
+        console.warn('⚠️ Analytics tracking failed:', analyticsError);
+      }
+
       if (!sectionStates[sectionId]?.loaded && sectionId !== 'dashboard') {
         await loadSectionData(sectionId);
       }
@@ -124,6 +161,35 @@ const AdminDashboard = () => {
   // Enhanced quick save handler
   const handleQuickSave = useCallback(() => {
     if (hasUnsavedChanges) {
+      // ANALYTICS TRACKING - Save Action
+      try {
+        const analyticsSession = JSON.parse(localStorage.getItem('admin_analytics_session') || '{}');
+        if (analyticsSession.sessionId) {
+          analyticsService.trackEvent(
+            'admin_action',
+            'admin',
+            'quick_save',
+            activeSection,
+            1,
+            { 
+              section: activeSection,
+              timestamp: new Date().toISOString()
+            },
+            'admin',
+            analyticsSession.sessionId
+          );
+
+          // Update actions count
+          const updatedSession = {
+            ...analyticsSession,
+            actionsPerformed: (analyticsSession.actionsPerformed || 0) + 1
+          };
+          localStorage.setItem('admin_analytics_session', JSON.stringify(updatedSession));
+        }
+      } catch (analyticsError) {
+        console.warn('⚠️ Analytics save tracking failed:', analyticsError);
+      }
+      
       // Implement actual save logic here
       console.log('Changes saved for section:', activeSection);
       setHasUnsavedChanges(false);
@@ -158,40 +224,49 @@ const AdminDashboard = () => {
     setPreviewMode(mode);
   };
 
-  // Navigate preview (opens in new tab, ensure pop-up blockers are handled)
-  const navigatePreview = (path) => {
-    const previewWindow = window.open(path, '_blank');
-    if (previewWindow) {
-      previewWindow.focus();
-    } else {
-      // Handle pop-up blocker scenario
-      alert('Preview window was blocked. Please allow pop-ups for this site.');
-    }
-  };
-
-    const handleSignOut = () => {
+  const handleSignOut = async () => {
     if (hasUnsavedChanges) {
         const confirmed = window.confirm(
         'You have unsaved changes. Are you sure you want to sign out?'
         );
         if (!confirmed) return;
     }
+
+    // ANALYTICS TRACKING - End Session Before Logout
+    try {
+      const analyticsSession = JSON.parse(localStorage.getItem('admin_analytics_session') || '{}');
+      
+      if (analyticsSession.sessionId && analyticsSession.startTime) {
+        const endTime = new Date();
+        const startTime = new Date(analyticsSession.startTime);
+        const sectionsVisited = analyticsSession.sectionsVisited || ['dashboard'];
+        const actionsPerformed = analyticsSession.actionsPerformed || 1;
+
+        // Track the admin session
+        await analyticsService.trackAdminSession(
+          startTime,
+          endTime,
+          sectionsVisited,
+          actionsPerformed
+        );
+
+        // Clear analytics session
+        localStorage.removeItem('admin_analytics_session');
+      }
+    } catch (analyticsError) {
+      console.warn('⚠️ Analytics session tracking failed:', analyticsError);
+    }
     
-    setHasUnsavedChanges(false); // Clear flag
-    // Optionally reset active section if desired, like your original:
-    // setActiveSection('dashboard'); 
+    setHasUnsavedChanges(false);
     
     try {
-        signOut(); // Call auth hook's signOut
-        // Explicitly redirect AFTER signOut() is called
-        window.location.href = '/adminsignout'; // Ensure this line is active
+        await signOut();
+        window.location.href = '/adminsignout';
     } catch (error) {
         console.error('Error during sign out:', error);
-        // You might still want to attempt redirection even if signOut() fails locally,
-        // or handle the error more gracefully. For now, this matches your original working logic.
-        // window.location.href = '/adminsignout'; // Consider if this should be here too.
+        window.location.href = '/adminsignout';
     }
-    };
+  };
 
   // Enhanced go back functionality
   const goBack = () => {
@@ -293,6 +368,7 @@ const AdminDashboard = () => {
           case 'i': e.preventDefault(); handleSectionChange('internships'); break;
           case 'e': e.preventDefault(); handleSectionChange('education'); break;
           case 'w': e.preventDefault(); handleSectionChange('work'); break;
+          case 'b': e.preventDefault(); handleSectionChange('analytics'); break;
           case 's':
             e.preventDefault();
             if (e.shiftKey) { // Ctrl/Cmd + Shift + S for skills
@@ -484,6 +560,20 @@ const AdminDashboard = () => {
                 <p>New Messages</p>
                 </div>
             </div>
+
+            {/* Analytics Card - Clickable */}
+            <div 
+                className="stat-card emerald-glow" 
+                onClick={() => handleSectionChange('analytics')}
+                style={{ cursor: 'pointer' }}
+                title="Click to view analytics dashboard"
+            >
+                <div className="stat-icon">📈</div>
+                <div className="stat-content">
+                <h3>Analytics</h3>
+                <p>Performance Insights</p>
+                </div>
+            </div>
             </>
         ) : (
             <div className="loading-stats" style={{ gridColumn: '1 / -1', textAlign: 'center' }}>
@@ -515,6 +605,13 @@ const AdminDashboard = () => {
           >
             <span className="btn-icon" role="img" aria-label="Preview Portfolio">👁️</span>
             Preview Portfolio
+          </button>
+          <button 
+            className="action-btn primary-action"
+            onClick={() => handleSectionChange('analytics')}
+          >
+            <span className="btn-icon" role="img" aria-label="View Analytics">📈</span>
+            View Analytics
           </button>
         </div>
       </div>
@@ -583,6 +680,9 @@ const AdminDashboard = () => {
 
             case 'contact':
                 return <ContactMessagesManager />;
+
+            case 'analytics':
+                return <AnalyticsDashboard />;
             
             default:
             // Placeholder for sections not yet implemented

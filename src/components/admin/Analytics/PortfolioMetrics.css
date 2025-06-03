@@ -1,6 +1,7 @@
-/* src/components/admin/Analytics/PortfolioMetrics.css */
+/* src/components/admin/Analytics/PortfolioMetrics.css - ADMIN SCOPED VERSION */
+/* 🔒 ADMIN SCOPED - NO CONFLICTS WITH PUBLIC PORTFOLIO */
 
-.portfolio-metrics {
+.admin-dashboard .portfolio-metrics {
   display: flex;
   flex-direction: column;
   gap: 32px;
@@ -9,12 +10,12 @@
 }
 
 /* Header */
-.portfolio-metrics-header {
+.admin-dashboard .portfolio-metrics-header {
   text-align: center;
   margin-bottom: 8px;
 }
 
-.portfolio-metrics-title {
+.admin-dashboard .portfolio-metrics-title {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -26,13 +27,13 @@
   text-shadow: 0 0 20px var(--neon-purple);
 }
 
-.metrics-icon {
+.admin-dashboard .metrics-icon {
   font-size: 32px;
   filter: drop-shadow(0 0 12px var(--neon-purple));
   animation: bounce-glow 2s ease-in-out infinite;
 }
 
-.portfolio-metrics-subtitle {
+.admin-dashboard .portfolio-metrics-subtitle {
   margin: 0;
   font-size: 16px;
   color: var(--text-secondary);
@@ -42,11 +43,11 @@
 }
 
 /* Completeness Overview */
-.completeness-overview {
+.admin-dashboard .completeness-overview {
   margin-bottom: 16px;
 }
 
-.completeness-card {
+.admin-dashboard .completeness-card {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 32px;
@@ -60,7 +61,7 @@
   overflow: hidden;
 }
 
-.completeness-card::before {
+.admin-dashboard .completeness-card::before {
   content: '';
   position: absolute;
   top: 0;
@@ -74,22 +75,22 @@
   animation: rainbow-flow 3s ease-in-out infinite;
 }
 
-.completeness-content {
+.admin-dashboard .completeness-content {
   flex: 1;
 }
 
-.completeness-title {
+.admin-dashboard .completeness-title {
   margin: 0 0 16px 0;
   font-size: 24px;
   font-weight: 600;
   color: var(--text-primary);
 }
 
-.completeness-score {
+.admin-dashboard .completeness-score {
   margin-bottom: 16px;
 }
 
-.score-value {
+.admin-dashboard .score-value {
   display: block;
   font-size: 48px;
   font-weight: 800;
@@ -99,7 +100,7 @@
   line-height: 1;
 }
 
-.score-progress {
+.admin-dashboard .score-progress {
   width: 100%;
   height: 8px;
   background: rgba(255, 255, 255, 0.1);
@@ -108,7 +109,7 @@
   position: relative;
 }
 
-.score-progress-fill {
+.admin-dashboard .score-progress-fill {
   height: 100%;
   background: linear-gradient(90deg, 
     var(--neon-cyan) 0%, 
@@ -119,7 +120,7 @@
   box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
 }
 
-.completeness-description {
+.admin-dashboard .completeness-description {
   margin: 0;
   font-size: 14px;
   color: var(--text-tertiary);
@@ -127,28 +128,28 @@
 }
 
 /* Circular Progress */
-.completeness-visual {
+.admin-dashboard .completeness-visual {
   display: flex;
   justify-content: center;
 }
 
-.circular-progress {
+.admin-dashboard .circular-progress {
   position: relative;
   width: 160px;
   height: 160px;
 }
 
-.circular-progress svg {
+.admin-dashboard .circular-progress svg {
   width: 100%;
   height: 100%;
   transform: rotate(-90deg);
 }
 
-.circular-progress circle {
+.admin-dashboard .circular-progress circle {
   transition: stroke-dashoffset 1s ease-out;
 }
 
-.progress-percentage {
+.admin-dashboard .progress-percentage {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -160,14 +161,14 @@
 }
 
 /* Metrics Grid */
-.portfolio-metrics-grid {
+.admin-dashboard .portfolio-metrics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 24px;
 }
 
 /* Section Progress */
-.section-progress {
+.admin-dashboard .section-progress {
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
@@ -175,7 +176,7 @@
   padding: 24px;
 }
 
-.section-progress-title {
+.admin-dashboard .section-progress-title {
   margin: 0 0 24px 0;
   font-size: 20px;
   font-weight: 600;
@@ -185,19 +186,19 @@
   gap: 8px;
 }
 
-.section-progress-title::before {
+.admin-dashboard .section-progress-title::before {
   content: '📋';
   font-size: 20px;
   filter: drop-shadow(0 0 8px var(--neon-emerald));
 }
 
-.section-progress-grid {
+.admin-dashboard .section-progress-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 16px;
 }
 
-.section-item {
+.admin-dashboard .section-item {
   padding: 16px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -205,32 +206,32 @@
   transition: all 0.3s ease;
 }
 
-.section-item:hover {
+.admin-dashboard .section-item:hover {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(0, 255, 255, 0.3);
   transform: translateY(-2px);
 }
 
-.section-header {
+.admin-dashboard .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
 }
 
-.section-name {
+.admin-dashboard .section-name {
   font-size: 14px;
   font-weight: 500;
   color: var(--text-primary);
 }
 
-.section-percentage {
+.admin-dashboard .section-percentage {
   font-size: 14px;
   font-weight: 600;
   color: var(--neon-cyan);
 }
 
-.section-progress-bar {
+.admin-dashboard .section-progress-bar {
   width: 100%;
   height: 6px;
   background: rgba(255, 255, 255, 0.1);
@@ -239,33 +240,33 @@
   margin-bottom: 8px;
 }
 
-.section-progress-fill {
+.admin-dashboard .section-progress-fill {
   height: 100%;
   border-radius: 3px;
   transition: width 0.8s ease-out;
 }
 
-.section-progress-fill.complete {
+.admin-dashboard .section-progress-fill.complete {
   background: linear-gradient(90deg, var(--neon-emerald), var(--neon-cyan));
   box-shadow: 0 0 12px rgba(50, 205, 50, 0.5);
 }
 
-.section-progress-fill.partial {
+.admin-dashboard .section-progress-fill.partial {
   background: linear-gradient(90deg, var(--neon-orange), var(--neon-yellow));
   box-shadow: 0 0 12px rgba(255, 165, 0, 0.5);
 }
 
-.section-progress-fill.empty {
+.admin-dashboard .section-progress-fill.empty {
   background: rgba(255, 255, 255, 0.2);
 }
 
-.section-weight {
+.admin-dashboard .section-weight {
   font-size: 12px;
   color: var(--text-tertiary);
 }
 
 /* Engagement Summary */
-.engagement-summary {
+.admin-dashboard .engagement-summary {
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
@@ -273,7 +274,7 @@
   padding: 24px;
 }
 
-.engagement-title {
+.admin-dashboard .engagement-title {
   margin: 0 0 20px 0;
   font-size: 20px;
   font-weight: 600;
@@ -283,19 +284,19 @@
   gap: 8px;
 }
 
-.engagement-title::before {
+.admin-dashboard .engagement-title::before {
   content: '👀';
   font-size: 20px;
   filter: drop-shadow(0 0 8px var(--neon-pink));
 }
 
-.engagement-grid {
+.admin-dashboard .engagement-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
 }
 
-.engagement-item {
+.admin-dashboard .engagement-item {
   padding: 16px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -304,13 +305,13 @@
   transition: all 0.3s ease;
 }
 
-.engagement-item:hover {
+.admin-dashboard .engagement-item:hover {
   background: rgba(255, 20, 147, 0.1);
   border-color: rgba(255, 20, 147, 0.3);
   transform: translateY(-2px);
 }
 
-.engagement-type {
+.admin-dashboard .engagement-type {
   font-size: 14px;
   font-weight: 600;
   color: var(--text-primary);
@@ -318,28 +319,28 @@
   text-transform: capitalize;
 }
 
-.engagement-stats {
+.admin-dashboard .engagement-stats {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.stat-views,
-.stat-score {
+.admin-dashboard .stat-views,
+.admin-dashboard .stat-score {
   font-size: 12px;
   color: var(--text-secondary);
 }
 
-.stat-views {
+.admin-dashboard .stat-views {
   color: var(--neon-cyan);
 }
 
-.stat-score {
+.admin-dashboard .stat-score {
   color: var(--neon-pink);
 }
 
 /* Growth Timeline */
-.growth-timeline {
+.admin-dashboard .growth-timeline {
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
@@ -348,7 +349,7 @@
   text-align: center;
 }
 
-.timeline-title {
+.admin-dashboard .timeline-title {
   margin: 0 0 16px 0;
   font-size: 20px;
   font-weight: 600;
@@ -359,25 +360,25 @@
   gap: 8px;
 }
 
-.timeline-title::before {
+.admin-dashboard .timeline-title::before {
   content: '📅';
   font-size: 20px;
   filter: drop-shadow(0 0 8px var(--neon-orange));
 }
 
-.timeline-content {
+.admin-dashboard .timeline-content {
   max-width: 600px;
   margin: 0 auto;
 }
 
-.timeline-description {
+.admin-dashboard .timeline-description {
   font-size: 16px;
   color: var(--text-secondary);
   line-height: 1.6;
   margin: 0 0 12px 0;
 }
 
-.timeline-updated {
+.admin-dashboard .timeline-updated {
   font-size: 12px;
   color: var(--text-tertiary);
   font-style: italic;
@@ -418,134 +419,201 @@
 
 /* Responsive Design */
 @media (max-width: 1024px) {
-  .completeness-card {
+  .admin-dashboard .completeness-card {
     grid-template-columns: 1fr;
     text-align: center;
     gap: 24px;
   }
   
-  .circular-progress {
+  .admin-dashboard .circular-progress {
     width: 140px;
     height: 140px;
   }
   
-  .progress-percentage {
+  .admin-dashboard .progress-percentage {
     font-size: 20px;
   }
 }
 
 @media (max-width: 768px) {
-  .portfolio-metrics {
+  .admin-dashboard .portfolio-metrics {
     gap: 24px;
   }
   
-  .portfolio-metrics-title {
+  .admin-dashboard .portfolio-metrics-title {
     font-size: 24px;
   }
   
-  .portfolio-metrics-subtitle {
+  .admin-dashboard .portfolio-metrics-subtitle {
     font-size: 14px;
   }
   
-  .completeness-card {
+  .admin-dashboard .completeness-card {
     padding: 24px;
   }
   
-  .completeness-title {
+  .admin-dashboard .completeness-title {
     font-size: 20px;
   }
   
-  .score-value {
+  .admin-dashboard .score-value {
     font-size: 36px;
   }
   
-  .circular-progress {
+  .admin-dashboard .circular-progress {
     width: 120px;
     height: 120px;
   }
   
-  .progress-percentage {
+  .admin-dashboard .progress-percentage {
     font-size: 18px;
   }
   
-  .portfolio-metrics-grid {
+  .admin-dashboard .portfolio-metrics-grid {
     grid-template-columns: 1fr;
   }
   
-  .section-progress-grid {
+  .admin-dashboard .section-progress-grid {
     grid-template-columns: 1fr;
   }
   
-  .engagement-grid {
+  .admin-dashboard .engagement-grid {
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   }
 }
 
 @media (max-width: 480px) {
-  .portfolio-metrics {
+  .admin-dashboard .portfolio-metrics {
     gap: 20px;
   }
   
-  .completeness-card,
-  .section-progress,
-  .engagement-summary,
-  .growth-timeline {
+  .admin-dashboard .completeness-card,
+  .admin-dashboard .section-progress,
+  .admin-dashboard .engagement-summary,
+  .admin-dashboard .growth-timeline {
     padding: 16px;
   }
   
-  .portfolio-metrics-title {
+  .admin-dashboard .portfolio-metrics-title {
     font-size: 20px;
   }
   
-  .score-value {
+  .admin-dashboard .score-value {
     font-size: 28px;
   }
   
-  .circular-progress {
+  .admin-dashboard .circular-progress {
     width: 100px;
     height: 100px;
   }
   
-  .progress-percentage {
+  .admin-dashboard .progress-percentage {
     font-size: 16px;
   }
   
-  .section-item {
+  .admin-dashboard .section-item {
     padding: 12px;
   }
   
-  .engagement-item {
+  .admin-dashboard .engagement-item {
     padding: 12px;
   }
 }
 
 /* Theme Adjustments */
-[data-theme="light"] .completeness-card,
-[data-theme="light"] .section-progress,
-[data-theme="light"] .engagement-summary,
-[data-theme="light"] .growth-timeline {
+[data-theme="light"] .admin-dashboard .completeness-card,
+[data-theme="light"] .admin-dashboard .section-progress,
+[data-theme="light"] .admin-dashboard .engagement-summary,
+[data-theme="light"] .admin-dashboard .growth-timeline {
   background: rgba(255, 255, 255, 0.8);
   border-color: rgba(0, 0, 0, 0.1);
 }
 
-[data-theme="light"] .section-item,
-[data-theme="light"] .engagement-item {
+[data-theme="light"] .admin-dashboard .section-item,
+[data-theme="light"] .admin-dashboard .engagement-item {
   background: rgba(0, 0, 0, 0.05);
   border-color: rgba(0, 0, 0, 0.1);
 }
 
-[data-theme="light"] .section-item:hover,
-[data-theme="light"] .engagement-item:hover {
+[data-theme="light"] .admin-dashboard .section-item:hover,
+[data-theme="light"] .admin-dashboard .engagement-item:hover {
   background: rgba(0, 0, 0, 0.08);
 }
 
 /* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
-  .portfolio-metrics *,
-  .portfolio-metrics *::before,
-  .portfolio-metrics *::after {
+  .admin-dashboard .portfolio-metrics *,
+  .admin-dashboard .portfolio-metrics *::before,
+  .admin-dashboard .portfolio-metrics *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Accessibility */
+@media (prefers-contrast: high) {
+  .admin-dashboard .completeness-card,
+  .admin-dashboard .section-progress,
+  .admin-dashboard .engagement-summary,
+  .admin-dashboard .growth-timeline {
+    border-width: 2px;
+  }
+  
+  .admin-dashboard .section-item,
+  .admin-dashboard .engagement-item {
+    border-width: 2px;
+  }
+  
+  .admin-dashboard .circular-progress circle {
+    stroke-width: 6;
+  }
+}
+
+/* Focus States for Accessibility */
+.admin-dashboard .section-item:focus,
+.admin-dashboard .engagement-item:focus {
+  outline: 2px solid var(--neon-cyan);
+  outline-offset: 2px;
+}
+
+/* Print Styles */
+@media print {
+  .admin-dashboard .portfolio-metrics {
+    background: white;
+    color: black;
+  }
+  
+  .admin-dashboard .completeness-card,
+  .admin-dashboard .section-progress,
+  .admin-dashboard .engagement-summary,
+  .admin-dashboard .growth-timeline {
+    background: white;
+    border: 1px solid #ddd;
+    page-break-inside: avoid;
+    margin-bottom: 20px;
+  }
+  
+  .admin-dashboard .section-item,
+  .admin-dashboard .engagement-item {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+  }
+  
+  .admin-dashboard .portfolio-metrics-title,
+  .admin-dashboard .completeness-title,
+  .admin-dashboard .section-progress-title,
+  .admin-dashboard .engagement-title,
+  .admin-dashboard .timeline-title {
+    color: black;
+    text-shadow: none;
+  }
+  
+  .admin-dashboard .metrics-icon {
+    display: none;
+  }
+  
+  .admin-dashboard .circular-progress {
+    filter: grayscale(100%);
   }
 }
