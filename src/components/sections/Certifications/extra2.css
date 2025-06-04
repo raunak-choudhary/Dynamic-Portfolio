@@ -250,7 +250,6 @@
   cursor: pointer;
   transition: all var(--duration-normal) ease;
   overflow: hidden;
-  z-index: 1;
   
   /* Golden glassmorphism */
   background: linear-gradient(135deg,
@@ -301,11 +300,6 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
-/* ===== CERTIFICATION CARD WRAPPER - FOR FEATURED BADGE ===== */
-.certifications-section .certification-card-wrapper {
-  position: relative;
-}
-
 /* ===== FEATURED BADGE - FIXED: Higher z-index ===== */
 .certifications-section .featured-badge {
   position: absolute;
@@ -323,7 +317,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10;
+  z-index: 100;
   box-shadow: 
     0 6px 20px rgba(251, 191, 36, 0.4),
     0 0 30px rgba(245, 158, 11, 0.3),
@@ -961,8 +955,8 @@
 /* FIXED: Circular logo container - smaller size */
 .certifications-section .modal-logo-container,
 .certifications-section .issuer-logo-container {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   overflow: hidden;
   background: linear-gradient(135deg, #F59E0B, #FBD78C);
@@ -976,15 +970,15 @@
 
 .certifications-section .modal-logo,
 .certifications-section .issuer-logo {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   object-fit: cover;
   border-radius: 50%;
 }
 
 .certifications-section .issuer-initials {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   color: white;
   font-weight: 700;
   font-size: var(--text-xs);

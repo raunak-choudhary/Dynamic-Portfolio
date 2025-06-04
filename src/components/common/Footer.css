@@ -218,7 +218,7 @@
 }
 
 .status-available {
-  color: var(--neon-green);
+  color: #00ff88; /* Dark green for better visibility */
   font-weight: 600;
   text-shadow: 0 0 8px currentColor;
   animation: neonPulse 2s ease-in-out infinite;
@@ -262,18 +262,38 @@
   text-shadow: 0 0 10px rgba(139, 0, 255, 0.3);
 }
 
+/* Fixed: Light theme footer link styling */
+[data-theme="light"] .footer-link {
+  color: #4a4a4a; /* Darker color for better visibility in light mode */
+}
+
 [data-theme="light"] .footer-link:hover {
-  color: var(--neon-pink);
-  text-shadow: 0 0 8px rgba(255, 0, 128, 0.3);
+  color: var(--neon-purple);
+  text-shadow: 0 0 8px rgba(139, 0, 255, 0.3);
 }
 
 [data-theme="light"] .contact-label {
   color: var(--neon-orange);
 }
 
+[data-theme="light"] .contact-link {
+  color: #4a4a4a; /* Darker color for better visibility in light mode */
+}
+
 [data-theme="light"] .contact-link:hover {
   color: var(--neon-purple);
   text-shadow: 0 0 8px rgba(139, 0, 255, 0.3);
+}
+
+/* Fixed: Status available color for better visibility */
+[data-theme="light"] .status-available {
+  color: #00b359; /* Even darker green for light mode visibility */
+  text-shadow: 0 0 8px rgba(0, 179, 89, 0.4);
+}
+
+[data-theme="dark"] .status-available {
+  color: #00ff88; /* Bright green for dark mode */
+  text-shadow: 0 0 8px rgba(0, 255, 136, 0.6);
 }
 
 [data-theme="light"] .social-link {
@@ -291,6 +311,15 @@
 
 [data-theme="light"] .footer-bottom {
   border-top-color: var(--border-primary);
+}
+
+/* Additional light theme text fixes */
+[data-theme="light"] .footer-description {
+  color: #555555; /* Darker secondary text for light mode */
+}
+
+[data-theme="light"] .copyright {
+  color: #666666; /* Darker muted text for light mode */
 }
 
 /* Responsive Design */

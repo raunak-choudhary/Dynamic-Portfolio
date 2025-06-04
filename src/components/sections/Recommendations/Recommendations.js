@@ -63,29 +63,29 @@ const Recommendations = () => {
           <p className="neon-subtitle">Professional testimonials and endorsements from colleagues and mentors</p>
         </div>
 
-        <div className="recommendations-content">
+        <div className="recompft-recommendations-content">
           {error ? (
-            // Error state - 🔧 UPDATED: Enhanced error handling
-            <div className="no-content-message glass-card">
-              <div className="no-content-icon">
+            // Error state - 🔧 UPDATED: Enhanced error handling with recompft- prefix
+            <div className="recompft-no-content-message recompft-glass-card">
+              <div className="recompft-no-content-icon">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12 9v4m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
-              <h3 className="no-content-title">Error Loading Recommendations</h3>
-              <p className="no-content-text">
+              <h3 className="recompft-no-content-title">Error Loading Recommendations</h3>
+              <p className="recompft-no-content-text">
                 {typeof error === 'object' ? error.message : error || 'Something went wrong while loading recommendations. Please try again later.'}
               </p>
-              <div className="no-content-decoration">
-                <div className="floating-particle"></div>
-                <div className="floating-particle"></div>
-                <div className="floating-particle"></div>
+              <div className="recompft-no-content-decoration">
+                <div className="recompft-floating-particle"></div>
+                <div className="recompft-floating-particle"></div>
+                <div className="recompft-floating-particle"></div>
               </div>
             </div>
           ) : recommendations.length === 0 ? (
-            // No recommendations state
-            <div className="no-content-message glass-card">
-              <div className="no-content-icon">
+            // No recommendations state with recompft- prefix
+            <div className="recompft-no-content-message recompft-glass-card">
+              <div className="recompft-no-content-icon">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M3 21C3 17.686 5.686 15 9 15S15 17.686 15 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
@@ -94,19 +94,19 @@ const Recommendations = () => {
                   <path d="M7 10L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
-              <h3 className="no-content-title">No Recommendations Available</h3>
-              <p className="no-content-text">
+              <h3 className="recompft-no-content-title">No Recommendations Available</h3>
+              <p className="recompft-no-content-text">
                 No information present. Professional recommendations and testimonials will be displayed here once they are added to the portfolio.
               </p>
-              <div className="no-content-decoration">
-                <div className="floating-particle"></div>
-                <div className="floating-particle"></div>
-                <div className="floating-particle"></div>
+              <div className="recompft-no-content-decoration">
+                <div className="recompft-floating-particle"></div>
+                <div className="recompft-floating-particle"></div>
+                <div className="recompft-floating-particle"></div>
               </div>
             </div>
           ) : (
-            // Recommendations grid - display actual data
-            <div className="recommendations-grid">
+            // Recommendations grid - display actual data with recompft- prefix
+            <div className="recompft-recommendations-grid">
               {recommendations.map((recommendation, index) => (
                 <RecommendationCard key={recommendation.id || index} recommendation={recommendation} />
               ))}

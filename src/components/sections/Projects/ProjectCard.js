@@ -171,22 +171,18 @@ const ProjectCard = ({ project }) => {
             <div className="meta-section">
               <div className="meta-row">
                 <div className="meta-item">
-                  <span className="meta-label">Type</span>
-                  <span className="meta-value">{project.project_type || 'Project'}</span>
+                  <span className="meta-label">Team</span>
+                  <span className="meta-value">{project.team_size || '1'} member{project.team_size > 1 ? 's' : ''}</span>
                 </div>
                 <div className="meta-item">
                   <span className="meta-label">Duration</span>
                   <span className="meta-value">{project.duration || 'N/A'}</span>
                 </div>
               </div>
-              <div className="meta-row">
-                <div className="meta-item">
-                  <span className="meta-label">Team</span>
-                  <span className="meta-value">{project.team_size || '1'} member{project.team_size > 1 ? 's' : ''}</span>
-                </div>
-                <div className="meta-item">
-                  <span className="meta-label">Status</span>
-                  <span className="meta-value status">{project.status || 'Active'}</span>
+              <div className="meta-row single-item">
+                <div className="meta-item full-width">
+                  <span className="meta-label">Project Type</span>
+                  <span className="meta-value">{project.project_type || 'Project'}</span>
                 </div>
               </div>
             </div>

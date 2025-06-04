@@ -60,8 +60,8 @@ const CertificationCard = ({ certification, onViewCertificate, onViewDetails }) 
   }
 
   return (
-    <div className={`certification-card glass-card ${certification.is_featured ? 'featured-certification' : ''}`}>
-      {/* Featured Badge - Creative floating badge */}
+    <div className="certification-card-wrapper">
+      {/* Featured Badge - NOW OUTSIDE the card */}
       {certification.is_featured && (
         <div className="featured-badge">
           <div className="featured-star">
@@ -72,56 +72,58 @@ const CertificationCard = ({ certification, onViewCertificate, onViewDetails }) 
           <div className="featured-pulse"></div>
         </div>
       )}
+      
+      <div className={`certification-card glass-card ${certification.is_featured ? 'featured-certification' : ''}`}>
+        {/* Card Content */}
+        <div className="certification-card-content">
+          {/* Certification Title - Centered */}
+          <div className="certification-title">
+            {certification.title}
+          </div>
 
-      {/* Card Content */}
-      <div className="certification-card-content">
-        {/* Certification Title - Centered */}
-        <div className="certification-title">
-          {certification.title}
+          {/* Horizontal Line Separator */}
+          <div className="title-separator"></div>
+
+          {/* Footer Buttons - Smart Display Logic */}
+          {showButtons && (
+            <div className={`certification-actions ${!showViewCertificate || !showViewDetails ? 'single-button' : 'dual-buttons'}`}>
+              {/* View Certificate Button */}
+              {showViewCertificate && (
+                <button
+                  className="certification-btn view-certificate-btn"
+                  onClick={handleCertificateClick}
+                  onKeyDown={(e) => handleKeyDown(e, handleCertificateClick)}
+                  aria-label={`View certificate for ${certification.title}`}
+                >
+                  <span>View Certificate</span>
+                </button>
+              )}
+
+              {/* View Details Button */}
+              {showViewDetails && (
+                <button
+                  className="certification-btn view-details-btn"
+                  onClick={handleDetailsClick}
+                  onKeyDown={(e) => handleKeyDown(e, handleDetailsClick)}
+                  aria-label={`View details for ${certification.title}`}
+                >
+                  <span>View Details</span>
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* No Buttons State - Just Title Display */}
+          {!showButtons && (
+            <div className="no-actions-message">
+              <span className="limited-info-text">Basic Information</span>
+            </div>
+          )}
         </div>
 
-        {/* Horizontal Line Separator */}
-        <div className="title-separator"></div>
-
-        {/* Footer Buttons - Smart Display Logic */}
-        {showButtons && (
-          <div className={`certification-actions ${!showViewCertificate || !showViewDetails ? 'single-button' : 'dual-buttons'}`}>
-            {/* View Certificate Button */}
-            {showViewCertificate && (
-              <button
-                className="certification-btn view-certificate-btn"
-                onClick={handleCertificateClick}
-                onKeyDown={(e) => handleKeyDown(e, handleCertificateClick)}
-                aria-label={`View certificate for ${certification.title}`}
-              >
-                <span>View Certificate</span>
-              </button>
-            )}
-
-            {/* View Details Button */}
-            {showViewDetails && (
-              <button
-                className="certification-btn view-details-btn"
-                onClick={handleDetailsClick}
-                onKeyDown={(e) => handleKeyDown(e, handleDetailsClick)}
-                aria-label={`View details for ${certification.title}`}
-              >
-                <span>View Details</span>
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* No Buttons State - Just Title Display */}
-        {!showButtons && (
-          <div className="no-actions-message">
-            <span className="limited-info-text">Basic Information</span>
-          </div>
-        )}
+        {/* Card Background Glow Effect */}
+        <div className="card-background-glow"></div>
       </div>
-
-      {/* Card Background Glow Effect */}
-      <div className="card-background-glow"></div>
     </div>
   );
 };

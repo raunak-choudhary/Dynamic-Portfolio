@@ -1,11 +1,12 @@
 // =====================================================
-// LeadershipCard.js - 3D Flip Card Implementation
+// LeadershipCard.js - FIXED VERSION with ldrpft- prefix
+// Fixed positioning issue during card flip
 // =====================================================
 
 import React, { useState, useEffect } from 'react';
 
 const LeadershipCard = ({ leadership }) => {
-  console.log('🎨 Rendering LeadershipCard:', leadership?.title);
+  console.log('🎨 Rendering FIXED LeadershipCard:', leadership?.title);
 
   const [isFlipped, setIsFlipped] = useState(false);
 
@@ -66,9 +67,9 @@ const LeadershipCard = ({ leadership }) => {
   const handleCardClick = (e) => {
     // Don't flip if clicking on specific elements or if no back content
     if (!canFlip || 
-        e.target.closest('.flip-icon-btn') ||
-        e.target.closest('.featured-badge') ||
-        e.target.closest('.status-badge')) {
+        e.target.closest('.ldrpft-flip-icon-btn') ||
+        e.target.closest('.ldrpft-featured-badge') ||
+        e.target.closest('.ldrpft-status-badge')) {
       return;
     }
     
@@ -118,7 +119,7 @@ const LeadershipCard = ({ leadership }) => {
 
   return (
     <div 
-      className={`project-card-wrapper ${isFlipped ? 'flipped' : ''} ${!canFlip ? 'no-flip' : ''}`}
+      className={`ldrpft-card-wrapper ${isFlipped ? 'ldrpft-flipped' : ''} ${!canFlip ? 'ldrpft-no-flip' : ''}`}
       onClick={handleCardClick}
       onKeyDown={handleKeyDown}
       tabIndex={0}
@@ -126,15 +127,27 @@ const LeadershipCard = ({ leadership }) => {
       aria-label={`Leadership position card: ${leadership.title} at ${leadership.organization}. ${canFlip ? 'Press Enter or Space to flip and see details.' : 'No additional details available.'}`}
       aria-pressed={isFlipped}
     >
-      <div className="project-card-3d">
+      <div className="ldrpft-card-3d">
         
         {/* =================== FRONT SIDE =================== */}
-        <div className="card-side card-front">
+        <div className="ldrpft-card-side ldrpft-card-front">
           
+          {/* Featured Badge - MOVED TO TOP */}
+          {leadership.is_featured && (
+            <div className="ldrpft-featured-section">
+              <div className="ldrpft-featured-badge">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="ldrpft-star-icon">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                <span>Featured</span>
+              </div>
+            </div>
+          )}
+
           {/* Header with Organization Initials and Flip Icon */}
-          <div className="card-header">
-            <div className="organization-initials-section">
-              <div className="organization-initials organization-initials-large">
+          <div className="ldrpft-card-header">
+            <div className="ldrpft-organization-initials-section">
+              <div className="ldrpft-organization-initials ldrpft-organization-initials-large">
                 {generateOrganizationInitials(leadership.organization)}
               </div>
             </div>
@@ -142,7 +155,7 @@ const LeadershipCard = ({ leadership }) => {
             {/* Flip Icon - only show if there's back content */}
             {canFlip && (
               <button 
-                className="flip-icon-btn"
+                className="ldrpft-flip-icon-btn"
                 onClick={handleFlipIconClick}
                 aria-label="Flip card to see details"
               >
@@ -154,21 +167,21 @@ const LeadershipCard = ({ leadership }) => {
           </div>
 
           {/* Position Title */}
-          <div className="title-section">
-            <h3 className="position-title">{leadership.title?.toUpperCase()}</h3>
-            <div className="title-underline"></div>
+          <div className="ldrpft-title-section">
+            <h3 className="ldrpft-position-title">{leadership.title?.toUpperCase()}</h3>
+            <div className="ldrpft-title-underline"></div>
           </div>
 
           {/* Organization */}
-          <div className="organization-section">
-            <h4 className="organization-name">{leadership.organization}</h4>
+          <div className="ldrpft-organization-section">
+            <h4 className="ldrpft-organization-name">{leadership.organization}</h4>
           </div>
 
           {/* Location */}
           {leadership.location && (
-            <div className="location-section">
-              <div className="location-badge">
-                <svg viewBox="0 0 24 24" fill="currentColor" className="location-icon">
+            <div className="ldrpft-location-section">
+              <div className="ldrpft-location-badge">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="ldrpft-location-icon">
                   <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                 </svg>
                 <span>{leadership.location}</span>
@@ -178,67 +191,55 @@ const LeadershipCard = ({ leadership }) => {
 
           {/* Description with scrollable frame */}
           {leadership.description && (
-            <div className="description-section">
-              <div className="description-container">
-                <div className="description-header">
-                  <span className="description-icon">📝</span>
-                  <span className="description-title">Description</span>
+            <div className="ldrpft-description-section">
+              <div className="ldrpft-description-container">
+                <div className="ldrpft-description-header">
+                  <span className="ldrpft-description-icon">📝</span>
+                  <span className="ldrpft-description-title">Description</span>
                 </div>
-                <div className="description-text-wrapper">
-                  <p className="description-text">{leadership.description}</p>
+                <div className="ldrpft-description-text-wrapper">
+                  <p className="ldrpft-description-text">{leadership.description}</p>
                 </div>
               </div>
             </div>
           )}
 
           {/* Duration */}
-          <div className="duration-section">
-            <div className="duration-header">
-              <span className="duration-icon">📅</span>
-              <span className="duration-title">Duration</span>
+          <div className="ldrpft-duration-section">
+            <div className="ldrpft-duration-header">
+              <span className="ldrpft-duration-icon">📅</span>
+              <span className="ldrpft-duration-title">Duration</span>
             </div>
-            <p className="duration-text">{formatDuration()}</p>
+            <p className="ldrpft-duration-text">{formatDuration()}</p>
           </div>
 
           {/* Status Badge */}
-          <div className="status-section">
-            <div className={`status-badge ${leadership.is_current ? 'active' : 'inactive'}`}>
-              <span className="status-icon">
+          <div className="ldrpft-status-section">
+            <div className={`ldrpft-status-badge ${leadership.is_current ? 'ldrpft-active' : 'ldrpft-inactive'}`}>
+              <span className="ldrpft-status-icon">
                 {leadership.is_current ? '🟢' : '🔴'}
               </span>
-              <span className="status-text">
+              <span className="ldrpft-status-text">
                 {leadership.is_current ? 'ACTIVE' : 'INACTIVE'}
               </span>
             </div>
           </div>
 
-          {/* Featured Badge */}
-          {leadership.is_featured && (
-            <div className="featured-section">
-              <div className="featured-badge">
-                <svg viewBox="0 0 24 24" fill="currentColor" className="star-icon">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
-                <span>Featured Position</span>
-              </div>
-            </div>
-          )}
-
           {/* Skills Preview - First 5 skills */}
           {leadership.skills_developed && leadership.skills_developed.length > 0 && (
-            <div className="skills-preview-section">
-              <div className="skills-header">
-                <span className="skills-icon">🎯</span>
-                <span className="skills-title">Skills Developed</span>
+            <div className="ldrpft-skills-preview-section">
+              <div className="ldrpft-skills-header">
+                <span className="ldrpft-skills-icon">🎯</span>
+                <span className="ldrpft-skills-title">Skills Developed</span>
               </div>
-              <div className="skills-preview-container">
+              <div className="ldrpft-skills-preview-container">
                 {leadership.skills_developed.slice(0, 5).map((skill, index) => (
-                  <span key={index} className="skill-tag-preview">
+                  <span key={index} className="ldrpft-skill-tag-preview">
                     {skill}
                   </span>
                 ))}
                 {leadership.skills_developed.length > 5 && (
-                  <span className="skill-tag-more">
+                  <span className="ldrpft-skill-tag-more">
                     +{leadership.skills_developed.length - 5} more
                   </span>
                 )}
@@ -247,42 +248,42 @@ const LeadershipCard = ({ leadership }) => {
           )}
 
           {/* Card Footer */}
-          <div className="card-footer">
+          <div className="ldrpft-card-footer">
             {canFlip ? (
-              <div className="flip-hint">
-                <span className="hint-text">Tap for details</span>
-                <span className="hint-arrow">→</span>
+              <div className="ldrpft-flip-hint">
+                <span className="ldrpft-hint-text">Tap for details</span>
+                <span className="ldrpft-hint-arrow">→</span>
               </div>
             ) : (
-              <div className="no-flip-hint">
-                <span className="hint-text">Position overview</span>
+              <div className="ldrpft-no-flip-hint">
+                <span className="ldrpft-hint-text">Position overview</span>
               </div>
             )}
           </div>
         </div>
 
         {/* =================== BACK SIDE =================== */}
-        <div className="card-side card-back">
+        <div className="ldrpft-card-side ldrpft-card-back">
           
           {/* Back Header */}
-          <div className="back-header">
-            <h3 className="back-title">{leadership.title}</h3>
-            <div className="back-subtitle">{leadership.organization}</div>
+          <div className="ldrpft-back-header">
+            <h3 className="ldrpft-back-title">{leadership.title}</h3>
+            <div className="ldrpft-back-subtitle">{leadership.organization}</div>
           </div>
 
           {/* Scrollable Content Area */}
-          <div className="back-content">
+          <div className="ldrpft-back-content">
             
             {/* Key Responsibilities */}
             {leadership.key_responsibilities && leadership.key_responsibilities.length > 0 && (
-              <div className="detail-section">
-                <div className="detail-header">
-                  <span className="detail-icon">💼</span>
-                  <span className="detail-title">Key Responsibilities</span>
+              <div className="ldrpft-detail-section">
+                <div className="ldrpft-detail-header">
+                  <span className="ldrpft-detail-icon">💼</span>
+                  <span className="ldrpft-detail-title">Key Responsibilities</span>
                 </div>
-                <ul className="detail-list">
+                <ul className="ldrpft-detail-list">
                   {leadership.key_responsibilities.map((responsibility, index) => (
-                    <li key={index} className="detail-item">{responsibility}</li>
+                    <li key={index} className="ldrpft-detail-item">{responsibility}</li>
                   ))}
                 </ul>
               </div>
@@ -290,14 +291,14 @@ const LeadershipCard = ({ leadership }) => {
 
             {/* Achievements */}
             {leadership.achievements && leadership.achievements.length > 0 && (
-              <div className="detail-section">
-                <div className="detail-header">
-                  <span className="detail-icon">🏆</span>
-                  <span className="detail-title">Achievements</span>
+              <div className="ldrpft-detail-section">
+                <div className="ldrpft-detail-header">
+                  <span className="ldrpft-detail-icon">🏆</span>
+                  <span className="ldrpft-detail-title">Achievements</span>
                 </div>
-                <ul className="detail-list">
+                <ul className="ldrpft-detail-list">
                   {leadership.achievements.map((achievement, index) => (
-                    <li key={index} className="detail-item">{achievement}</li>
+                    <li key={index} className="ldrpft-detail-item">{achievement}</li>
                   ))}
                 </ul>
               </div>
@@ -305,36 +306,36 @@ const LeadershipCard = ({ leadership }) => {
 
             {/* Challenges Overcome */}
             {leadership.challenges_overcome && (
-              <div className="detail-section">
-                <div className="detail-header">
-                  <span className="detail-icon">⚡</span>
-                  <span className="detail-title">Challenges Overcome</span>
+              <div className="ldrpft-detail-section">
+                <div className="ldrpft-detail-header">
+                  <span className="ldrpft-detail-icon">⚡</span>
+                  <span className="ldrpft-detail-title">Challenges Overcome</span>
                 </div>
-                <p className="detail-text">{leadership.challenges_overcome}</p>
+                <p className="ldrpft-detail-text">{leadership.challenges_overcome}</p>
               </div>
             )}
 
             {/* Impact */}
             {leadership.impact && (
-              <div className="detail-section">
-                <div className="detail-header">
-                  <span className="detail-icon">💫</span>
-                  <span className="detail-title">Impact</span>
+              <div className="ldrpft-detail-section">
+                <div className="ldrpft-detail-header">
+                  <span className="ldrpft-detail-icon">💫</span>
+                  <span className="ldrpft-detail-title">Impact</span>
                 </div>
-                <p className="detail-text">{leadership.impact}</p>
+                <p className="ldrpft-detail-text">{leadership.impact}</p>
               </div>
             )}
 
             {/* Recognition Received */}
             {leadership.recognition_received && leadership.recognition_received.length > 0 && (
-              <div className="detail-section">
-                <div className="detail-header">
-                  <span className="detail-icon">🎖️</span>
-                  <span className="detail-title">Recognition Received</span>
+              <div className="ldrpft-detail-section">
+                <div className="ldrpft-detail-header">
+                  <span className="ldrpft-detail-icon">🎖️</span>
+                  <span className="ldrpft-detail-title">Recognition Received</span>
                 </div>
-                <ul className="detail-list">
+                <ul className="ldrpft-detail-list">
                   {leadership.recognition_received.map((recognition, index) => (
-                    <li key={index} className="detail-item">{recognition}</li>
+                    <li key={index} className="ldrpft-detail-item">{recognition}</li>
                   ))}
                 </ul>
               </div>
@@ -342,14 +343,14 @@ const LeadershipCard = ({ leadership }) => {
 
             {/* Training Provided */}
             {leadership.training_provided && leadership.training_provided.length > 0 && (
-              <div className="detail-section">
-                <div className="detail-header">
-                  <span className="detail-icon">📚</span>
-                  <span className="detail-title">Training Provided</span>
+              <div className="ldrpft-detail-section">
+                <div className="ldrpft-detail-header">
+                  <span className="ldrpft-detail-icon">📚</span>
+                  <span className="ldrpft-detail-title">Training Provided</span>
                 </div>
-                <ul className="detail-list">
+                <ul className="ldrpft-detail-list">
                   {leadership.training_provided.map((training, index) => (
-                    <li key={index} className="detail-item">{training}</li>
+                    <li key={index} className="ldrpft-detail-item">{training}</li>
                   ))}
                 </ul>
               </div>
@@ -357,14 +358,14 @@ const LeadershipCard = ({ leadership }) => {
 
             {/* All Skills Developed */}
             {leadership.skills_developed && leadership.skills_developed.length > 0 && (
-              <div className="detail-section">
-                <div className="detail-header">
-                  <span className="detail-icon">🎯</span>
-                  <span className="detail-title">All Skills Developed</span>
+              <div className="ldrpft-detail-section">
+                <div className="ldrpft-detail-header">
+                  <span className="ldrpft-detail-icon">🎯</span>
+                  <span className="ldrpft-detail-title">All Skills Developed</span>
                 </div>
-                <div className="skills-all-container">
+                <div className="ldrpft-skills-all-container">
                   {leadership.skills_developed.map((skill, index) => (
-                    <span key={index} className="skill-tag-back">
+                    <span key={index} className="ldrpft-skill-tag-back">
                       {skill}
                     </span>
                   ))}
@@ -374,64 +375,64 @@ const LeadershipCard = ({ leadership }) => {
           </div>
 
           {/* Outside Frame - Separate Display */}
-          <div className="back-metadata">
-            <div className="metadata-grid">
+          <div className="ldrpft-back-metadata">
+            <div className="ldrpft-metadata-grid">
               
               {/* Organization Type */}
               {leadership.organization_type && (
-                <div className="metadata-item">
-                  <span className="metadata-label">Type</span>
-                  <span className="metadata-value">{leadership.organization_type}</span>
+                <div className="ldrpft-metadata-item">
+                  <span className="ldrpft-metadata-label">Type</span>
+                  <span className="ldrpft-metadata-value">{leadership.organization_type}</span>
                 </div>
               )}
 
               {/* Team Size */}
               {leadership.team_size && (
-                <div className="metadata-item">
-                  <span className="metadata-label">Team Size</span>
-                  <span className="metadata-value">{leadership.team_size}</span>
+                <div className="ldrpft-metadata-item">
+                  <span className="ldrpft-metadata-label">Team Size</span>
+                  <span className="ldrpft-metadata-value">{leadership.team_size}</span>
                 </div>
               )}
 
               {/* Budget Managed */}
               {leadership.budget_managed && (
-                <div className="metadata-item">
-                  <span className="metadata-label">Budget</span>
-                  <span className="metadata-value">{leadership.budget_managed}</span>
+                <div className="ldrpft-metadata-item">
+                  <span className="ldrpft-metadata-label">Budget</span>
+                  <span className="ldrpft-metadata-value">{leadership.budget_managed}</span>
                 </div>
               )}
 
               {/* Volunteer Hours */}
               {leadership.volunteer_hours && (
-                <div className="metadata-item">
-                  <span className="metadata-label">Vol. Hours</span>
-                  <span className="metadata-value">{leadership.volunteer_hours}</span>
+                <div className="ldrpft-metadata-item">
+                  <span className="ldrpft-metadata-label">Vol. Hours</span>
+                  <span className="ldrpft-metadata-value">{leadership.volunteer_hours}</span>
                 </div>
               )}
 
               {/* Initiative Type */}
               {leadership.initiative_type && (
-                <div className="metadata-item">
-                  <span className="metadata-label">Initiative</span>
-                  <span className="metadata-value">{leadership.initiative_type}</span>
+                <div className="ldrpft-metadata-item">
+                  <span className="ldrpft-metadata-label">Initiative</span>
+                  <span className="ldrpft-metadata-value">{leadership.initiative_type}</span>
                 </div>
               )}
 
               {/* Mentees Count */}
               {leadership.mentees_count && (
-                <div className="metadata-item">
-                  <span className="metadata-label">Mentees</span>
-                  <span className="metadata-value">{leadership.mentees_count}</span>
+                <div className="ldrpft-metadata-item">
+                  <span className="ldrpft-metadata-label">Mentees</span>
+                  <span className="ldrpft-metadata-value">{leadership.mentees_count}</span>
                 </div>
               )}
             </div>
           </div>
 
           {/* Back Footer */}
-          <div className="card-footer">
-            <div className="flip-hint">
-              <span className="hint-arrow">←</span>
-              <span className="hint-text">Back to overview</span>
+          <div className="ldrpft-card-footer">
+            <div className="ldrpft-flip-hint">
+              <span className="ldrpft-hint-arrow">←</span>
+              <span className="ldrpft-hint-text">Back to overview</span>
             </div>
           </div>
         </div>

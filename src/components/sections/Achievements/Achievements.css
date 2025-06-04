@@ -63,6 +63,42 @@
   display: inline-block;
 }
 
+.accomplishments-section .distinction-title::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 4px;
+  background: linear-gradient(90deg, 
+    #1E90FF, 
+    #4169E1, 
+    #007BFF, 
+    #0056B3
+  );
+  border-radius: 3px;
+  box-shadow: 
+    0 0 20px rgba(30, 144, 255, 0.8),
+    0 0 40px rgba(65, 105, 225, 0.4);
+  animation: achievementUnderlineGlow 3s ease-in-out infinite;
+}
+
+@keyframes achievementUnderlineGlow {
+  0%, 100% {
+    box-shadow: 
+      0 0 20px rgba(30, 144, 255, 0.8),
+      0 0 40px rgba(65, 105, 225, 0.4);
+    transform: translateX(-50%) scaleX(1);
+  }
+  50% {
+    box-shadow: 
+      0 0 30px rgba(30, 144, 255, 1),
+      0 0 60px rgba(65, 105, 225, 0.6);
+    transform: translateX(-50%) scaleX(1.05);
+  }
+}
+
 .accomplishments-section .distinction-subtitle {
   font-size: var(--text-xl);
   color: var(--text-secondary);
@@ -195,82 +231,111 @@
   box-shadow: 0 8px 25px rgba(30, 144, 255, 0.2);
 }
 
-.distinction-badge {
-  position: absolute;
-  top: -25px;
-  left: -20px;
-  z-index: 20;
-  width: 70px;
-  height: 70px;
-  pointer-events: none;
-  animation: distinctionFloat 4s ease-in-out infinite;
+/* ===== NEW FEATURED BADGE - LEFT POSITIONED, BLUE THEME ===== */
+.accomplishment-card-wrapper {
+  position: relative;
 }
 
-.distinction-star {
-  width: 50px;
-  height: 50px;
-  color: #1E90FF;
-  background: linear-gradient(135deg, 
-    rgba(30, 144, 255, 0.2) 0%,
-    rgba(65, 105, 225, 0.15) 50%,
-    rgba(0, 123, 255, 0.1) 100%);
+.achievement-featured-badge {
+  position: absolute;
+  top: -12px;
+  left: -12px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
+  background: linear-gradient(135deg, 
+    #1E90FF 0%,     /* Dodger Blue */
+    #4169E1 25%,    /* Royal Blue */
+    #007BFF 50%,    /* Blue */
+    #0056B3 100%    /* Dark Blue */
+  );
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid rgba(30, 144, 255, 0.6);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  position: relative;
-  z-index: 21;
+  z-index: 10;
   box-shadow: 
     0 6px 20px rgba(30, 144, 255, 0.4),
-    0 0 30px rgba(30, 144, 255, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  animation: distinctionSpin 8s linear infinite;
+    0 0 30px rgba(65, 105, 225, 0.3),
+    0 0 50px rgba(0, 123, 255, 0.2);
+  animation: achievementBluePulse 3s ease-in-out infinite;
+  border: 3px solid rgba(255, 255, 255, 0.8);
 }
 
-.distinction-star svg {
-  width: 26px;
-  height: 26px;
-  filter: drop-shadow(0 0 12px rgba(30, 144, 255, 0.8));
-  animation: distinctionStarPulse 2s ease-in-out infinite;
+.achievement-featured-star {
+  width: 24px;
+  height: 24px;
+  color: rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
-.distinction-pulse {
+.achievement-featured-star svg {
+  width: 100%;
+  height: 100%;
+  animation: achievementStarRotate 4s linear infinite;
+}
+
+.achievement-featured-pulse {
   position: absolute;
-  top: 5px;
-  left: 5px;
-  right: 5px;
-  bottom: 5px;
-  border: 3px solid rgba(30, 144, 255, 0.4);
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
   border-radius: 50%;
-  animation: distinctionPulse 2s ease-in-out infinite;
-  z-index: 19;
+  border: 3px solid rgba(30, 144, 255, 0.6);
+  animation: achievementBlueRipple 3s ease-out infinite;
 }
 
-.distinction-pulse::before {
+.achievement-featured-badge::after {
   content: '';
   position: absolute;
-  top: -8px;
-  left: -8px;
-  right: -8px;
-  bottom: -8px;
-  border: 2px solid rgba(30, 144, 255, 0.2);
+  top: -9px;
+  left: -9px;
+  right: -9px;
+  bottom: -9px;
   border-radius: 50%;
-  animation: distinctionPulse 2s ease-in-out infinite 0.5s;
+  border: 2px solid rgba(65, 105, 225, 0.4);
+  animation: achievementBlueRipple 3s ease-out infinite 1.5s;
 }
 
-.distinction-pulse::after {
-  content: '';
-  position: absolute;
-  top: -16px;
-  left: -16px;
-  right: -16px;
-  bottom: -16px;
-  border: 1px solid rgba(30, 144, 255, 0.1);
-  border-radius: 50%;
-  animation: distinctionPulse 2s ease-in-out infinite 1s;
+/* Blue Featured Badge Animations */
+@keyframes achievementBluePulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 
+      0 6px 20px rgba(30, 144, 255, 0.4),
+      0 0 30px rgba(65, 105, 225, 0.3),
+      0 0 50px rgba(0, 123, 255, 0.2);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 
+      0 8px 25px rgba(30, 144, 255, 0.5),
+      0 0 40px rgba(65, 105, 225, 0.4),
+      0 0 70px rgba(0, 123, 255, 0.3);
+  }
+}
+
+@keyframes achievementStarRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes achievementBlueRipple {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
 }
 
 /* ===== CARD CONTENT LAYOUT ===== */
@@ -438,52 +503,6 @@
 }
 
 /* ===== BASIC ANIMATIONS FOR PART 1 ===== */
-@keyframes distinctionFloat {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  25% {
-    transform: translateY(-3px) rotate(1deg);
-  }
-  50% {
-    transform: translateY(-6px) rotate(0deg);
-  }
-  75% {
-    transform: translateY(-3px) rotate(-1deg);
-  }
-}
-
-@keyframes distinctionSpin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes distinctionStarPulse {
-  0%, 100% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 12px rgba(30, 144, 255, 0.8));
-  }
-  50% {
-    transform: scale(1.1);
-    filter: drop-shadow(0 0 20px rgba(30, 144, 255, 1));
-  }
-}
-
-@keyframes distinctionPulse {
-  0%, 100% {
-    opacity: 0.6;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.1);
-  }
-}
-
 @keyframes accomplishmentSeparatorGlow {
   0%, 100% {
     opacity: 0.6;
@@ -1767,32 +1786,18 @@
 }
 
 /* ===== LIGHT THEME - FEATURED BADGES ===== */
-[data-theme="light"] .distinction-star {
+
+[data-theme="light"] .achievement-featured-badge {
   background: linear-gradient(135deg, 
-    rgba(30, 144, 255, 0.15) 0%,
-    rgba(65, 105, 225, 0.12) 50%,
-    rgba(0, 123, 255, 0.08) 100%);
-  border: 2px solid rgba(30, 144, 255, 0.7);
+    #1E90FF 0%,
+    #4169E1 25%,
+    #007BFF 50%,
+    #0056B3 100%
+  );
   box-shadow: 
     0 6px 20px rgba(30, 144, 255, 0.3),
-    0 0 25px rgba(30, 144, 255, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
-}
-
-[data-theme="light"] .distinction-star svg {
-  filter: drop-shadow(0 0 10px rgba(30, 144, 255, 0.6));
-}
-
-[data-theme="light"] .distinction-pulse {
-  border: 3px solid rgba(30, 144, 255, 0.3);
-}
-
-[data-theme="light"] .distinction-pulse::before {
-  border: 2px solid rgba(30, 144, 255, 0.15);
-}
-
-[data-theme="light"] .distinction-pulse::after {
-  border: 1px solid rgba(30, 144, 255, 0.08);
+    0 0 30px rgba(65, 105, 225, 0.2),
+    0 0 50px rgba(0, 123, 255, 0.15);
 }
 
 /* ===== LIGHT THEME - CARD BUTTONS ===== */
@@ -2042,19 +2047,14 @@
     margin-bottom: 1rem;
   }
 
-  .distinction-badge {
-    width: 60px;
-    height: 60px;
-    top: -20px;
-    left: -15px;
-  }
-
-  .distinction-star {
+  .achievement-featured-badge {
     width: 40px;
     height: 40px;
+    top: -10px;
+    left: -10px;
   }
 
-  .distinction-star svg {
+  .achievement-featured-star {
     width: 20px;
     height: 20px;
   }
@@ -2150,6 +2150,18 @@
     font-size: 2.5rem;
   }
 
+  .achievement-featured-badge {
+    width: 42px;
+    height: 42px;
+    top: -10px;
+    left: -10px;
+  }
+
+  .achievement-featured-star {
+    width: 21px;
+    height: 21px;
+  }
+
   .achievement-certificate-modal,
   .achievement-details-modal {
     width: 92vw;
@@ -2207,21 +2219,16 @@
     margin-bottom: 1.25rem;
   }
 
-  .distinction-badge {
-    width: 65px;
-    height: 65px;
-    top: -22px;
-    left: -18px;
+  .achievement-featured-badge {
+    width: 44px;
+    height: 44px;
+    top: -11px;
+    left: -11px;
   }
 
-  .distinction-star {
-    width: 45px;
-    height: 45px;
-  }
-
-  .distinction-star svg {
-    width: 24px;
-    height: 24px;
+  .achievement-featured-star {
+    width: 22px;
+    height: 22px;
   }
 
   /* Modal Adjustments for Tablet */
@@ -2270,8 +2277,6 @@
 /* Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
   .accomplishments-section .distinction-title,
-  .distinction-star,
-  .distinction-pulse,
   .accomplishment-background-glow,
   .floating-achievement-particle,
   .loading-achievement-spinner,
@@ -2330,7 +2335,6 @@
 
   .accomplishments-section::before,
   .accomplishment-background-glow,
-  .distinction-badge,
   .floating-achievement-particle {
     display: none !important;
   }

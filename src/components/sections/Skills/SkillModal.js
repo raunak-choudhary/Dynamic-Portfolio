@@ -226,14 +226,6 @@ const SkillModal = ({ skill, onClose }) => {
     );
   };
 
-  // Check if content will overflow (for scroll indicators)
-  const isContentScrollable = () => {
-    if (contentRef.current) {
-      return contentRef.current.scrollHeight > contentRef.current.clientHeight;
-    }
-    return false;
-  };
-
   if (!skill) return null;
 
   return (
@@ -286,7 +278,7 @@ const SkillModal = ({ skill, onClose }) => {
 
         {/* Modal Content - Scrollable */}
         <div 
-          className={`skill-modal-content ${isContentScrollable() ? 'scrollable' : ''}`}
+          className="skill-modal-content"
           ref={contentRef}
           id="skill-modal-description"
         >
@@ -476,18 +468,6 @@ const SkillModal = ({ skill, onClose }) => {
             </div>
           )}
         </div>
-
-        {/* Scroll Indicator (if content is scrollable) */}
-        {isContentScrollable() && (
-          <div className="scroll-indicator">
-            <div className="scroll-hint">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M7 13l3 3 7-7M13 17l3 3 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <span>Scroll for more details</span>
-            </div>
-          </div>
-        )}
 
         {/* Modal Footer */}
         <div className="skill-modal-footer">

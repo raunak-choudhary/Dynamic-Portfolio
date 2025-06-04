@@ -276,6 +276,14 @@
   transform: translateY(-2px);
 }
 
+.meta-row.single-item {
+  grid-template-columns: 1fr;
+}
+
+.meta-item.full-width {
+  grid-column: 1 / -1;
+}
+
 .meta-label {
   display: block;
   font-size: var(--text-xs);
@@ -289,11 +297,6 @@
   font-size: var(--text-sm);
   color: var(--text-secondary);
   font-weight: 700;
-}
-
-.meta-value.status {
-  color: var(--neon-green);
-  text-shadow: 0 0 5px var(--neon-green);
 }
 
 /* Description Section */

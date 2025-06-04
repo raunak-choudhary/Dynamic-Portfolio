@@ -164,17 +164,17 @@ const CertificateModal = ({ certification, onClose }) => {
               {certification.title}
             </h2>
             <div className="certificate-meta">
-                <span className="certificate-issuer">Issued by {certification.issuer}</span>
+              <span className="certificate-issuer">
+                Issued by {certification.issuer}
                 {certification.issue_date && (
-                    <span className="certificate-date">
-                    {new Date(certification.issue_date + 'T00:00:00').toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'long', 
-                        day: 'numeric'
-                    })}
-                    </span>
+                  <> on {new Date(certification.issue_date + 'T00:00:00').toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long', 
+                    day: 'numeric'
+                  })}</>
                 )}
-            </div>
+              </span>
+          </div>
           </div>
 
           {/* Close Button */}

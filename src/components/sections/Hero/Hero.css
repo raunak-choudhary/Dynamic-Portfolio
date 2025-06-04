@@ -147,6 +147,7 @@
   flex-wrap: wrap;
 }
 
+/* FIXED: Primary Button Hover Text Visibility */
 .neon-button.primary {
   background: var(--gradient-primary);
   border: 2px solid transparent;
@@ -155,9 +156,9 @@
 }
 
 .neon-button.primary:hover {
-  background: transparent;
+  background: rgba(0, 255, 255, 0.15);
   border-color: var(--neon-cyan);
-  color: var(--neon-cyan);
+  color: var(--color-black);
   box-shadow: var(--neon-glow-cyan);
 }
 
@@ -166,8 +167,9 @@
 }
 
 [data-theme="light"] .neon-button.primary:hover {
+  background: rgba(139, 0, 255, 0.15);
   border-color: var(--neon-purple);
-  color: var(--neon-purple);
+  color: var(--color-black);
   box-shadow: 0 0 20px rgba(139, 0, 255, 0.3);
 }
 

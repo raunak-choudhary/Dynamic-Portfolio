@@ -59,68 +59,70 @@ const AchievementCard = ({ achievement, onViewCertificate, onViewDetails }) => {
   }
 
   return (
-    <div className={`accomplishment-card glass-achievement-card ${achievement.is_featured ? 'distinguished-accomplishment' : ''}`}>
-      {/* Featured Badge - Creative floating badge */}
+    <div className="accomplishment-card-wrapper">
+      {/* Featured Badge - LEFT positioned, blue theme */}
       {achievement.is_featured && (
-        <div className="distinction-badge">
-          <div className="distinction-star">
+        <div className="achievement-featured-badge">
+          <div className="achievement-featured-star">
             <svg viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
             </svg>
           </div>
-          <div className="distinction-pulse"></div>
+          <div className="achievement-featured-pulse"></div>
         </div>
       )}
+      
+      <div className={`accomplishment-card glass-achievement-card ${achievement.is_featured ? 'distinguished-accomplishment' : ''}`}>
+        {/* Card Content */}
+        <div className="accomplishment-card-content">
+          {/* Achievement Title - Centered */}
+          <div className="accomplishment-title">
+            {achievement.title}
+          </div>
 
-      {/* Card Content */}
-      <div className="accomplishment-card-content">
-        {/* Achievement Title - Centered */}
-        <div className="accomplishment-title">
-          {achievement.title}
+          {/* Horizontal Line Separator */}
+          <div className="accomplishment-separator"></div>
+
+          {/* Footer Buttons - Smart Display Logic */}
+          {showButtons && (
+            <div className={`accomplishment-actions ${!showViewCertificate || !showViewDetails ? 'single-action' : 'dual-actions'}`}>
+              {/* View Certificate Button */}
+              {showViewCertificate && (
+                <button
+                  className="accomplishment-btn view-achievement-certificate-btn"
+                  onClick={handleCertificateClick}
+                  onKeyDown={(e) => handleKeyDown(e, handleCertificateClick)}
+                  aria-label={`View certificate for ${achievement.title}`}
+                >
+                  <span>View Certificate</span>
+                </button>
+              )}
+
+              {/* View Details Button */}
+              {showViewDetails && (
+                <button
+                  className="accomplishment-btn view-achievement-details-btn"
+                  onClick={handleDetailsClick}
+                  onKeyDown={(e) => handleKeyDown(e, handleDetailsClick)}
+                  aria-label={`View details for ${achievement.title}`}
+                >
+                  <span>View Details</span>
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* No Buttons State - Just Title Display */}
+          {!showButtons && (
+            <div className="no-achievement-actions-message">
+              <span className="basic-achievement-info-text">Basic Information</span>
+            </div>
+          )}
         </div>
 
-        {/* Horizontal Line Separator */}
-        <div className="accomplishment-separator"></div>
-
-        {/* Footer Buttons - Smart Display Logic */}
-        {showButtons && (
-          <div className={`accomplishment-actions ${!showViewCertificate || !showViewDetails ? 'single-action' : 'dual-actions'}`}>
-            {/* View Certificate Button */}
-            {showViewCertificate && (
-              <button
-                className="accomplishment-btn view-achievement-certificate-btn"
-                onClick={handleCertificateClick}
-                onKeyDown={(e) => handleKeyDown(e, handleCertificateClick)}
-                aria-label={`View certificate for ${achievement.title}`}
-              >
-                <span>View Certificate</span>
-              </button>
-            )}
-
-            {/* View Details Button */}
-            {showViewDetails && (
-              <button
-                className="accomplishment-btn view-achievement-details-btn"
-                onClick={handleDetailsClick}
-                onKeyDown={(e) => handleKeyDown(e, handleDetailsClick)}
-                aria-label={`View details for ${achievement.title}`}
-              >
-                <span>View Details</span>
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* No Buttons State - Just Title Display */}
-        {!showButtons && (
-          <div className="no-achievement-actions-message">
-            <span className="basic-achievement-info-text">Basic Information</span>
-          </div>
-        )}
+        {/* Card Background Glow Effect */}
+        <div className="accomplishment-background-glow"></div>
       </div>
-
-      {/* Card Background Glow Effect */}
-      <div className="accomplishment-background-glow"></div>
     </div>
   );
 };

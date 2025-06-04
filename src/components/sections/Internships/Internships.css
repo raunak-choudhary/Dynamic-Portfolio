@@ -339,11 +339,6 @@
   font-weight: 700;
 }
 
-.internships-section .meta-value.status {
-  color: var(--neon-purple);
-  text-shadow: 0 0 5px var(--neon-purple);
-}
-
 /* Description Section */
 .internships-section .description-section {
   margin-bottom: var(--spacing-md);

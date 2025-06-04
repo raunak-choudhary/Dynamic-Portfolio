@@ -209,12 +209,12 @@ const InternshipCard = ({ internship }) => {
             <div className="meta-section">
               <div className="meta-row">
                 <div className="meta-item">
-                  <span className="meta-label">Status</span>
-                  <span className="meta-value status">{internship.status || 'Active'}</span>
-                </div>
-                <div className="meta-item">
                   <span className="meta-label">Type</span>
                   <span className="meta-value">{internship.internship_type || 'N/A'}</span>
+                </div>
+                <div className="meta-item">
+                  <span className="meta-label">Location</span>
+                  <span className="meta-value">{internship.location || 'N/A'}</span>
                 </div>
               </div>
               <div className="meta-row">
@@ -225,16 +225,6 @@ const InternshipCard = ({ internship }) => {
                 <div className="meta-item">
                   <span className="meta-label">End Date</span>
                   <span className="meta-value">{formatDate(internship.end_date)}</span>
-                </div>
-              </div>
-              <div className="meta-row">
-                <div className="meta-item">
-                  <span className="meta-label">Duration</span>
-                  <span className="meta-value">{calculateDuration()}</span>
-                </div>
-                <div className="meta-item">
-                  <span className="meta-label">Location</span>
-                  <span className="meta-value">{internship.location || 'N/A'}</span>
                 </div>
               </div>
             </div>
