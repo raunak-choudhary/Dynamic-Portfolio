@@ -1,0 +1,39 @@
+{
+  "files": {
+    "main.css": "/static/css/main.408e3b47.css",
+    "main.js": "/static/js/main.cc80a26a.js",
+    "static/js/437.dc960f99.chunk.js": "/static/js/437.dc960f99.chunk.js",
+    "static/media/internship-greatlearning.png": "/static/media/internship-greatlearning.64591a742c6339366cd5.png",
+    "static/media/photo2.jpg": "/static/media/photo2.a619e0a703ba92e4f501.jpg",
+    "static/media/photo1.jpg": "/static/media/photo1.74e05b637a7eb77fd1eb.jpg",
+    "static/media/python.png": "/static/media/python.91072be85b01ef0961a8.png",
+    "static/media/photo3.jpg": "/static/media/photo3.9ec7c8f7f47d728a2a7f.jpg",
+    "static/media/internship-web.png": "/static/media/internship-web.583af223e34714275392.png",
+    "static/media/azure.png": "/static/media/azure.5a694f18b0e4f276ce48.png",
+    "static/media/internship-hpe.png": "/static/media/internship-hpe.57188e07dc24371b82ba.png",
+    "static/media/instagram.png": "/static/media/instagram.8e408da00539cdef4629.png",
+    "static/media/aws.png": "/static/media/aws.94284c0a1a8b0ed5cd1b.png",
+    "static/media/aws-cloud-practitioner.png": "/static/media/aws-cloud-practitioner.2bbefe8f6f789b2fe4be.png",
+    "static/media/logo.png": "/static/media/logo.555b4e288944ad08e813.png",
+    "static/media/aws-data-analytics.png": "/static/media/aws-data-analytics.3dbf45997cef5d7363de.png",
+    "static/media/us-flag.png": "/static/media/us-flag.5cccacb49baa30a9cbc2.png",
+    "static/media/nextjs.png": "/static/media/nextjs.dc70b94ca55d1d989281.png",
+    "static/media/internship-verzeo.jpg": "/static/media/internship-verzeo.0ebf3df454293a42cda5.jpg",
+    "static/media/docker.png": "/static/media/docker.ab3335e0f004e5724e4d.png",
+    "static/media/tensorflow.png": "/static/media/tensorflow.1780359507adc018b764.png",
+    "static/media/nyu-logo.png": "/static/media/nyu-logo.c79df31fdac7fff77b7b.png",
+    "static/media/kubernetes.png": "/static/media/kubernetes.f9717ed1f98975d4301e.png",
+    "static/media/reactjs.png": "/static/media/reactjs.5214841f670a20516857.png",
+    "static/media/nodejs.png": "/static/media/nodejs.e71346fe0fec16ec5f6e.png",
+    "static/media/github.png": "/static/media/github.f3d873d71aa989badfd2.png",
+    "static/media/pytorch.png": "/static/media/pytorch.4efd9f2b5431ea893003.png",
+    "static/media/linkedin.png": "/static/media/linkedin.d21b834035baa551e886.png",
+    "static/media/postgresql.png": "/static/media/postgresql.e818f4e6c9c28ddeaec0.png",
+    "static/media/india-flag.png": "/static/media/india-flag.fb6e9499c2fef33e84c9.png",
+    "index.html": "/index.html"
+  },
+  "entrypoints": [
+    "static/css/main.408e3b47.css",
+    "static/js/main.cc80a26a.js"
+  ]
+}

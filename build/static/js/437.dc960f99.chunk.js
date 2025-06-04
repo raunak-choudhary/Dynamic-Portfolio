@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdynamic_portfolio=self.webpackChunkdynamic_portfolio||[]).push([[437],{2437:e=>{e.exports=function(){throw new Error("ws does not work in the browser. Browser clients must use the native WebSocket object")}}}]);

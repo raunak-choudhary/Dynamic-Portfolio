@@ -1,60 +1,40 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
+# Dependencies
 /node_modules
 /.pnp
 .pnp.js
-
-# testing
-/coverage
-
-# production
-/build
-
-# misc
-.DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Environment Variables (ADD THESE LINES TO YOUR .gitignore)
+# Testing
+/coverage
+.nyc_output
+
+# Production build folder - REMOVED FROM IGNORE for deployment
+# /build  <- COMMENTED OUT so we can commit build files
+
+# Environment Variables - Keep these secret!
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env.production
 
 # Supabase
 .supabase/
 
-# Database
+# Database files
 *.db
 *.sqlite
-
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
 # Runtime data
 pids
 *.pid
 *.seed
 *.pid.lock
-
-# Coverage directory used by tools like istanbul
-coverage/
-
-# nyc test coverage
-.nyc_output
-
-# Dependency directories
-node_modules/
 
 # Optional npm cache directory
 .npm
@@ -68,9 +48,23 @@ node_modules/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
-.env
+# System files
+.DS_Store
+Thumbs.db
 
-# Build outputs
-build/
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Log files
+*.log
+
+# Build outputs (other than our main build folder)
 dist/
+
+# Temporary folders
+tmp/
+temp/
