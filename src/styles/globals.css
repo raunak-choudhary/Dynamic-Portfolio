@@ -6,6 +6,117 @@
 @import './glassmorphism.css';
 @import './neonEffects.css';
 @import './animations.css';
+@import './productionFixes.css';
+
+/* Root HTML element - Force consistent scaling */
+html {
+  /* Force zoom reset */
+  zoom: 1 !important;
+  -webkit-zoom: 1 !important;
+  -moz-zoom: 1 !important;
+  
+  /* Prevent automatic text scaling */
+  -webkit-text-size-adjust: 100% !important;
+  -ms-text-size-adjust: 100% !important;
+  text-size-adjust: 100% !important;
+  
+  /* Explicit font size - prevents browser scaling */
+  font-size: 16px !important;
+  
+  /* Viewport settings */
+  width: 100% !important;
+  height: 100% !important;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  
+  /* Transform reset */
+  -webkit-transform: scale(1) !important;
+  -moz-transform: scale(1) !important;
+  -ms-transform: scale(1) !important;
+  transform: scale(1) !important;
+  transform-origin: 0 0 !important;
+}
+
+/* Body element - Consistent baseline */
+body {
+  /* Force zoom and transform reset */
+  zoom: 1 !important;
+  -webkit-zoom: 1 !important;
+  -moz-zoom: 1 !important;
+  
+  -webkit-transform: scale(1) !important;
+  -moz-transform: scale(1) !important;
+  -ms-transform: scale(1) !important;
+  transform: scale(1) !important;
+  transform-origin: 0 0 !important;
+  
+  /* Explicit sizing */
+  width: 100% !important;
+  min-height: 100vh !important;
+  overflow-x: hidden;
+  
+  /* Typography baseline */
+  font-family: var(--font-primary);
+  font-size: 16px !important;
+  line-height: 1.6;
+  
+  /* Layout properties */
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  
+  /* Theme properties */
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+/* High-DPI display fixes */
+@media (-webkit-min-device-pixel-ratio: 2), 
+       (min-resolution: 192dpi), 
+       (min-resolution: 2dppx) {
+  html, body {
+    zoom: 1 !important;
+    -webkit-transform: scale(1) !important;
+    -moz-transform: scale(1) !important;
+    transform: scale(1) !important;
+    font-size: 16px !important;
+  }
+  
+  /* Fix for retina displays */
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Specific browser fixes */
+/* Safari specific fixes */
+@supports (-webkit-appearance: none) {
+  html, body {
+    zoom: 1 !important;
+    -webkit-zoom: 1 !important;
+    -webkit-transform: scale(1) !important;
+    transform: scale(1) !important;
+  }
+}
+
+/* Chrome/Webkit specific fixes */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  html, body {
+    zoom: 1 !important;
+    transform: scale(1) !important;
+  }
+}
+
+/* Firefox specific fixes */
+@-moz-document url-prefix() {
+  html, body {
+    zoom: 1 !important;
+    -moz-transform: scale(1) !important;
+    transform: scale(1) !important;
+  }
+}
 
 /* Reset and Base Styles */
 * {
@@ -14,18 +125,107 @@
   box-sizing: border-box;
 }
 
-html {
-  scroll-behavior: smooth;
-  overflow-x: hidden;
+/* Prevent automatic scaling on form inputs (iOS Safari) */
+input, textarea, select, button {
+  font-size: 16px !important;
+  -webkit-text-size-adjust: 100%;
+  zoom: 1 !important;
+  transform: scale(1) !important;
 }
 
-body {
-  font-family: var(--font-primary);
-  line-height: 1.6;
-  font-size: var(--font-size-base);
-  min-height: 100vh;
-  overflow-x: hidden;
-  transition: background-color var(--transition-normal), color var(--transition-normal);
+/* Container system with explicit widths */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+  box-sizing: border-box;
+}
+
+/* Responsive container adjustments with explicit sizing */
+@media (max-width: 1200px) {
+  .container {
+    max-width: 100%;
+    padding: 0 var(--spacing-lg);
+  }
+}
+
+@media (max-width: 1024px) {
+  .container {
+    padding: 0 var(--spacing-md);
+  }
+  
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: 15px !important;
+  }
+  
+  .container {
+    padding: 0 var(--spacing-md);
+  }
+  
+  .section {
+    padding: var(--spacing-2xl) 0;
+  }
+  
+  .section-title {
+    font-size: var(--font-size-3xl);
+  }
+  
+  .grid-4,
+  .grid-3,
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+  
+  h1 {
+    font-size: var(--font-size-4xl);
+  }
+  
+  h2 {
+    font-size: var(--font-size-3xl);
+  }
+  
+  h3 {
+    font-size: var(--font-size-2xl);
+  }
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 14px !important;
+  }
+  
+  .container {
+    padding: 0 var(--spacing-sm);
+  }
+  
+  h1 {
+    font-size: var(--font-size-3xl);
+  }
+  
+  h2 {
+    font-size: var(--font-size-2xl);
+  }
+  
+  h3 {
+    font-size: var(--font-size-xl);
+  }
+}
+
+@media (min-width: 1400px) {
+  html {
+    font-size: 18px !important;
+  }
 }
 
 /* Page Transitions */
@@ -59,13 +259,7 @@ body {
   z-index: 9999;
 }
 
-/* Apply theme variables to body */
-body {
-  background: var(--bg-primary);
-  color: var(--text-primary);
-}
-
-/* Typography */
+/* Typography with explicit sizing */
 h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   line-height: 1.2;
@@ -133,11 +327,12 @@ li {
   margin-bottom: var(--spacing-xs);
 }
 
-/* Images */
+/* Images with explicit sizing */
 img {
   max-width: 100%;
   height: auto;
   border-radius: 8px;
+  display: block;
 }
 
 /* Buttons */
@@ -191,13 +386,7 @@ input:focus, textarea:focus, select:focus {
   background: linear-gradient(135deg, var(--neon-pink), var(--neon-orange));
 }
 
-/* Container and Layout */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 var(--spacing-md);
-}
-
+/* Section and layout */
 .section {
   padding: var(--spacing-3xl) 0;
   position: relative;
@@ -304,71 +493,6 @@ input:focus, textarea:focus, select:focus {
 .text-primary { color: var(--text-primary); }
 .text-secondary { color: var(--text-secondary); }
 .text-muted { color: var(--text-muted); }
-
-/* Responsive Design */
-@media (max-width: 1024px) {
-  .container {
-    padding: 0 var(--spacing-lg);
-  }
-  
-  .grid-4 {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .grid-3 {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 768px) {
-  .container {
-    padding: 0 var(--spacing-md);
-  }
-  
-  .section {
-    padding: var(--spacing-2xl) 0;
-  }
-  
-  .section-title {
-    font-size: var(--font-size-3xl);
-  }
-  
-  .grid-4,
-  .grid-3,
-  .grid-2 {
-    grid-template-columns: 1fr;
-  }
-  
-  h1 {
-    font-size: var(--font-size-4xl);
-  }
-  
-  h2 {
-    font-size: var(--font-size-3xl);
-  }
-  
-  h3 {
-    font-size: var(--font-size-2xl);
-  }
-}
-
-@media (max-width: 480px) {
-  .container {
-    padding: 0 var(--spacing-sm);
-  }
-  
-  h1 {
-    font-size: var(--font-size-3xl);
-  }
-  
-  h2 {
-    font-size: var(--font-size-2xl);
-  }
-  
-  h3 {
-    font-size: var(--font-size-xl);
-  }
-}
 
 /* Loading States */
 .loading {

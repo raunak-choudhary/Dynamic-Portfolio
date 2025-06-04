@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.408e3b47.css",
-    "main.js": "/static/js/main.cc80a26a.js",
+    "main.css": "/static/css/main.71e4cb9f.css",
+    "main.js": "/static/js/main.2dae77e8.js",
     "static/js/437.dc960f99.chunk.js": "/static/js/437.dc960f99.chunk.js",
     "static/media/internship-greatlearning.png": "/static/media/internship-greatlearning.64591a742c6339366cd5.png",
     "static/media/photo2.jpg": "/static/media/photo2.a619e0a703ba92e4f501.jpg",
@@ -33,7 +33,7 @@
     "index.html": "/index.html"
   },
   "entrypoints": [
-    "static/css/main.408e3b47.css",
-    "static/js/main.cc80a26a.js"
+    "static/css/main.71e4cb9f.css",
+    "static/js/main.2dae77e8.js"
   ]
 }

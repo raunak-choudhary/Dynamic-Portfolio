@@ -62,7 +62,8 @@ Thumbs.db
 # Log files
 *.log
 
-# Build outputs (other than our main build folder)
+# Build outputs
+build/
 dist/
 
 # Temporary folders

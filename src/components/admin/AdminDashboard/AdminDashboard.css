@@ -443,8 +443,12 @@
 .header-actions {
   display: flex;
   align-items: center;
-  gap: var(--admin-spacing-md);
+  gap: var(--admin-spacing-lg);
   flex-shrink: 0; /* Prevent shrinking on mobile */
+}
+
+.header-actions .theme-toggle {
+  margin-right: var(--admin-spacing-lg);
 }
 
 .preview-btn,
@@ -465,7 +469,8 @@
   backdrop-filter: var(--admin-glass-backdrop);
   position: relative;
   overflow: hidden;
-  white-space: nowrap; /* Prevent wrapping */
+  white-space: nowrap;
+  margin-right: var(--admin-spacing-lg);
 }
 
 /* src/components/admin/AdminDashboard/AdminDashboard.css - PART 2 OF 4 */
@@ -1914,6 +1919,10 @@
   .header-left {
     gap: var(--admin-spacing-lg);
   }
+
+  .header-actions {
+    gap: var(--admin-spacing-lg);
+  }
   
   .header-right {
     gap: var(--admin-spacing-md);
@@ -1962,7 +1971,7 @@
   }
   
   .header-actions {
-    gap: var(--admin-spacing-sm);
+    gap: var(--admin-spacing-lg);
   }
   
   .profile-info {
@@ -2051,6 +2060,20 @@
 @media (max-width: 480px) {
   .dashboard-overview {
     padding: var(--admin-spacing-md);
+  }
+
+  .header-actions {
+  gap: var(--admin-spacing-xl);
+  }
+
+  .header-actions .theme-toggle {
+    margin-right: var(--admin-spacing-xl);
+  }
+
+  .preview-btn,
+  .refresh-btn,
+  .save-btn {
+    margin-right: var(--admin-spacing-xl);
   }
   
   .overview-header {
