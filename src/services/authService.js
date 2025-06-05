@@ -1,18 +1,28 @@
-// src/services/authService.js
+// src/services/authService.js - COMPLETE VERSION WITH 2FA SUPPORT
 
 import { supabase } from './supabaseClient';
 import bcrypt from 'bcryptjs';
 
-// Authentication constants
+// Authentication constants - ENHANCED FOR 2FA
 const AUTH_CONFIG = {
   saltRounds: 12,
   sessionKey: 'portfolio_admin_session',
   tokenExpiry: 12 * 60 * 60 * 1000, // 12 hours (changed from 24)
-  refreshThreshold: 2 * 60 * 60 * 1000 // 2 hours before expiry
+  refreshThreshold: 2 * 60 * 60 * 1000, // 2 hours before expiry
+  
+  // 🔐 NEW: 2FA Configuration
+  otpExpiry: 10 * 60 * 1000, // 10 minutes
+  maxOtpAttempts: 5,
+  maxLoginAttempts: 5,
+  accountLockoutDuration: 30 * 60 * 1000, // 30 minutes
+  otpResendCooldown: 2 * 60 * 1000, // 2 minutes between OTP sends
+  
+  // Edge Function URL for OTP email (update with your project reference)
+  otpEmailFunctionUrl: 'https://emaaaeooafqawdvdreaz.supabase.co/functions/v1/send-otp-email'
 };
 
 // =============================================
-// BCRYPT COMPATIBILITY HELPER
+// BCRYPT COMPATIBILITY HELPER (EXISTING)
 // =============================================
 
 /**
@@ -73,14 +83,7 @@ const verifyPasswordCompatible = async (password, hash) => {
   }
 };
 
-// =================================================================
-// ADD THIS DEBUG FUNCTION (after verifyPasswordCompatible)
-// =================================================================
-
-/**
- * Debug function to test password hashing - ADD THIS TO YOUR authService.js
- * Call this from browser console to test: window.debugPasswordTest()
- */
+// 🔧 DEBUG FUNCTION (EXISTING)
 export const debugPasswordTest = async () => {
   const testPassword = 'password';
   const testHash = '$2a$12$fKAP565IGiXpl860vJJCUeqB/jGHAsHSa87j5low0eJGpLESORKXy';
@@ -113,16 +116,105 @@ if (typeof window !== 'undefined') {
 }
 
 // =============================================
-// ADMIN AUTHENTICATION FUNCTIONS
+// 🔐 NEW: OTP GENERATION AND VALIDATION
 // =============================================
 
 /**
- * Sign in admin user with username and password
+ * Generate 6-digit alphanumeric OTP
+ * @returns {string} 6-digit alphanumeric OTP
+ */
+const generateOTP = () => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let otp = '';
+  for (let i = 0; i < 6; i++) {
+    otp += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return otp;
+};
+
+/**
+ * Send OTP to admin email
+ * @param {string} username - Admin username
+ * @param {string} otpCode - Generated OTP code
+ * @returns {Object} Email sending result
+ */
+const sendOTPEmail = async (username, otpCode) => {
+  try {
+    console.log('📧 Sending OTP email for username:', username);
+    
+    const response = await fetch(AUTH_CONFIG.otpEmailFunctionUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.REACT_APP_SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify({
+        username,
+        otpCode
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || 'Failed to send OTP email');
+    }
+
+    console.log('✅ OTP email sent successfully');
+    return {
+      success: true,
+      data: result.data
+    };
+
+  } catch (error) {
+    console.error('❌ Failed to send OTP email:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+};
+
+/**
+ * Check if admin account is locked
+ * @param {Object} adminUser - Admin user object
+ * @returns {boolean} Whether account is locked
+ */
+const isAccountLocked = (adminUser) => {
+  if (!adminUser.locked_until) return false;
+  
+  const lockExpiry = new Date(adminUser.locked_until);
+  const now = new Date();
+  
+  return lockExpiry > now;
+};
+
+/**
+ * Check if OTP resend is allowed (rate limiting)
+ * @param {Object} adminUser - Admin user object
+ * @returns {boolean} Whether OTP resend is allowed
+ */
+const canResendOTP = (adminUser) => {
+  if (!adminUser.otp_last_sent) return true;
+  
+  const lastSent = new Date(adminUser.otp_last_sent);
+  const now = new Date();
+  const timeDiff = now.getTime() - lastSent.getTime();
+  
+  return timeDiff >= AUTH_CONFIG.otpResendCooldown;
+};
+
+// =============================================
+// 🔐 NEW: TWO-STEP AUTHENTICATION FLOW
+// =============================================
+
+/**
+ * Step 1: Verify credentials and send OTP
  * @param {string} username - Admin username
  * @param {string} password - Admin password
- * @returns {Object} Authentication result with session data
+ * @returns {Object} Authentication step 1 result
  */
-export const signInAdmin = async (username, password) => {
+export const verifyCredentialsAndSendOTP = async (username, password) => {
   try {
     // Input validation
     if (!username || !password) {
@@ -130,81 +222,310 @@ export const signInAdmin = async (username, password) => {
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
-          message: 'Username and password are required',
-          details: 'Both username and password fields must be provided'
+          message: 'Username and password are required'
         }
       };
     }
 
-    // Sanitize username
     const sanitizedUsername = username.trim().toLowerCase();
+    console.log('🔐 Step 1: Verifying credentials for:', sanitizedUsername);
 
-    console.log('🔐 Authentication attempt:', {
-      username: sanitizedUsername,
-      timestamp: new Date().toISOString()
-    });
-
-    // Get admin user from database
+    // Get admin user from database with 2FA fields
     const { data: adminUser, error: fetchError } = await supabase
       .from('admin_users')
-      .select('id, username, password_hash, email, is_active, last_login')
+      .select(`
+        id, username, password_hash, email, is_active, 
+        login_attempts, locked_until, two_fa_enabled,
+        otp_last_sent, otp_attempts
+      `)
       .eq('username', sanitizedUsername)
       .eq('is_active', true)
       .single();
 
     if (fetchError || !adminUser) {
-      console.warn(`❌ Failed login attempt - user not found: ${sanitizedUsername}`);
-      
+      console.warn(`❌ User not found: ${sanitizedUsername}`);
       return {
         success: false,
         error: {
           code: 'INVALID_CREDENTIALS',
-          message: 'Invalid username or password',
-          details: 'No active admin user found with provided credentials'
+          message: 'Invalid username or password'
         }
       };
     }
 
-    console.log('👤 Admin user found:', {
-      id: adminUser.id,
-      username: adminUser.username,
-      hashFormat: adminUser.password_hash.substring(0, 4) + '...'
-    });
+    // Check if account is locked
+    if (isAccountLocked(adminUser)) {
+      const lockExpiry = new Date(adminUser.locked_until);
+      console.warn(`🔒 Account locked until: ${lockExpiry}`);
+      
+      return {
+        success: false,
+        error: {
+          code: 'ACCOUNT_LOCKED',
+          message: `Account is temporarily locked. Try again after ${lockExpiry.toLocaleTimeString()}`
+        }
+      };
+    }
 
-    // Verify password using enhanced compatibility function
+    // Verify password using existing compatibility function
     const isPasswordValid = await verifyPasswordCompatible(password, adminUser.password_hash);
     
     if (!isPasswordValid) {
-      console.warn(`❌ Invalid password attempt for user: ${sanitizedUsername}`);
+      // Increment login attempts
+      const newAttempts = (adminUser.login_attempts || 0) + 1;
+      const updateData = { login_attempts: newAttempts };
+      
+      // Lock account if max attempts reached
+      if (newAttempts >= AUTH_CONFIG.maxLoginAttempts) {
+        updateData.locked_until = new Date(Date.now() + AUTH_CONFIG.accountLockoutDuration).toISOString();
+        console.warn(`🔒 Account locked after ${newAttempts} failed attempts`);
+      }
+      
+      await supabase
+        .from('admin_users')
+        .update(updateData)
+        .eq('id', adminUser.id);
       
       return {
         success: false,
         error: {
           code: 'INVALID_CREDENTIALS',
           message: 'Invalid username or password',
-          details: 'Password verification failed'
+          remainingAttempts: Math.max(0, AUTH_CONFIG.maxLoginAttempts - newAttempts)
         }
       };
     }
 
-    console.log('✅ Password verification successful');
+    console.log('✅ Credentials verified successfully');
 
-    // Generate session token
-    const sessionToken = generateSessionToken(adminUser);
+    // Check if 2FA is enabled (default to true for security)
+    const twoFAEnabled = adminUser.two_fa_enabled !== false; // Default to true if null
     
-    // Update last login timestamp
+    if (!twoFAEnabled) {
+      console.log('⚠️ 2FA disabled for user, but requiring for security');
+      // For security, we'll still require 2FA even if disabled in DB
+    }
+
+    // Check OTP resend rate limiting
+    if (!canResendOTP(adminUser)) {
+      const cooldownRemaining = AUTH_CONFIG.otpResendCooldown - (Date.now() - new Date(adminUser.otp_last_sent).getTime());
+      const secondsRemaining = Math.ceil(cooldownRemaining / 1000);
+      
+      return {
+        success: false,
+        error: {
+          code: 'OTP_RATE_LIMITED',
+          message: `Please wait ${secondsRemaining} seconds before requesting another OTP`
+        }
+      };
+    }
+
+    // Generate and store OTP
+    const otpCode = generateOTP();
+    const otpExpiry = new Date(Date.now() + AUTH_CONFIG.otpExpiry);
+
+    console.log('🔐 Generated OTP for user:', sanitizedUsername);
+
+    // Update user with OTP data
     const { error: updateError } = await supabase
       .from('admin_users')
-      .update({ 
+      .update({
+        otp_code: otpCode,
+        otp_expires_at: otpExpiry.toISOString(),
+        otp_attempts: 0,
+        otp_last_sent: new Date().toISOString(),
+        login_attempts: 0 // Reset login attempts on successful credential verification
+      })
+      .eq('id', adminUser.id);
+
+    if (updateError) {
+      console.error('❌ Failed to store OTP:', updateError);
+      return {
+        success: false,
+        error: {
+          code: 'OTP_STORAGE_ERROR',
+          message: 'Failed to generate verification code'
+        }
+      };
+    }
+
+    // Send OTP email
+    const emailResult = await sendOTPEmail(sanitizedUsername, otpCode);
+    
+    if (!emailResult.success) {
+      console.error('❌ Failed to send OTP email:', emailResult.error);
+      return {
+        success: false,
+        error: {
+          code: 'OTP_EMAIL_ERROR',
+          message: 'Failed to send verification code. Please try again.'
+        }
+      };
+    }
+
+    console.log('🎉 Step 1 completed: OTP sent to admin email');
+
+    return {
+      success: true,
+      data: {
+        message: 'Verification code sent to admin email',
+        requiresOTP: true,
+        otpExpiresAt: otpExpiry.toISOString(),
+        emailSent: true,
+        userId: adminUser.id,
+        username: adminUser.username
+      }
+    };
+
+  } catch (error) {
+    console.error('❌ Step 1 authentication error:', error);
+    return {
+      success: false,
+      error: {
+        code: 'AUTHENTICATION_ERROR',
+        message: 'Authentication failed. Please try again.'
+      }
+    };
+  }
+};
+
+/**
+ * Step 2: Verify OTP and complete login
+ * @param {string} username - Admin username
+ * @param {string} otpCode - OTP code entered by user
+ * @returns {Object} Authentication step 2 result
+ */
+export const verifyOTPAndLogin = async (username, otpCode) => {
+  try {
+    if (!username || !otpCode) {
+      return {
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: 'Username and verification code are required'
+        }
+      };
+    }
+
+    const sanitizedUsername = username.trim().toLowerCase();
+    const sanitizedOTP = otpCode.trim().toUpperCase();
+
+    console.log('🔐 Step 2: Verifying OTP for:', sanitizedUsername);
+
+    // Get admin user with OTP data
+    const { data: adminUser, error: fetchError } = await supabase
+      .from('admin_users')
+      .select(`
+        id, username, email, otp_code, otp_expires_at, 
+        otp_attempts, two_fa_enabled, is_active
+      `)
+      .eq('username', sanitizedUsername)
+      .eq('is_active', true)
+      .single();
+
+    if (fetchError || !adminUser) {
+      return {
+        success: false,
+        error: {
+          code: 'INVALID_REQUEST',
+          message: 'Invalid verification request'
+        }
+      };
+    }
+
+    // Check if OTP exists
+    if (!adminUser.otp_code || !adminUser.otp_expires_at) {
+      return {
+        success: false,
+        error: {
+          code: 'NO_OTP',
+          message: 'No verification code found. Please request a new one.'
+        }
+      };
+    }
+
+    // Check if OTP has expired
+    const otpExpiry = new Date(adminUser.otp_expires_at);
+    const now = new Date();
+    
+    if (now > otpExpiry) {
+      // Clear expired OTP
+      await supabase
+        .from('admin_users')
+        .update({
+          otp_code: null,
+          otp_expires_at: null,
+          otp_attempts: 0
+        })
+        .eq('id', adminUser.id);
+
+      return {
+        success: false,
+        error: {
+          code: 'OTP_EXPIRED',
+          message: 'Verification code has expired. Please request a new one.'
+        }
+      };
+    }
+
+    // Check max OTP attempts
+    if (adminUser.otp_attempts >= AUTH_CONFIG.maxOtpAttempts) {
+      // Clear OTP to force re-generation
+      await supabase
+        .from('admin_users')
+        .update({
+          otp_code: null,
+          otp_expires_at: null,
+          otp_attempts: 0
+        })
+        .eq('id', adminUser.id);
+
+      return {
+        success: false,
+        error: {
+          code: 'MAX_OTP_ATTEMPTS',
+          message: 'Too many verification attempts. Please request a new code.'
+        }
+      };
+    }
+
+    // Verify OTP code
+    if (sanitizedOTP !== adminUser.otp_code) {
+      // Increment OTP attempts
+      const newAttempts = adminUser.otp_attempts + 1;
+      
+      await supabase
+        .from('admin_users')
+        .update({ otp_attempts: newAttempts })
+        .eq('id', adminUser.id);
+
+      return {
+        success: false,
+        error: {
+          code: 'INVALID_OTP',
+          message: 'Invalid verification code',
+          remainingAttempts: Math.max(0, AUTH_CONFIG.maxOtpAttempts - newAttempts)
+        }
+      };
+    }
+
+    console.log('✅ OTP verified successfully');
+
+    // Clear OTP data and update last login
+    await supabase
+      .from('admin_users')
+      .update({
+        otp_code: null,
+        otp_expires_at: null,
+        otp_attempts: 0,
         last_login: new Date().toISOString(),
         updated_at: new Date().toISOString()
       })
       .eq('id', adminUser.id);
 
-    if (updateError) {
-      console.error('⚠️ Failed to update last login:', updateError);
-    }
-
+    // Generate session token using existing function
+    const sessionToken = generateSessionToken(adminUser);
+    
     // Store session in localStorage
     const sessionData = {
       token: sessionToken,
@@ -215,15 +536,14 @@ export const signInAdmin = async (username, password) => {
         role: 'admin'
       },
       expiresAt: new Date(Date.now() + AUTH_CONFIG.tokenExpiry).toISOString(),
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      twoFactorVerified: true
     };
 
     localStorage.setItem(AUTH_CONFIG.sessionKey, JSON.stringify(sessionData));
-
-    // Set auth header for future requests
     setAuthHeader(sessionToken);
 
-    console.log(`🎉 Admin login successful: ${adminUser.username}`);
+    console.log('🎉 Step 2 completed: Admin login successful with 2FA');
 
     return {
       success: true,
@@ -231,22 +551,160 @@ export const signInAdmin = async (username, password) => {
         user: sessionData.user,
         token: sessionToken,
         expiresAt: sessionData.expiresAt,
-        message: 'Login successful'
+        message: 'Login successful with 2FA verification',
+        twoFactorVerified: true
       }
     };
 
   } catch (error) {
-    console.error('❌ Admin sign in error:', error);
+    console.error('❌ Step 2 OTP verification error:', error);
     return {
       success: false,
       error: {
-        code: 'AUTHENTICATION_ERROR',
-        message: 'Authentication failed. Please try again.',
-        details: error.message
+        code: 'OTP_VERIFICATION_ERROR',
+        message: 'OTP verification failed. Please try again.'
       }
     };
   }
 };
+
+/**
+ * Resend OTP to admin email
+ * @param {string} username - Admin username
+ * @returns {Object} OTP resend result
+ */
+export const resendOTP = async (username) => {
+  try {
+    const sanitizedUsername = username.trim().toLowerCase();
+    console.log('🔄 Resending OTP for:', sanitizedUsername);
+
+    const { data: adminUser, error: fetchError } = await supabase
+      .from('admin_users')
+      .select('id, username, otp_last_sent, is_active')
+      .eq('username', sanitizedUsername)
+      .eq('is_active', true)
+      .single();
+
+    if (fetchError || !adminUser) {
+      return {
+        success: false,
+        error: {
+          code: 'USER_NOT_FOUND',
+          message: 'Invalid request'
+        }
+      };
+    }
+
+    // Check rate limiting
+    if (!canResendOTP(adminUser)) {
+      const cooldownRemaining = AUTH_CONFIG.otpResendCooldown - (Date.now() - new Date(adminUser.otp_last_sent).getTime());
+      const secondsRemaining = Math.ceil(cooldownRemaining / 1000);
+      
+      return {
+        success: false,
+        error: {
+          code: 'OTP_RATE_LIMITED',
+          message: `Please wait ${secondsRemaining} seconds before requesting another code`
+        }
+      };
+    }
+
+    // Generate new OTP
+    const otpCode = generateOTP();
+    const otpExpiry = new Date(Date.now() + AUTH_CONFIG.otpExpiry);
+
+    // Update user with new OTP
+    const { error: updateError } = await supabase
+      .from('admin_users')
+      .update({
+        otp_code: otpCode,
+        otp_expires_at: otpExpiry.toISOString(),
+        otp_attempts: 0,
+        otp_last_sent: new Date().toISOString()
+      })
+      .eq('id', adminUser.id);
+
+    if (updateError) {
+      console.error('❌ Failed to update OTP:', updateError);
+      return {
+        success: false,
+        error: {
+          code: 'OTP_UPDATE_ERROR',
+          message: 'Failed to generate new verification code'
+        }
+      };
+    }
+
+    // Send new OTP email
+    const emailResult = await sendOTPEmail(sanitizedUsername, otpCode);
+    
+    if (!emailResult.success) {
+      return {
+        success: false,
+        error: {
+          code: 'OTP_EMAIL_ERROR',
+          message: 'Failed to send verification code'
+        }
+      };
+    }
+
+    console.log('✅ OTP resent successfully');
+
+    return {
+      success: true,
+      data: {
+        message: 'New verification code sent to admin email',
+        otpExpiresAt: otpExpiry.toISOString()
+      }
+    };
+
+  } catch (error) {
+    console.error('❌ Resend OTP error:', error);
+    return {
+      success: false,
+      error: {
+        code: 'RESEND_ERROR',
+        message: 'Failed to resend verification code'
+      }
+    };
+  }
+};
+
+// =============================================
+// 🔐 LEGACY SINGLE-STEP LOGIN (FOR COMPATIBILITY)
+// =============================================
+
+/**
+ * Legacy single-step login (now redirects to 2FA flow)
+ * @param {string} username - Admin username
+ * @param {string} password - Admin password
+ * @returns {Object} Authentication result indicating 2FA required
+ */
+export const signInAdmin = async (username, password) => {
+  console.log('🔄 Legacy signInAdmin called, redirecting to 2FA flow...');
+  
+  // For backward compatibility, start 2FA flow
+  const step1Result = await verifyCredentialsAndSendOTP(username, password);
+  
+  if (step1Result.success) {
+    // Return result indicating OTP is required
+    return {
+      success: false, // Set to false to indicate additional step needed
+      requiresOTP: true,
+      data: step1Result.data,
+      error: {
+        code: 'OTP_REQUIRED',
+        message: 'Please enter the verification code sent to your email'
+      }
+    };
+  }
+  
+  return step1Result;
+};
+
+// =============================================
+// EXISTING FUNCTIONS (UNCHANGED)
+// =============================================
 
 /**
  * Sign out admin user and clear session
@@ -350,7 +808,8 @@ export const getCurrentAdmin = () => {
       user: session.user,
       token: session.token,
       expiresAt: session.expiresAt,
-      isAuthenticated: true
+      isAuthenticated: true,
+      twoFactorVerified: session.twoFactorVerified || false
     };
 
   } catch (error) {
@@ -433,6 +892,7 @@ export const verifyAdminSession = async () => {
         user: session.user,
         isValid: true,
         expiresAt: session.expiresAt,
+        twoFactorVerified: session.twoFactorVerified || false,
         message: 'Session is valid'
       }
     };

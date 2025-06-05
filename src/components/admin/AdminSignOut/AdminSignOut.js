@@ -1,7 +1,8 @@
-// src/components/admin/AdminSignOut/AdminSignOut.js
+// src/components/admin/AdminSignOut/AdminSignOut.js - PRODUCTION VERSION
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import routeNavigation from '../../../utils/routeNavigation';
 import './AdminSignOut.css';
 
 const AdminSignOut = () => {
@@ -11,8 +12,11 @@ const AdminSignOut = () => {
   const [currentLanguageIndex, setCurrentLanguageIndex] = useState(0);
   const [typedText, setTypedText] = useState('');
   const [showCursor, setShowCursor] = useState(true);
-  const [animationPhase, setAnimationPhase] = useState('typing'); // typing -> floating -> complete
+  const [animationPhase, setAnimationPhase] = useState('typing');
   const [showFloatingElements, setShowFloatingElements] = useState(false);
+
+  // Navigation state
+  const [targetLoginRoute, setTargetLoginRoute] = useState('/adminlogin');
 
   // Multi-language farewell messages
   const farewellMessages = [
@@ -69,53 +73,85 @@ const AdminSignOut = () => {
 
   const currentMessage = farewellMessages[currentLanguageIndex];
 
-  // Typewriter effect for current language
+  // Initialize encrypted navigation on mount
+  useEffect(() => {
+    const setupNavigation = async () => {
+      try {
+        // Clean up current session
+        const cleanupResult = routeNavigation.cleanupAdminSession();
+        
+        if (cleanupResult.success) {
+          console.log('Session cleaned up successfully');
+        }
+
+        // Get fresh login route for redirect
+        const routeResult = routeNavigation.getCurrentAdminRoutes();
+        
+        if (routeResult.success && routeResult.routes.adminlogin) {
+          setTargetLoginRoute(routeResult.routes.adminlogin);
+        }
+      } catch (error) {
+        console.error('Navigation setup failed:', error);
+        // Fallback to standard route
+        setTargetLoginRoute('/adminlogin');
+      }
+    };
+
+    setupNavigation();
+  }, []);
+
+  // Scene 1: Developer typing animation + typewriter effect
   useEffect(() => {
     if (animationPhase === 'typing') {
-      let currentIndex = 0;
-      const message = currentMessage.message;
-      
-      const typeInterval = setInterval(() => {
-        if (currentIndex <= message.length) {
-          setTypedText(message.slice(0, currentIndex));
-          currentIndex++;
-        } else {
-          clearInterval(typeInterval);
-          
-          // Wait 1.5 seconds after typing completes
-          setTimeout(() => {
-            if (currentLanguageIndex < farewellMessages.length - 1) {
-              // Move to next language
-              setCurrentLanguageIndex(prev => prev + 1);
-              setTypedText('');
-            } else {
-              // All languages complete - start floating animation
-              setAnimationPhase('floating');
-              setShowFloatingElements(true);
-              
-              // After 3 seconds of floating, redirect
-              setTimeout(() => {
-                setAnimationPhase('complete');
+      const typingDelay = setTimeout(() => {
+        let currentIndex = 0;
+        const message = currentMessage.message;
+        
+        const typeInterval = setInterval(() => {
+          if (currentIndex <= message.length) {
+            setTypedText(message.slice(0, currentIndex));
+            currentIndex++;
+          } else {
+            clearInterval(typeInterval);
+            
+            setTimeout(() => {
+              if (currentLanguageIndex < farewellMessages.length - 1) {
+                setCurrentLanguageIndex(prev => prev + 1);
+                setTypedText('');
+              } else {
+                setAnimationPhase('floating');
+                setShowFloatingElements(true);
+                
+                setTimeout(() => {
+                  setAnimationPhase('complete');
 
-                // ANALYTICS CLEANUP - Ensure session is properly ended
-                try {
-                  const analyticsSession = JSON.parse(localStorage.getItem('admin_analytics_session') || '{}');
-                  if (analyticsSession.sessionId) {
-                    localStorage.removeItem('admin_analytics_session');
-                    console.log('📊 Analytics session cleaned up during sign out animation');
+                  // Clean up analytics session
+                  try {
+                    const analyticsSession = JSON.parse(localStorage.getItem('admin_analytics_session') || '{}');
+                    if (analyticsSession.sessionId) {
+                      localStorage.removeItem('admin_analytics_session');
+                    }
+                  } catch (error) {
+                    console.warn('Analytics cleanup failed:', error);
                   }
-                } catch (error) {
-                  console.warn('⚠️ Analytics cleanup failed:', error);
-                }
 
-                navigate('/adminlogin');
-              }, 3000);
-            }
-          }, 1500);
-        }
-      }, 120); // 120ms per character
+                  // Navigate to encrypted login route
+                  const navResult = routeNavigation.safeAdminNavigate(navigate, '/adminlogin', { replace: true });
+                  
+                  if (!navResult.success) {
+                    // Fallback navigation
+                    navigate('/adminlogin', { replace: true });
+                  }
+                }, 3000);
+              }
+            }, 1500);
+          }
+        }, 120);
 
-      return () => clearInterval(typeInterval);
+        return () => clearInterval(typeInterval);
+      }, 2000);
+
+      return () => clearTimeout(typingDelay);
     }
   }, [currentLanguageIndex, animationPhase, currentMessage.message, navigate]);
 
@@ -138,7 +174,6 @@ const AdminSignOut = () => {
         <div className="floating-orb orb-4"></div>
         <div className="signout-grid"></div>
         
-        {/* Floating Elements (appear in final phase) */}
         {showFloatingElements && (
           <div className="floating-elements">
             <div className="floating-heart">❤️</div>
@@ -152,7 +187,6 @@ const AdminSignOut = () => {
       </div>
 
       <div className="signout-container">
-        {/* Header */}
         <div className="signout-header">
           <div className="signout-logo">
             <img src="/logo.png" alt="RC Portfolio" className="logo-image" />
@@ -163,9 +197,7 @@ const AdminSignOut = () => {
           </div>
         </div>
 
-        {/* Main Farewell Content */}
         <div className="farewell-section">
-          {/* Language Progress Indicator */}
           <div className="language-progress">
             <div className="progress-text">
               {animationPhase === 'typing' ? (
@@ -174,7 +206,7 @@ const AdminSignOut = () => {
                   <span className="language-code">({currentMessage.code})</span>
                 </>
               ) : (
-                <span className="all-complete">All Languages Complete!</span>
+                <span className="all-complete">Session Complete!</span>
               )}
             </div>
             <div className="progress-dots">
@@ -190,7 +222,6 @@ const AdminSignOut = () => {
             </div>
           </div>
 
-          {/* Main Message Display */}
           <div className="message-display">
             <div className="language-flag">
               <span className="flag-emoji">{currentMessage.flag}</span>
@@ -213,9 +244,7 @@ const AdminSignOut = () => {
             </div>
           </div>
 
-          {/* Creative Animation Elements */}
           <div className="creative-elements">
-            {/* Animated Thank You Cards */}
             <div className="thank-you-cards">
               {farewellMessages.slice(0, currentLanguageIndex + 1).map((msg, index) => (
                 <div 
@@ -232,14 +261,12 @@ const AdminSignOut = () => {
               ))}
             </div>
 
-            {/* Ripple Effect */}
             <div className="ripple-container">
               <div className="ripple ripple-1"></div>
               <div className="ripple ripple-2"></div>
               <div className="ripple ripple-3"></div>
             </div>
 
-            {/* Particle Trail */}
             <div className="particle-trail">
               <div className="trail-particle particle-1"></div>
               <div className="trail-particle particle-2"></div>
@@ -249,7 +276,6 @@ const AdminSignOut = () => {
             </div>
           </div>
 
-          {/* Final Phase Message */}
           {animationPhase === 'floating' && (
             <div className="final-message animate-fade-in">
               <h2 className="final-title">
@@ -258,7 +284,7 @@ const AdminSignOut = () => {
                 <span className="sparkle">✨</span>
               </h2>
               <p className="final-subtitle">
-                Redirecting you back to login...
+                Redirecting to secure login...
               </p>
               <div className="loading-dots">
                 <span>.</span><span>.</span><span>.</span>
@@ -267,13 +293,15 @@ const AdminSignOut = () => {
           )}
         </div>
 
-        {/* Footer Info */}
         <div className="signout-footer">
           <p className="security-note">
             🔒 Session securely terminated
           </p>
           <p className="redirect-info">
             Automatic redirect in {animationPhase === 'floating' ? '3' : '...'} seconds
+          </p>
+          <p className="encryption-note">
+            🔐 Redirecting to encrypted login route
           </p>
         </div>
       </div>

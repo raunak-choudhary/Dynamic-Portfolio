@@ -1,16 +1,16 @@
-// src/components/admin/AdminDashboard/AdminDashboard.js - DATA-SECTION ATTRIBUTE ADDED
+// src/components/admin/AdminDashboard/AdminDashboard.js - PRODUCTION VERSION
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../../../hooks/useAuth'; // Assuming path is correct
-import { getPortfolioStats } from '../../../services/dataService'; // Assuming path is correct
-import LoadingSpinner from '../../common/LoadingSpinner'; // Assuming path is correct
-import ThemeToggle from '../../common/ThemeToggle'; // Assuming path is correct
-import logoImage from '../../../assets/images/logo.png'; // Assuming path is correct
+import { useAuth } from '../../../hooks/useAuth';
+import { getPortfolioStats } from '../../../services/dataService';
+import LoadingSpinner from '../../common/LoadingSpinner';
+import ThemeToggle from '../../common/ThemeToggle';
+import logoImage from '../../../assets/images/logo.png';
 import analyticsService from '../../../services/analyticsService';
+import routeNavigation from '../../../utils/routeNavigation'; // 🔐 NEW IMPORT
 import './AdminDashboard.css';
 
 import HeroContentManager from './sections/HeroContentManager';
-
 import AboutSectionManager from './sections/AboutSectionManager';
 import ProjectsManager from './sections/ProjectsManager';
 import InternshipsManager from './sections/InternshipsManager';
@@ -43,6 +43,10 @@ const AdminDashboard = () => {
   const [previewMode, setPreviewMode] = useState('desktop');
   const [previewUrl, setPreviewUrl] = useState('/');
 
+  // 🔐 NEW: Encrypted navigation state
+  const [encryptedRoutes, setEncryptedRoutes] = useState({});
+  const [navigationReady, setNavigationReady] = useState(false);
+
   // Dashboard sections configuration
   const dashboardSections = [
     { id: 'dashboard', name: 'Dashboard Overview', icon: '📊', color: 'cyan', shortcut: '1' },
@@ -61,35 +65,61 @@ const AdminDashboard = () => {
     { id: 'analytics', name: 'Analytics', icon: '📈', color: 'emerald', shortcut: 'b' }
   ];
 
-  // Section-specific state management (assuming this structure is intended)
+  // Section-specific state management
   const [sectionStates, setSectionStates] = useState(() => {
     const initialStates = {};
     dashboardSections.forEach(section => {
       initialStates[section.id] = {
         loaded: section.id === 'dashboard',
-        data: null, // Or some initial data structure
+        data: null,
         hasChanges: false
       };
     });
     return initialStates;
   });
 
-  // Load section data function (placeholder, adapt as needed)
+  // 🔐 NEW: Initialize encrypted navigation on mount
+  useEffect(() => {
+    const setupEncryptedNavigation = async () => {
+      try {
+        console.log('🔐 Setting up encrypted navigation for dashboard...');
+        
+        const routeResult = routeNavigation.getCurrentAdminRoutes();
+        
+        if (routeResult.success) {
+          setEncryptedRoutes(routeResult.routes);
+          console.log('✅ Encrypted routes loaded for dashboard');
+        } else {
+          console.warn('⚠️ Using fallback routes for dashboard');
+          setEncryptedRoutes({
+            adminlogin: '/adminlogin',
+            admindashboard: '/admindashboard',
+            adminsignout: '/adminsignout'
+          });
+        }
+        
+        setNavigationReady(true);
+      } catch (error) {
+        console.error('❌ Failed to setup encrypted navigation:', error);
+        setNavigationReady(true);
+      }
+    };
+
+    setupEncryptedNavigation();
+  }, []);
+
+  // Load section data function
   const loadSectionData = useCallback(async (sectionId) => {
-    console.log(`Attempting to load data for section: ${sectionId}`);
-    // Placeholder: Simulate API call or data fetching
-    // await new Promise(resolve => setTimeout(resolve, 500)); 
+    console.log(`Loading data for section: ${sectionId}`);
     setSectionStates(prev => ({
       ...prev,
       [sectionId]: { ...prev[sectionId], loaded: true, data: { message: `Data for ${sectionId}` } }
     }));
-    console.log(`Data loaded for section: ${sectionId}`);
   }, []);
 
-  // Enhanced section change handler with URL management
+  // Enhanced section change handler with navigation tracking
   const handleSectionChange = useCallback(async (sectionId) => {
     if (hasUnsavedChanges) {
-      // Replace window.confirm with a custom modal in a real app
       const confirmed = window.confirm(
         'You have unsaved changes. Are you sure you want to leave this section?'
       );
@@ -98,13 +128,15 @@ const AdminDashboard = () => {
 
     try {
       setSectionLoading(true);
-      setActiveSection(sectionId); // Set active section immediately for UI feedback
+      setActiveSection(sectionId);
 
-      // ANALYTICS TRACKING - Section Visit
+      // Track section navigation
+      routeNavigation.storeNavigationHistory('/admindashboard', sectionId);
+
+      // Analytics tracking
       try {
         const analyticsSession = JSON.parse(localStorage.getItem('admin_analytics_session') || '{}');
         if (analyticsSession.sessionId) {
-          // Track section visit
           await analyticsService.trackEvent(
             'section_visit',
             'admin',
@@ -120,48 +152,44 @@ const AdminDashboard = () => {
             analyticsSession.sessionId
           );
 
-          // Update sections visited
           const updatedSession = {
             ...analyticsSession,
             sectionsVisited: [...new Set([...(analyticsSession.sectionsVisited || []), sectionId])],
             actionsPerformed: (analyticsSession.actionsPerformed || 0) + 1
           };
           localStorage.setItem('admin_analytics_session', JSON.stringify(updatedSession));
-          
-          console.log('📊 Section visit tracked:', sectionId);
         }
       } catch (analyticsError) {
-        console.warn('⚠️ Analytics tracking failed:', analyticsError);
+        console.warn('Analytics tracking failed:', analyticsError);
       }
 
       if (!sectionStates[sectionId]?.loaded && sectionId !== 'dashboard') {
         await loadSectionData(sectionId);
       }
       
-      setHasUnsavedChanges(false); // Reset unsaved changes flag
+      setHasUnsavedChanges(false);
       
       const newUrl = sectionId === 'dashboard' 
-        ? '/admindashboard' 
-        : `/admindashboard?section=${sectionId}`;
+        ? encryptedRoutes.admindashboard || '/admindashboard'
+        : `${encryptedRoutes.admindashboard || '/admindashboard'}?section=${sectionId}`;
+      
       window.history.pushState({ section: sectionId }, '', newUrl);
       
       setSectionHistory(prev => {
         const newHistory = prev.filter(s => s !== sectionId);
-        return [sectionId, ...newHistory].slice(0, 10); // Keep last 10
+        return [sectionId, ...newHistory].slice(0, 10);
       });
       
     } catch (error) {
       console.error('Error switching section:', error);
-      // Add user-friendly error handling here
     } finally {
       setSectionLoading(false);
     }
-  }, [hasUnsavedChanges, sectionStates, loadSectionData]);
+  }, [hasUnsavedChanges, sectionStates, loadSectionData, encryptedRoutes]);
 
   // Enhanced quick save handler
   const handleQuickSave = useCallback(() => {
     if (hasUnsavedChanges) {
-      // ANALYTICS TRACKING - Save Action
       try {
         const analyticsSession = JSON.parse(localStorage.getItem('admin_analytics_session') || '{}');
         if (analyticsSession.sessionId) {
@@ -179,7 +207,6 @@ const AdminDashboard = () => {
             analyticsSession.sessionId
           );
 
-          // Update actions count
           const updatedSession = {
             ...analyticsSession,
             actionsPerformed: (analyticsSession.actionsPerformed || 0) + 1
@@ -187,13 +214,11 @@ const AdminDashboard = () => {
           localStorage.setItem('admin_analytics_session', JSON.stringify(updatedSession));
         }
       } catch (analyticsError) {
-        console.warn('⚠️ Analytics save tracking failed:', analyticsError);
+        console.warn('Analytics save tracking failed:', analyticsError);
       }
       
-      // Implement actual save logic here
       console.log('Changes saved for section:', activeSection);
       setHasUnsavedChanges(false);
-      // Update sectionStates if needed
       setSectionStates(prev => ({
         ...prev,
         [activeSection]: { ...prev[activeSection], hasChanges: false }
@@ -205,7 +230,6 @@ const AdminDashboard = () => {
   const handleAutoSave = useCallback(() => {
     if (hasUnsavedChanges) {
       console.log('Auto-saved for section:', activeSection);
-      // Implement actual auto-save logic here (could be same as handleQuickSave)
       handleQuickSave(); 
     }
   }, [hasUnsavedChanges, activeSection, handleQuickSave]);
@@ -213,9 +237,8 @@ const AdminDashboard = () => {
   // Enhanced preview toggle
   const togglePreview = () => {
     setShowPreview(prevShowPreview => !prevShowPreview);
-    if (!showPreview) { // If turning preview on
-      // Potentially refresh preview URL or content
-      setPreviewUrl(`/?preview=${Date.now()}`); // Example: force refresh
+    if (!showPreview) {
+      setPreviewUrl(`/?preview=${Date.now()}`);
     }
   };
 
@@ -224,15 +247,16 @@ const AdminDashboard = () => {
     setPreviewMode(mode);
   };
 
+  // 🔐 UPDATED: Enhanced sign out with encrypted navigation
   const handleSignOut = async () => {
     if (hasUnsavedChanges) {
-        const confirmed = window.confirm(
+      const confirmed = window.confirm(
         'You have unsaved changes. Are you sure you want to sign out?'
-        );
-        if (!confirmed) return;
+      );
+      if (!confirmed) return;
     }
 
-    // ANALYTICS TRACKING - End Session Before Logout
+    // Track admin session analytics
     try {
       const analyticsSession = JSON.parse(localStorage.getItem('admin_analytics_session') || '{}');
       
@@ -242,7 +266,6 @@ const AdminDashboard = () => {
         const sectionsVisited = analyticsSession.sectionsVisited || ['dashboard'];
         const actionsPerformed = analyticsSession.actionsPerformed || 1;
 
-        // Track the admin session
         await analyticsService.trackAdminSession(
           startTime,
           endTime,
@@ -250,28 +273,34 @@ const AdminDashboard = () => {
           actionsPerformed
         );
 
-        // Clear analytics session
         localStorage.removeItem('admin_analytics_session');
       }
     } catch (analyticsError) {
-      console.warn('⚠️ Analytics session tracking failed:', analyticsError);
+      console.warn('Analytics session tracking failed:', analyticsError);
     }
     
     setHasUnsavedChanges(false);
     
     try {
-        await signOut();
+      await signOut();
+      
+      // Use encrypted navigation for sign out
+      const navResult = routeNavigation.navigateToAdminSignOut({ replace: true });
+      
+      if (!navResult.success) {
+        // Fallback navigation
         window.location.href = '/adminsignout';
+      }
     } catch (error) {
-        console.error('Error during sign out:', error);
-        window.location.href = '/adminsignout';
+      console.error('Error during sign out:', error);
+      window.location.href = '/adminsignout';
     }
   };
 
   // Enhanced go back functionality
   const goBack = () => {
     if (sectionHistory.length > 1) {
-      const previousSection = sectionHistory[1]; // Get the one before current
+      const previousSection = sectionHistory[1];
       handleSectionChange(previousSection);
     }
   };
@@ -289,7 +318,7 @@ const AdminDashboard = () => {
           dashboard: { ...prev.dashboard, data: stats, loaded: true }
         }));
       } else {
-        await loadSectionData(activeSection); // Reload current section data
+        await loadSectionData(activeSection);
       }
     } catch (error) {
       console.error(`Error refreshing section ${activeSection}:`, error);
@@ -303,7 +332,7 @@ const AdminDashboard = () => {
     handleSectionChange('dashboard');
   };
 
-  // Load portfolio statistics on initial mount for dashboard
+  // Load portfolio statistics on initial mount
   useEffect(() => {
     const loadDashboardData = async () => {
       setIsLoading(true);
@@ -322,27 +351,24 @@ const AdminDashboard = () => {
       }
     };
     loadDashboardData();
-  }, []); // Empty dependency array: runs once on mount
+  }, []);
 
-  // Handle URL changes (browser back/forward) and initial URL section
+  // Handle URL changes (browser back/forward)
   useEffect(() => {
     const handlePopState = (event) => {
       const sectionFromUrl = event.state?.section || 
                              new URLSearchParams(window.location.search).get('section') || 
                              'dashboard';
       if (sectionFromUrl !== activeSection) {
-        // Don't call handleSectionChange directly to avoid loop with history.pushState
-        // Just update the activeSection state, data loading will be handled if needed
         setActiveSection(sectionFromUrl);
         if (!sectionStates[sectionFromUrl]?.loaded && sectionFromUrl !== 'dashboard') {
-            loadSectionData(sectionFromUrl);
+          loadSectionData(sectionFromUrl);
         }
       }
     };
 
     window.addEventListener('popstate', handlePopState);
     
-    // Handle initial URL on load
     const urlParams = new URLSearchParams(window.location.search);
     const initialSectionFromUrl = urlParams.get('section');
     if (initialSectionFromUrl && initialSectionFromUrl !== activeSection) {
@@ -353,13 +379,13 @@ const AdminDashboard = () => {
     }
 
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [activeSection, sectionStates, loadSectionData]); // Dependencies are important here
+  }, [activeSection, sectionStates, loadSectionData]);
 
   // Enhanced keyboard shortcuts
   useEffect(() => {
     const handleKeyPress = (e) => {
-      if (e.ctrlKey || e.metaKey) { // Check for Ctrl (Windows/Linux) or Cmd (Mac)
-        switch (e.key.toLowerCase()) { // Use toLowerCase for case-insensitivity
+      if (e.ctrlKey || e.metaKey) {
+        switch (e.key.toLowerCase()) {
           case '1': e.preventDefault(); handleSectionChange('dashboard'); break;
           case '2': e.preventDefault(); handleSectionChange('projects'); break;
           case '3': e.preventDefault(); handleSectionChange('contact'); break;
@@ -371,9 +397,9 @@ const AdminDashboard = () => {
           case 'b': e.preventDefault(); handleSectionChange('analytics'); break;
           case 's':
             e.preventDefault();
-            if (e.shiftKey) { // Ctrl/Cmd + Shift + S for skills
+            if (e.shiftKey) {
               handleSectionChange('skills');
-            } else { // Ctrl/Cmd + S for save
+            } else {
               handleQuickSave();
             }
             break;
@@ -389,19 +415,28 @@ const AdminDashboard = () => {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [handleSectionChange, handleQuickSave, togglePreview]); // Add togglePreview to dependencies
+  }, [handleSectionChange, handleQuickSave, togglePreview]);
 
   // Auto-save functionality
   useEffect(() => {
     let autoSaveInterval;
-    if (hasUnsavedChanges) { // Only run interval if there are unsaved changes
+    if (hasUnsavedChanges) {
       autoSaveInterval = setInterval(() => {
         handleAutoSave();
       }, 30000); // 30 seconds
     }
-    return () => clearInterval(autoSaveInterval); // Clear interval on unmount or when no unsaved changes
+    return () => clearInterval(autoSaveInterval);
   }, [hasUnsavedChanges, handleAutoSave]);
 
+  // Show loading if navigation not ready
+  if (!navigationReady) {
+    return (
+      <div className="admin-loading">
+        <LoadingSpinner />
+        <p>Setting up secure dashboard...</p>
+      </div>
+    );
+  }
 
   // Render enhanced dashboard overview
   const renderDashboardOverview = () => (
@@ -413,174 +448,164 @@ const AdminDashboard = () => {
         <p className="overview-subtitle">Your portfolio command center</p>
       </div>
 
-    <div className="stats-grid">
+      <div className="stats-grid">
         {isLoading && !portfolioStats ? (
-            <div className="loading-stats" style={{ gridColumn: '1 / -1' }}>
+          <div className="loading-stats" style={{ gridColumn: '1 / -1' }}>
             <LoadingSpinner />
             <p>Loading portfolio statistics...</p>
-            </div>
+          </div>
         ) : portfolioStats ? (
-            <>
-            {/* Projects Card - Clickable */}
+          <>
+            {/* Stats cards with click handlers */}
             <div 
-                className="stat-card cyan-glow" 
-                onClick={() => handleSectionChange('projects')}
-                style={{ cursor: 'pointer' }}
-                title="Click to manage projects"
+              className="stat-card cyan-glow" 
+              onClick={() => handleSectionChange('projects')}
+              style={{ cursor: 'pointer' }}
+              title="Click to manage projects"
             >
-                <div className="stat-icon">💻</div>
-                <div className="stat-content">
+              <div className="stat-icon">💻</div>
+              <div className="stat-content">
                 <h3>{portfolioStats.projects || 0}</h3>
                 <p>Active Projects</p>
-                </div>
+              </div>
             </div>
 
-            {/* Internships Card - Clickable */}
             <div 
-                className="stat-card purple-glow"
-                onClick={() => handleSectionChange('internships')}
-                style={{ cursor: 'pointer' }}
-                title="Click to manage internships"
+              className="stat-card purple-glow"
+              onClick={() => handleSectionChange('internships')}
+              style={{ cursor: 'pointer' }}
+              title="Click to manage internships"
             >
-                <div className="stat-icon">🏢</div>
-                <div className="stat-content">
+              <div className="stat-icon">🏢</div>
+              <div className="stat-content">
                 <h3>{portfolioStats.internships || 0}</h3>
                 <p>Internships</p>
-                </div>
+              </div>
             </div>
 
-            {/* Education Card - Clickable */}
             <div 
-                className="stat-card orange-glow"
-                onClick={() => handleSectionChange('education')}
-                style={{ cursor: 'pointer' }}
-                title="Click to manage education"
+              className="stat-card orange-glow"
+              onClick={() => handleSectionChange('education')}
+              style={{ cursor: 'pointer' }}
+              title="Click to manage education"
             >
-                <div className="stat-icon">🎓</div>
-                <div className="stat-content">
+              <div className="stat-icon">🎓</div>
+              <div className="stat-content">
                 <h3>{portfolioStats.education || 0}</h3>
                 <p>Education Entries</p>
-                </div>
+              </div>
             </div>
 
-            {/* Work Experience Card - Clickable */}
             <div 
-                className="stat-card red-glow"
-                onClick={() => handleSectionChange('work')}
-                style={{ cursor: 'pointer' }}
-                title="Click to manage work experience"
+              className="stat-card red-glow"
+              onClick={() => handleSectionChange('work')}
+              style={{ cursor: 'pointer' }}
+              title="Click to manage work experience"
             >
-                <div className="stat-icon">💼</div>
-                <div className="stat-content">
+              <div className="stat-icon">💼</div>
+              <div className="stat-content">
                 <h3>{portfolioStats.workExperience || 0}</h3>
                 <p>Work Experiences</p>
-                </div>
+              </div>
             </div>
 
-            {/* Skills Card - Clickable */}
             <div 
-                className="stat-card yellow-glow"
-                onClick={() => handleSectionChange('skills')}
-                style={{ cursor: 'pointer' }}
-                title="Click to manage skills"
+              className="stat-card yellow-glow"
+              onClick={() => handleSectionChange('skills')}
+              style={{ cursor: 'pointer' }}
+              title="Click to manage skills"
             >
-                <div className="stat-icon">⚡</div>
-                <div className="stat-content">
+              <div className="stat-icon">⚡</div>
+              <div className="stat-content">
                 <h3>{portfolioStats.skills || 0}</h3>
                 <p>Skills Listed</p>
-                </div>
+              </div>
             </div>
 
-            {/* Certifications Card - Clickable */}
             <div 
-                className="stat-card indigo-glow"
-                onClick={() => handleSectionChange('certifications')}
-                style={{ cursor: 'pointer' }}
-                title="Click to manage certifications"
+              className="stat-card indigo-glow"
+              onClick={() => handleSectionChange('certifications')}
+              style={{ cursor: 'pointer' }}
+              title="Click to manage certifications"
             >
-                <div className="stat-icon">🏆</div>
-                <div className="stat-content">
+              <div className="stat-icon">🏆</div>
+              <div className="stat-content">
                 <h3>{portfolioStats.certifications || 0}</h3>
                 <p>Certifications</p>
-                </div>
+              </div>
             </div>
 
-            {/* Recommendations Card - Clickable */}
             <div 
-                className="stat-card teal-glow"
-                onClick={() => handleSectionChange('recommendations')}
-                style={{ cursor: 'pointer' }}
-                title="Click to manage recommendations"
+              className="stat-card teal-glow"
+              onClick={() => handleSectionChange('recommendations')}
+              style={{ cursor: 'pointer' }}
+              title="Click to manage recommendations"
             >
-                <div className="stat-icon">⭐</div>
-                <div className="stat-content">
+              <div className="stat-icon">⭐</div>
+              <div className="stat-content">
                 <h3>{portfolioStats.recommendations || 0}</h3>
                 <p>Recommendations</p>
-                </div>
+              </div>
             </div>
 
-            {/* Achievements Card - Clickable */}
             <div 
-                className="stat-card lime-glow"
-                onClick={() => handleSectionChange('achievements')}
-                style={{ cursor: 'pointer' }}
-                title="Click to manage achievements"
+              className="stat-card lime-glow"
+              onClick={() => handleSectionChange('achievements')}
+              style={{ cursor: 'pointer' }}
+              title="Click to manage achievements"
             >
-                <div className="stat-icon">🥇</div>
-                <div className="stat-content">
+              <div className="stat-icon">🥇</div>
+              <div className="stat-content">
                 <h3>{portfolioStats.achievements || 0}</h3>
                 <p>Achievements</p>
-                </div>
+              </div>
             </div>
 
-            {/* Leadership Card - Clickable */}
             <div 
-                className="stat-card violet-glow"
-                onClick={() => handleSectionChange('leadership')}
-                style={{ cursor: 'pointer' }}
-                title="Click to manage leadership"
+              className="stat-card violet-glow"
+              onClick={() => handleSectionChange('leadership')}
+              style={{ cursor: 'pointer' }}
+              title="Click to manage leadership"
             >
-                <div className="stat-icon">👑</div>
-                <div className="stat-content">
+              <div className="stat-icon">👑</div>
+              <div className="stat-content">
                 <h3>{portfolioStats.leadership || 0}</h3>
                 <p>Leadership Roles</p>
-                </div>
+              </div>
             </div>
 
-            {/* Contact Messages Card - Clickable */}
             <div 
-                className="stat-card rose-glow"
-                onClick={() => handleSectionChange('contact')}
-                style={{ cursor: 'pointer' }}
-                title="Click to view contact messages"
+              className="stat-card rose-glow"
+              onClick={() => handleSectionChange('contact')}
+              style={{ cursor: 'pointer' }}
+              title="Click to view contact messages"
             >
-                <div className="stat-icon">📧</div>
-                <div className="stat-content">
+              <div className="stat-icon">📧</div>
+              <div className="stat-content">
                 <h3>{portfolioStats.messages || 0}</h3>
                 <p>New Messages</p>
-                </div>
+              </div>
             </div>
 
-            {/* Analytics Card - Clickable */}
             <div 
-                className="stat-card emerald-glow" 
-                onClick={() => handleSectionChange('analytics')}
-                style={{ cursor: 'pointer' }}
-                title="Click to view analytics dashboard"
+              className="stat-card emerald-glow" 
+              onClick={() => handleSectionChange('analytics')}
+              style={{ cursor: 'pointer' }}
+              title="Click to view analytics dashboard"
             >
-                <div className="stat-icon">📈</div>
-                <div className="stat-content">
+              <div className="stat-icon">📈</div>
+              <div className="stat-content">
                 <h3>Analytics</h3>
                 <p>Performance Insights</p>
-                </div>
+              </div>
             </div>
-            </>
+          </>
         ) : (
-            <div className="loading-stats" style={{ gridColumn: '1 / -1', textAlign: 'center' }}>
+          <div className="loading-stats" style={{ gridColumn: '1 / -1', textAlign: 'center' }}>
             <p>Could not load statistics.</p>
-            </div>
+          </div>
         )}
-    </div>
+      </div>
 
       <div className="quick-actions">
         <h3 className="quick-actions-title">Quick Actions</h3>
@@ -589,28 +614,28 @@ const AdminDashboard = () => {
             className="action-btn primary-action"
             onClick={() => handleSectionChange('projects')}
           >
-            <span className="btn-icon" role="img" aria-label="Add Project">➕</span>
+            <span className="btn-icon">➕</span>
             Add New Project
           </button>
           <button 
             className="action-btn secondary-action"
             onClick={() => handleSectionChange('contact')}
           >
-            <span className="btn-icon" role="img" aria-label="Check Messages">📧</span>
+            <span className="btn-icon">📧</span>
             Check Messages
           </button>
           <button 
             className="action-btn tertiary-action"
             onClick={togglePreview}
           >
-            <span className="btn-icon" role="img" aria-label="Preview Portfolio">👁️</span>
+            <span className="btn-icon">👁️</span>
             Preview Portfolio
           </button>
           <button 
             className="action-btn primary-action"
             onClick={() => handleSectionChange('analytics')}
           >
-            <span className="btn-icon" role="img" aria-label="View Analytics">📈</span>
+            <span className="btn-icon">📈</span>
             View Analytics
           </button>
         </div>
@@ -625,96 +650,80 @@ const AdminDashboard = () => {
   );
 
   // Render section content
-  // Render section content
-    const renderSectionContent = () => {
-        if (activeSection === 'dashboard') {
-            return renderDashboardOverview();
-        }
+  const renderSectionContent = () => {
+    if (activeSection === 'dashboard') {
+      return renderDashboardOverview();
+    }
 
-        const currentSection = dashboardSections.find(s => s.id === activeSection);
-        const currentSectionData = sectionStates[activeSection]?.data;
+    const currentSection = dashboardSections.find(s => s.id === activeSection);
+    const currentSectionData = sectionStates[activeSection]?.data;
 
-        if (sectionLoading && !currentSectionData) {
-            return (
-            <div className="admin-section-content" style={{textAlign: 'center', paddingTop: '50px'}}>
-                <LoadingSpinner />
-                <p>Loading {currentSection?.name}...</p>
+    if (sectionLoading && !currentSectionData) {
+      return (
+        <div className="admin-section-content" style={{textAlign: 'center', paddingTop: '50px'}}>
+          <LoadingSpinner />
+          <p>Loading {currentSection?.name}...</p>
+        </div>
+      );
+    }
+
+    // Handle specific sections with dedicated managers
+    switch (activeSection) {
+      case 'hero':
+        return <HeroContentManager />;
+      case 'about':
+        return <AboutSectionManager />;
+      case 'projects':
+        return <ProjectsManager />;
+      case 'internships':
+        return <InternshipsManager />;
+      case 'education':
+        return <EducationManager />;
+      case 'work':
+        return <WorkExperienceManager />;
+      case 'skills':
+        return <SkillsManager />;
+      case 'certifications':
+        return <CertificationsManager />;
+      case 'recommendations':
+        return <RecommendationsManager />;
+      case 'achievements':
+        return <AchievementsManager />;
+      case 'leadership':
+        return <LeadershipManager />;
+      case 'contact':
+        return <ContactMessagesManager />;
+      case 'analytics':
+        return <AnalyticsDashboard />;
+      default:
+        return (
+          <div className="admin-section-content">
+            <div className="admin-section-header">
+              <h2 className="admin-section-title">
+                <span className="admin-section-icon">{currentSection?.icon}</span>
+                {currentSection?.name}
+              </h2>
+              <p className="admin-section-subtitle">
+                Manage your {currentSection?.name.toLowerCase()} content here.
+              </p>
             </div>
-            );
-        }
-
-        // Handle specific sections with dedicated managers
-        switch (activeSection) {
-            case 'hero':
-                return <HeroContentManager />;
-
-            case 'about':
-                return <AboutSectionManager />;
-
-            case 'projects':
-                return <ProjectsManager />;
-
-            case 'internships':
-                return <InternshipsManager />;
-
-            case 'education':
-                return <EducationManager />;
-
-            case 'work':
-                return <WorkExperienceManager />;
-
-            case 'skills':
-                return <SkillsManager />;
-
-            case 'certifications':
-                return <CertificationsManager />;
-
-            case 'recommendations':
-                return <RecommendationsManager />;
-
-            case 'achievements':
-                return <AchievementsManager />;
-
-            case 'leadership':
-                return <LeadershipManager />;
-
-            case 'contact':
-                return <ContactMessagesManager />;
-
-            case 'analytics':
-                return <AnalyticsDashboard />;
             
-            default:
-            // Placeholder for sections not yet implemented
-            return (
-                <div className="admin-section-content">
-                <div className="admin-section-header">
-                    <h2 className="admin-section-title">
-                    <span className="admin-section-icon" role="img" aria-label={currentSection?.name}>{currentSection?.icon}</span>
-                    {currentSection?.name}
-                    </h2>
-                    <p className="admin-section-subtitle">
-                    Manage your {currentSection?.name.toLowerCase()} content here.
-                    </p>
-                </div>
-                
-                <div className="section-placeholder">
-                    <div className="placeholder-content">
-                    <div className="placeholder-icon" role="img" aria-label="Under Construction">🚧</div>
-                    <h3>Content Management for "{currentSection?.name}"</h3>
-                    <p>
-                        The interface for managing {currentSection?.name.toLowerCase()} will be implemented here.
-                        {currentSectionData ? ` (Loaded: ${JSON.stringify(currentSectionData).substring(0,50)}...)` : ' (No data loaded yet)'}
-                    </p>
-                    <button className="placeholder-btn" onClick={returnToDashboard}>
-                        Return to Dashboard
-                    </button>
-                    </div>
-                </div>
-                </div>
-            );
-        }
-    };
+            <div className="section-placeholder">
+              <div className="placeholder-content">
+                <div className="placeholder-icon">🚧</div>
+                <h3>Content Management for "{currentSection?.name}"</h3>
+                <p>
+                  The interface for managing {currentSection?.name.toLowerCase()} will be implemented here.
+                </p>
+                <button className="placeholder-btn" onClick={returnToDashboard}>
+                  Return to Dashboard
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+    }
+  };
 
   // Loading state for the entire dashboard
   if (isLoading && activeSection === 'dashboard' && !portfolioStats) {
@@ -755,7 +764,7 @@ const AdminDashboard = () => {
               disabled={sectionHistory.length <= 1}
               title="Go Back"
             >
-              <span role="img" aria-label="Go back">←</span>
+              <span>←</span>
             </button>
             
             <div className="breadcrumb">
@@ -786,7 +795,7 @@ const AdminDashboard = () => {
               onClick={togglePreview}
               title="Preview Portfolio (Ctrl/Cmd + P)"
             >
-              <span className="btn-icon" role="img" aria-label="Preview">👁️</span>
+              <span className="btn-icon">👁️</span>
               Preview
             </button>
             <button 
@@ -795,7 +804,7 @@ const AdminDashboard = () => {
               title="Refresh Section"
               disabled={sectionLoading}
             >
-              <span className="btn-icon" role="img" aria-label="Refresh">🔄</span>
+              <span className="btn-icon">🔄</span>
               {sectionLoading && activeSection !== 'dashboard' ? 'Loading...' : 'Refresh'}
             </button>
             {hasUnsavedChanges && (
@@ -804,7 +813,7 @@ const AdminDashboard = () => {
                 onClick={handleQuickSave}
                 title="Quick Save (Ctrl/Cmd + S)"
               >
-                <span className="btn-icon" role="img" aria-label="Save">💾</span>
+                <span className="btn-icon">💾</span>
                 Save
               </button>
             )}
@@ -815,39 +824,38 @@ const AdminDashboard = () => {
               <span className="profile-name">RC</span>
               <span className="profile-role">Administrator</span>
             </div>
-            {/* <div className="profile-actions"> */}
-              <button 
-                className="signout-btn"
-                onClick={handleSignOut}
-                title="Sign Out"
-              >
-                <span className="btn-icon" role="img" aria-label="Sign Out">🚪</span>
-                Sign Out
-              </button>
-            {/* </div> */}
+            <button 
+              className="signout-btn"
+              onClick={handleSignOut}
+              title="Sign Out"
+            >
+              <span className="btn-icon">🚪</span>
+              Sign Out
+            </button>
           </div>
         </div>
       </header>
 
       <div className="dashboard-body">
-         <div className="admin-sidebar-overlay" onClick={() => {
-            const sidebar = document.querySelector('.admin-sidebar');
-            const overlay = document.querySelector('.admin-sidebar-overlay');
-            sidebar?.classList.remove('mobile-open');
-            overlay?.classList.remove('active');
-          }}></div>
+        <div className="admin-sidebar-overlay" onClick={() => {
+          const sidebar = document.querySelector('.admin-sidebar');
+          const overlay = document.querySelector('.admin-sidebar-overlay');
+          sidebar?.classList.remove('mobile-open');
+          overlay?.classList.remove('active');
+        }}></div>
+        
         <aside className="admin-sidebar">
           <nav className="sidebar-nav">
             {dashboardSections.map(section => (
               <button
                 key={section.id}
                 className={`nav-item ${activeSection === section.id ? 'active' : ''}`}
-                data-section={section.id} // <<< CRITICAL FIX: ADD THIS ATTRIBUTE
+                data-section={section.id}
                 onClick={() => handleSectionChange(section.id)}
-                disabled={sectionLoading && activeSection !== section.id} // Disable only if loading a DIFFERENT section
+                disabled={sectionLoading && activeSection !== section.id}
                 title={section.name + (section.shortcut ? ` (Ctrl/Cmd + ${section.shortcut.toUpperCase()})` : '')}
               >
-                <span className="nav-icon" role="img" aria-label={section.name}>{section.icon}</span>
+                <span className="nav-icon">{section.icon}</span>
                 <span className="nav-text">{section.name}</span>
                 {sectionStates[section.id]?.hasChanges && (
                   <span className="nav-changes-indicator" title="Unsaved changes">●</span>
@@ -862,21 +870,21 @@ const AdminDashboard = () => {
 
         <main className="admin-main">
           {sectionLoading && activeSection !== 'dashboard' ? (
-             <div style={{textAlign: 'center', paddingTop: '50px'}}>
-                <LoadingSpinner />
-                <p>Loading {dashboardSections.find(s => s.id === activeSection)?.name}...</p>
+            <div style={{textAlign: 'center', paddingTop: '50px'}}>
+              <LoadingSpinner />
+              <p>Loading {dashboardSections.find(s => s.id === activeSection)?.name}...</p>
             </div>
           ) : renderSectionContent()}
         </main>
       </div>
 
       {showPreview && (
-        <div className="preview-modal"> {/* Ensure z-index is high enough if needed */}
+        <div className="preview-modal">
           <div className="preview-backdrop" onClick={togglePreview}></div>
           <div className="preview-container">
             <div className="preview-header">
               <div className="preview-title">
-                <span className="preview-icon" role="img" aria-label="Preview">👁️</span>
+                <span className="preview-icon">👁️</span>
                 Portfolio Preview
               </div>
 
@@ -887,26 +895,26 @@ const AdminDashboard = () => {
                     onClick={() => handlePreviewModeChange('desktop')}
                     title="Desktop Mode"
                   >
-                    <span role="img" aria-label="Desktop mode">🖥️</span>
+                    <span>🖥️</span>
                   </button>
                   <button 
                     className={`preview-control-btn ${previewMode === 'tablet' ? 'active' : ''}`}
                     onClick={() => handlePreviewModeChange('tablet')}
                     title="Tablet Mode"
                   >
-                    <span role="img" aria-label="Tablet mode">📱</span>
+                    <span>📱</span>
                   </button>
                   <button 
                     className={`preview-control-btn ${previewMode === 'mobile' ? 'active' : ''}`}
                     onClick={() => handlePreviewModeChange('mobile')}
                     title="Mobile Mode"
                   >
-                   <span role="img" aria-label="Mobile mode">📲</span>
+                    <span>📲</span>
                   </button>
                 </div>
 
                 <button className="preview-close-btn" onClick={togglePreview} title="Close Preview">
-                  <span role="img" aria-label="Close">✕</span>
+                  <span>✕</span>
                 </button>
               </div>
             </div>
@@ -914,19 +922,19 @@ const AdminDashboard = () => {
             <div className="preview-content">
               <div className={`preview-iframe-container ${previewMode}`}>
                 <iframe
-                  src={previewUrl} // Make sure previewUrl is a valid URL
+                  src={previewUrl}
                   title="Portfolio Preview"
                   className={`preview-iframe ${previewMode}`}
                   frameBorder="0"
-                  key={previewUrl} // Force re-render if URL changes
-                  sandbox="allow-scripts allow-same-origin" // For security if previewing external/dynamic content
+                  key={previewUrl}
+                  sandbox="allow-scripts allow-same-origin"
                 />
               </div>
               
               <div className="preview-stats-bar">
                 <div className="preview-stats-left">
                   <div className="preview-stat-item">
-                    <span className="preview-stat-icon" role="img" aria-label="Current view mode">📐</span>
+                    <span className="preview-stat-icon">📐</span>
                     <span className="preview-mode-indicator">
                       {previewMode === 'desktop' && 'Desktop View'}
                       {previewMode === 'tablet' && 'Tablet View'}
@@ -934,7 +942,7 @@ const AdminDashboard = () => {
                     </span>
                   </div>
                   <div className="preview-stat-item">
-                    <span className="preview-stat-icon" role="img" aria-label="Device width">↔️</span>
+                    <span className="preview-stat-icon">↔️</span>
                     <span className="preview-device-info">
                       {previewMode === 'desktop' && 'Full Width'}
                       {previewMode === 'tablet' && '~768px Wide'}
@@ -944,13 +952,12 @@ const AdminDashboard = () => {
                 </div>
                 <div className="preview-stats-right">
                   <div className="preview-stat-item">
-                    <span className="preview-stat-icon" role="img" aria-label="Status">⚡</span>
+                    <span className="preview-stat-icon">⚡</span>
                     <span className="preview-performance-indicator">Live Preview</span>
                   </div>
                   <div className="preview-stat-item">
-                    <span className="preview-stat-icon" role="img" aria-label="Last updated">🕒</span>
+                    <span className="preview-stat-icon">🕒</span>
                     <span className="preview-last-updated">
-                      {/* Ensure lastUpdated is a string */}
                       {lastUpdated ? `Updated: ${typeof lastUpdated === 'string' ? (lastUpdated.split(',')[1]?.trim() || lastUpdated) : new Date(lastUpdated).toLocaleTimeString()}` : 'Recently Updated'}
                     </span>
                   </div>

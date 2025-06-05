@@ -1,4 +1,4 @@
-// src/App.js
+// src/App.js - PRODUCTION VERSION (Test imports removed)
 
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
@@ -9,18 +9,47 @@ import './styles/globals.css';
 import { AuthProvider } from './contexts/AuthContext';
 import { viewportUtils } from './utils/viewportUtils';
 
+// 🔐 PRODUCTION: Import encryption system (no test files)
+import routeEncoder from './utils/routeEncoder';
+import routeNavigation from './utils/routeNavigation';
+
 function App() {
-  // Add viewport fixes - this won't interfere with existing functionality
+  // 🔐 Initialize encryption system (production version)
   useEffect(() => {
-    // Initialize viewport fixes immediately
+    // Make encryption system available for internal use
+    if (typeof window !== 'undefined') {
+      window.routeEncoder = routeEncoder;
+      window.routeNavigation = routeNavigation;
+      
+      // Initialize encryption system silently in production
+      try {
+        console.log('🔐 Admin security system initialized');
+        
+        // Initialize admin routes if not already done
+        const routes = routeEncoder.getStoredAdminRoutes();
+        
+        // Only log in development
+        if (process.env.NODE_ENV === 'development') {
+          console.log('📍 Admin routes ready:', routes);
+        }
+        
+      } catch (error) {
+        // Silent fallback in production
+        if (process.env.NODE_ENV === 'development') {
+          console.error('❌ Encryption system error:', error);
+        }
+      }
+    }
+  }, []);
+
+  // Add viewport fixes
+  useEffect(() => {
     viewportUtils.init();
     
-    // Apply additional fixes after component mount
     const timer = setTimeout(() => {
       viewportUtils.reset();
     }, 100);
     
-    // Cleanup timer
     return () => clearTimeout(timer);
   }, []);
 
@@ -31,11 +60,9 @@ function App() {
                         !window.location.hostname.includes('local');
     
     if (isProduction) {
-      // Apply production-specific fixes only
       document.documentElement.classList.add('production-environment');
       document.body.classList.add('production-environment');
       
-      // Force consistent scaling in production
       const applyProductionFixes = () => {
         const html = document.documentElement;
         const body = document.body;
