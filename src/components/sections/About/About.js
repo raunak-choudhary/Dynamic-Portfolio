@@ -1,5 +1,7 @@
 // src/components/sections/About/About.js - FIXED FOR ARRAY FORMAT
 
+import { useEffect, useRef } from 'react';
+import visitorTracking from '../../../services/visitorTrackingService';
 import React, { useState } from 'react';
 import { portfolioData } from '../../../data/portfolioData';
 import { useSupabase } from '../../../hooks/useSupabase';
@@ -34,6 +36,21 @@ const convertBasicInfoToObject = (basicInfoArray) => {
 };
 
 const About = () => {
+  const hasTracked = useRef(false);
+  const { startTracking, stopTracking } = visitorTracking.useTimeTracking('about', 'main');
+
+  useEffect(() => {
+    if (!hasTracked.current) {
+      hasTracked.current = true;
+      startTracking();
+      visitorTracking.trackSectionView('about', 'main');
+    }
+
+    return () => {
+      stopTracking();
+    };
+  }, [startTracking, stopTracking]);
+  
   const [activeTab, setActiveTab] = useState('about');
 
   // Fetch about data with real-time updates

@@ -1,4 +1,4 @@
-// src/components/admin/AdminDashboard/sections/InternshipsManager.js
+// src/components/admin/AdminDashboard/sections/InternshipsManager.js - Part 1
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSupabase } from '../../../../hooks/useSupabase';
@@ -82,6 +82,11 @@ const InternshipsManager = () => {
   // Delete confirmation modal state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [internshipToDelete, setInternshipToDelete] = useState(null);
+
+  // FIXED: Added specific modals for logo and certificate deletion
+  const [showLogoDeleteModal, setShowLogoDeleteModal] = useState(false);
+  const [showCertDeleteModal, setShowCertDeleteModal] = useState(false);
+  const [certificateToDelete, setCertificateToDelete] = useState(null);
 
   // Technology suggestions for autocomplete
   const technologySuggestions = [
@@ -385,7 +390,7 @@ const InternshipsManager = () => {
   }, []);
 
   // ============================================================================
-  // FILE UPLOAD HANDLING - COMPANY LOGO AND CERTIFICATES
+  // FIXED: FILE UPLOAD HANDLING - COMPANY LOGO WITH STORAGE DELETION
   // ============================================================================
   
   const handleLogoUpload = useCallback(async (file) => {
@@ -462,11 +467,79 @@ const InternshipsManager = () => {
     }
   }, [handleInputChange]);
 
+  // FIXED: Logo removal with storage deletion
+  const removeLogo = useCallback(() => {
+    setShowLogoDeleteModal(true);
+  }, []);
+
+  const confirmLogoDelete = useCallback(async () => {
+    if (!formData.company_logo_url) return;
+
+    try {
+      // Import Supabase client for file deletion
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabaseAdmin = createClient(
+        process.env.REACT_APP_SUPABASE_URL,
+        process.env.REACT_APP_SUPABASE_SERVICE_ROLE_KEY
+      );
+
+      // Extract file path from URL
+      const filePath = formData.company_logo_url.split('/storage/v1/object/public/organization-logos/')[1];
+      
+      if (filePath) {
+        // Delete file from storage
+        const { error: storageError } = await supabaseAdmin.storage
+          .from('organization-logos')
+          .remove([filePath]);
+
+        if (storageError) {
+          console.warn('⚠️ Could not delete logo file from storage:', storageError);
+        }
+      }
+
+      // Remove logo URL from form
+      handleInputChange('company_logo_url', '');
+      
+      setUiState(prev => ({ 
+        ...prev, 
+        saveStatus: 'success',
+        statusMessageContent: 'Company logo deleted successfully.'
+      }));
+
+    } catch (error) {
+      console.error('Logo delete error:', error);
+      setValidationErrors(prev => ({
+        ...prev,
+        company_logo: error.message || 'Failed to delete logo'
+      }));
+    } finally {
+      setShowLogoDeleteModal(false);
+    }
+  }, [formData.company_logo_url, handleInputChange]);
+
+  const cancelLogoDelete = useCallback(() => {
+    setShowLogoDeleteModal(false);
+  }, []);
+
+  // ============================================================================
+  // FIXED: CERTIFICATES UPLOAD WITH PROPER FILE TYPE VALIDATION
+  // ============================================================================
+  
   const handleCertificatesUpload = useCallback(async (files) => {
     if (!files || files.length === 0) return;
 
     const maxSize = 10 * 1024 * 1024; // 10MB per file
-    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    // FIXED: Expanded allowed types to include all common certificate formats
+    const allowedTypes = [
+      'application/pdf',
+      'image/jpeg', 
+      'image/jpg', 
+      'image/png', 
+      'image/webp',
+      'image/gif',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
     const maxFiles = 5;
 
     // Validate files
@@ -486,10 +559,16 @@ const InternshipsManager = () => {
         }));
         return;
       }
-      if (!allowedTypes.includes(file.type)) {
+      
+      // FIXED: Better file type validation that checks both MIME type and extension
+      const fileExtension = file.name.split('.').pop().toLowerCase();
+      const isValidMimeType = allowedTypes.includes(file.type);
+      const isValidExtension = ['pdf', 'jpg', 'jpeg', 'png', 'webp', 'gif', 'doc', 'docx'].includes(fileExtension);
+      
+      if (!isValidMimeType && !isValidExtension) {
         setValidationErrors(prev => ({
           ...prev,
-          certificates: `File ${file.name} has invalid type. Only PDF and image files are allowed`
+          certificates: `File ${file.name} has invalid type. Only PDF, JPEG, PNG, WebP, GIF, DOC, and DOCX files are allowed`
         }));
         return;
       }
@@ -508,7 +587,9 @@ const InternshipsManager = () => {
       const uploadPromises = Array.from(files).map(async (file, index) => {
         const timestamp = Date.now();
         const fileExtension = file.name.split('.').pop();
-        const fileName = `certificate-${timestamp}-${index + 1}.${fileExtension}`;
+        const internshipTitle = formData.title || 'internship';
+        const sanitizedTitle = internshipTitle.toLowerCase().replace(/[^a-z0-9]/g, '-');
+        const fileName = `${sanitizedTitle}-certificate-${timestamp}-${index + 1}.${fileExtension}`;
         const filePath = `internships/${fileName}`;
 
         // Upload to Supabase Storage
@@ -558,12 +639,66 @@ const InternshipsManager = () => {
       setCertificatesUploading(false);
       setUploadProgress(0);
     }
-  }, [formData.certificate_urls, handleInputChange]);
+  }, [formData.certificate_urls, formData.title, handleInputChange]);
 
+  // FIXED: Individual certificate removal with storage deletion
   const removeCertificate = useCallback((index) => {
-    const updatedCertificates = formData.certificate_urls.filter((_, i) => i !== index);
-    handleInputChange('certificate_urls', updatedCertificates);
-  }, [formData.certificate_urls, handleInputChange]);
+    const certificateUrl = formData.certificate_urls[index];
+    setCertificateToDelete({ index, url: certificateUrl });
+    setShowCertDeleteModal(true);
+  }, [formData.certificate_urls]);
+
+  const confirmCertificateDelete = useCallback(async () => {
+    if (!certificateToDelete) return;
+
+    try {
+      // Import Supabase client for file deletion
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabaseAdmin = createClient(
+        process.env.REACT_APP_SUPABASE_URL,
+        process.env.REACT_APP_SUPABASE_SERVICE_ROLE_KEY
+      );
+
+      // Extract file path from URL
+      const filePath = certificateToDelete.url.split('/storage/v1/object/public/documents/')[1];
+      
+      if (filePath) {
+        // Delete file from storage
+        const { error: storageError } = await supabaseAdmin.storage
+          .from('documents')
+          .remove([filePath]);
+
+        if (storageError) {
+          console.warn('⚠️ Could not delete certificate file from storage:', storageError);
+        }
+      }
+
+      // Remove certificate URL from form array
+      const updatedCertificates = formData.certificate_urls.filter((_, i) => i !== certificateToDelete.index);
+      handleInputChange('certificate_urls', updatedCertificates);
+      
+      setUiState(prev => ({ 
+        ...prev, 
+        saveStatus: 'success',
+        statusMessageContent: 'Certificate deleted successfully.'
+      }));
+
+    } catch (error) {
+      console.error('Certificate delete error:', error);
+      setValidationErrors(prev => ({
+        ...prev,
+        certificates: error.message || 'Failed to delete certificate'
+      }));
+    } finally {
+      setShowCertDeleteModal(false);
+      setCertificateToDelete(null);
+    }
+  }, [certificateToDelete, formData.certificate_urls, handleInputChange]);
+
+  const cancelCertificateDelete = useCallback(() => {
+    setShowCertDeleteModal(false);
+    setCertificateToDelete(null);
+  }, []);
 
   // ============================================================================
   // FORM VALIDATION - COMPREHENSIVE AND OPTIMIZED
@@ -1078,6 +1213,66 @@ const InternshipsManager = () => {
        </div>
      )}
 
+     {/* FIXED: Logo Delete Confirmation Modal */}
+     {showLogoDeleteModal && (
+       <div className="modal-overlay">
+         <div className="modal-content glass-card">
+           <h3 className="modal-title">
+             <span className="modal-icon">🏢</span> Confirm Logo Deletion
+           </h3>
+           <p className="modal-text">
+             Are you sure you want to delete this company logo? This action cannot be undone.
+           </p>
+           <div className="modal-actions">
+             <button
+               type="button"
+               className="action-btn cancel-btn"
+               onClick={cancelLogoDelete}
+             >
+               <span className="btn-icon">❌</span> Cancel
+             </button>
+             <button
+               type="button"
+               className="action-btn delete-btn-confirm primary"
+               onClick={confirmLogoDelete}
+             >
+               <span className="btn-icon">🗑️</span> Delete Logo
+             </button>
+           </div>
+         </div>
+       </div>
+     )}
+
+     {/* FIXED: Certificate Delete Confirmation Modal */}
+     {showCertDeleteModal && certificateToDelete && (
+       <div className="modal-overlay">
+         <div className="modal-content glass-card">
+           <h3 className="modal-title">
+             <span className="modal-icon">📄</span> Confirm Certificate Deletion
+           </h3>
+           <p className="modal-text">
+             Are you sure you want to delete this certificate? This action cannot be undone.
+           </p>
+           <div className="modal-actions">
+             <button
+               type="button"
+               className="action-btn cancel-btn"
+               onClick={cancelCertificateDelete}
+             >
+               <span className="btn-icon">❌</span> Cancel
+             </button>
+             <button
+               type="button"
+               className="action-btn delete-btn-confirm primary"
+               onClick={confirmCertificateDelete}
+             >
+               <span className="btn-icon">🗑️</span> Delete Certificate
+             </button>
+           </div>
+         </div>
+       </div>
+     )}
+
      {/* Main Content */}
      <div className={`internships-manager-content ${uiState.showPreview ? 'with-preview' : ''}`}>
        
@@ -1509,7 +1704,7 @@ const InternshipsManager = () => {
                      />
                      <button
                        type="button"
-                       onClick={() => handleInputChange('company_logo_url', '')}
+                       onClick={removeLogo}
                        className="remove-logo-btn"
                        title="Remove logo"
                      >
@@ -1767,73 +1962,76 @@ const InternshipsManager = () => {
                )}
              </div>
 
-             {/* Certificates Section */}
+             {/* Certificates Section - Fixed Layout like CertificationsManager */}
              <div className="form-section-group">
                <h4 className="section-title">
                  <span className="section-icon">📜</span>
                  Internship Certificates ({characterCounts.certificatesCount}/5)
                </h4>
                
-               <div className="certificates-grid">
-                 {formData.certificate_urls.map((url, index) => (
-                   <div key={index} className="certificate-item">
-                     <div className="certificate-preview">
-                       {url.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
-                         <img 
-                           src={url} 
-                           alt={`Certificate ${index + 1}`}
-                           className="preview-img"
-                           onError={(e) => {
-                             e.target.style.display = 'none';
-                           }}
-                         />
-                       ) : (
-                         <div className="document-preview">
-                           <div className="document-icon">📄</div>
-                           <div className="document-type">Certificate</div>
-                         </div>
-                       )}
-                       <button
-                         type="button"
-                         onClick={() => removeCertificate(index)}
-                         className="remove-certificate-btn"
-                         title="Remove certificate"
-                       >
-                         ❌
-                       </button>
+               {formData.certificate_urls.map((url, index) => (
+                 <div key={index} className="cert-upload-group">
+                   <label className="cert-upload-label">Certificate {index + 1}</label>
+                   <div className="current-file">
+                     <div className="file-preview">
+                       <div className="file-info">
+                         <span className="file-icon">📄</span>
+                         <span className="file-text">Certificate uploaded</span>
+                       </div>
+                       <div className="file-actions">
+                         <a 
+                           href={url} 
+                           target="_blank" 
+                           rel="noopener noreferrer"
+                           className="view-file-btn"
+                           title="View certificate"
+                         >
+                           👁️ View
+                         </a>
+                         <button
+                           type="button"
+                           onClick={() => removeCertificate(index)}
+                           className="remove-file-btn"
+                           title="Remove certificate"
+                         >
+                           🗑️ Delete
+                         </button>
+                       </div>
                      </div>
-                     <span className="certificate-index">Certificate {index + 1}</span>
                    </div>
-                 ))}
-               </div>
+                 </div>
+               ))}
 
                {formData.certificate_urls.length < 5 && (
-                 <div className="upload-section">
-                   <input
-                     type="file"
-                     accept=".pdf,image/*"
-                     multiple
-                     onChange={(e) => e.target.files.length > 0 && handleCertificatesUpload(e.target.files)}
-                     disabled={certificatesUploading}
-                     className="file-input"
-                     id="certificates-upload"
-                   />
-                   <label htmlFor="certificates-upload" className="upload-btn">
-                     {certificatesUploading ? (
-                       <>
-                         <LoadingSpinner size="small" />
-                         Uploading... {Math.round(uploadProgress)}%
-                       </>
-                     ) : (
-                       <>
-                         <span className="btn-icon">📜</span>
-                         Upload Certificates
-                       </>
-                     )}
-                   </label>
-                   <p className="upload-help">
-                     Select up to {5 - formData.certificate_urls.length} certificates (PDF, JPEG, PNG, WebP, max 10MB each)
-                   </p>
+                 <div className="cert-upload-group">
+                   <label className="cert-upload-label">Upload New Certificate</label>
+                   <div className="upload-section">
+                     <input
+                       type="file"
+                       accept=".pdf,.jpg,.jpeg,.png,.webp,.gif,.doc,.docx"
+                       multiple
+                       onChange={(e) => e.target.files.length > 0 && handleCertificatesUpload(e.target.files)}
+                       disabled={certificatesUploading}
+                       className="file-input"
+                       id="certificates-upload"
+                     />
+                     <label htmlFor="certificates-upload" className="upload-btn">
+                       {certificatesUploading ? (
+                         <>
+                           <LoadingSpinner size="small" />
+                           Uploading... {Math.round(uploadProgress)}%
+                         </>
+                       ) : (
+                         <>
+                           <span className="btn-icon">📜</span>
+                           Upload Certificates
+                         </>
+                       )}
+                     </label>
+                     <p className="upload-help">
+                       Upload certificates (PDF, JPEG, PNG, WebP, GIF, DOC, DOCX, max 10MB each)
+                     </p>
+                   </div>
                  </div>
                )}
 

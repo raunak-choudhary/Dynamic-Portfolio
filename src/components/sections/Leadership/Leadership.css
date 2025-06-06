@@ -170,7 +170,7 @@
 /* =================== FRONT SIDE =================== */
 
 .leadership-section .ldrpft-card-front {
-  padding: var(--spacing-lg);
+  padding: var(--spacing-md);
 }
 
 /* Featured Badge - TOP ABSOLUTE POSITION */
@@ -226,61 +226,11 @@
 /* Card Header */
 .leadership-section .ldrpft-card-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: flex-start;
-  margin-bottom: var(--spacing-lg);
-  margin-top: var(--spacing-2xl); /* Space for featured badge */
-  min-height: 100px;
-}
-
-.leadership-section .ldrpft-organization-initials-section {
-  display: flex;
-  justify-content: center;
-  flex: 1;
-}
-
-.leadership-section .ldrpft-organization-initials-large {
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #10B981, #14B8A6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--text-xl);
-  font-weight: 800;
-  color: var(--color-white);
-  border: 3px solid #EC4899;
-  box-shadow: 
-    0 0 25px rgba(16, 185, 129, 0.5),
-    inset 0 0 15px rgba(255, 255, 255, 0.1);
-  text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  transition: all var(--duration-normal) var(--ease-in-out);
-  position: relative;
-  overflow: hidden;
-}
-
-.leadership-section .ldrpft-organization-initials-large::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  transform: rotate(45deg);
-  transition: transform 0.8s ease-in-out;
-}
-
-.leadership-section .ldrpft-card-wrapper:hover .ldrpft-organization-initials-large {
-  transform: scale(1.1);
-  box-shadow: 
-    0 0 35px rgba(236, 72, 153, 0.6),
-    inset 0 0 20px rgba(255, 255, 255, 0.2);
-}
-
-.leadership-section .ldrpft-card-wrapper:hover .ldrpft-organization-initials-large::before {
-  transform: rotate(45deg) translateX(100%);
+  margin-bottom: var(--spacing-sm);
+  margin-top: var(--spacing-lg); /* Space for featured badge */
+  min-height: auto;
 }
 
 /* Flip Icon Button */
@@ -333,7 +283,7 @@
 /* Title Section */
 .leadership-section .ldrpft-title-section {
   text-align: center;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
 }
 
 .leadership-section .ldrpft-position-title {
@@ -361,7 +311,7 @@
 /* Organization Section */
 .leadership-section .ldrpft-organization-section {
   text-align: center;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
 }
 
 .leadership-section .ldrpft-organization-name {
@@ -548,7 +498,7 @@
 
 /* Skills Preview Section */
 .leadership-section .ldrpft-skills-preview-section {
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-xs);
 }
 
 .leadership-section .ldrpft-skills-header {
@@ -1280,12 +1230,6 @@
     padding: var(--spacing-md) 0;
   }
 
-  .leadership-section .ldrpft-organization-initials-large {
-    width: 80px;
-    height: 80px;
-    font-size: var(--text-lg);
-  }
-
   .leadership-section .ldrpft-flip-icon-btn {
     width: 36px;
     height: 36px;
@@ -1321,7 +1265,7 @@
 
   .leadership-section .ldrpft-card-front,
   .leadership-section .ldrpft-card-back {
-    padding: var(--spacing-md);
+    padding: var(--spacing-sm);
   }
 
   .leadership-section .ldrpft-position-title {
@@ -1332,12 +1276,6 @@
     grid-template-columns: 1fr;
     gap: var(--spacing-2xl);
     padding: var(--spacing-sm) 0;
-  }
-
-  .leadership-section .ldrpft-organization-initials-large {
-    width: 70px;
-    height: 70px;
-    font-size: var(--text-base);
   }
 
   .leadership-section .ldrpft-flip-icon-btn {
@@ -1393,7 +1331,7 @@
 
   .leadership-section .ldrpft-card-front,
   .leadership-section .ldrpft-card-back {
-    padding: var(--spacing-sm);
+    padding: var(--spacing-xs);
   }
 
   .leadership-section .ldrpft-position-title {
@@ -1402,12 +1340,6 @@
 
   .leadership-section .ldrpft-leadership-grid {
     gap: var(--spacing-xl);
-  }
-
-  .leadership-section .ldrpft-organization-initials-large {
-    width: 60px;
-    height: 60px;
-    font-size: var(--text-sm);
   }
 
   .leadership-section .ldrpft-flip-icon-btn {
@@ -1590,7 +1522,6 @@
   .leadership-section .ldrpft-hint-arrow,
   .leadership-section .ldrpft-floating-particle,
   .leadership-section .ldrpft-featured-badge,
-  .leadership-section .ldrpft-organization-initials-large::before,
   .leadership-section .ldrpft-skill-tag-back::before,
   .leadership-section .ldrpft-metadata-item::before {
     animation: none;

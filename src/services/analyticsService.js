@@ -197,10 +197,14 @@ export const calculatePortfolioCompleteness = async () => {
  */
 export const calculateContentEngagement = async (contentType = null, days = 30) => {
   try {
+    const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    
+    console.log('🔍 Calculating content engagement for days:', days);
+
     let query = supabase
       .from('content_performance')
       .select('*')
-      .gte('performance_date', new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+      .gte('performance_date', startDate)
       .order('engagement_score', { ascending: false });
 
     if (contentType) {
@@ -210,34 +214,70 @@ export const calculateContentEngagement = async (contentType = null, days = 30) 
     const { data, error } = await query;
 
     if (error) {
-      console.error('Error calculating content engagement:', error);
-      return [];
+      console.error('❌ Error calculating content engagement:', error);
+      return {
+        totalViews: 0,
+        avgEngagementScore: 0,
+        contentCompleteness: 0,
+        activeContent: 0,
+        popularContent: 0,
+        engagementRate: 0
+      };
     }
 
     if (!data || data.length === 0) {
-      return [];
+      console.log('⚠️ No engagement data found');
+      return {
+        totalViews: 0,
+        avgEngagementScore: 0,
+        contentCompleteness: 0,
+        activeContent: 0,
+        popularContent: 0,
+        engagementRate: 0
+      };
     }
 
-    const engagementMap = {};
-    data.forEach(item => {
-      const key = `${item.content_type}_${item.content_id}`;
-      if (!engagementMap[key]) {
-        engagementMap[key] = {
-          content_type: item.content_type,
-          content_id: item.content_id,
-          total_views: 0,
-          avg_engagement: 0,
-          last_updated: item.last_updated
-        };
-      }
-      engagementMap[key].total_views += item.view_count;
-      engagementMap[key].avg_engagement += item.engagement_score;
-    });
+    console.log('✅ Found engagement data:', data.length, 'records');
 
-    return Object.values(engagementMap).sort((a, b) => b.avg_engagement - a.avg_engagement);
+    // Calculate real metrics from your data
+    const totalViews = data.reduce((sum, item) => sum + (item.view_count || 0), 0);
+    const avgEngagementScore = data.reduce((sum, item) => sum + (item.engagement_score || 0), 0) / data.length;
+    const activeContent = data.filter(item => item.view_count > 0).length;
+    const popularContent = data.filter(item => item.engagement_score >= 8).length;
+    
+    // Get portfolio completeness from database function
+    const { data: completenessData } = await supabase.rpc('calculate_portfolio_completeness');
+    const contentCompleteness = completenessData || 0;
+
+    const result = {
+      totalViews,
+      avgEngagementScore: Math.round(avgEngagementScore * 10) / 10,
+      contentCompleteness: Math.round(contentCompleteness),
+      activeContent,
+      popularContent,
+      engagementRate: totalViews > 0 ? Math.round((activeContent / data.length) * 100) : 0,
+      // Add trend data for change calculations
+      viewsChange: calculateViewsChange(data),
+      engagementChange: calculateEngagementChange(data),
+      completenessChange: 0, // Can be calculated with historical data
+      activeContentChange: 0,
+      popularContentChange: 0,
+      engagementRateChange: 0
+    };
+
+    console.log('✅ Calculated content engagement:', result);
+    return result;
+
   } catch (error) {
-    console.error('Error in calculateContentEngagement:', error);
-    return [];
+    console.error('❌ Error in calculateContentEngagement:', error);
+    return {
+      totalViews: 0,
+      avgEngagementScore: 0,
+      contentCompleteness: 0,
+      activeContent: 0,
+      popularContent: 0,
+      engagementRate: 0
+    };
   }
 };
 
@@ -536,17 +576,26 @@ export const getSectionPerformance = async (dateRange = '30d') => {
     const days = parseDateRange(dateRange);
     const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
     
+    console.log('🔍 Getting section performance for date range:', dateRange, 'start date:', startDate);
+    
     const { data: performanceData, error } = await supabase
       .from('content_performance')
       .select('*')
       .gte('performance_date', startDate);
     
-    if (error || !performanceData || performanceData.length === 0) {
-      console.error('Error getting section performance:', error);
+    if (error) {
+      console.error('❌ Error getting section performance:', error);
       return [];
     }
 
-    // Process real data by section
+    if (!performanceData || performanceData.length === 0) {
+      console.log('⚠️ No performance data found, returning empty array');
+      return [];
+    }
+
+    console.log('✅ Found performance data:', performanceData.length, 'records');
+
+    // Process real data by section - fixed for your structure
     const sectionMap = {};
     performanceData.forEach(item => {
       const section = item.content_type || 'Unknown';
@@ -555,7 +604,7 @@ export const getSectionPerformance = async (dateRange = '30d') => {
           section,
           views: 0,
           engagement: 0,
-          completeness: 75,
+          completeness: 75, // Default completeness
           count: 0
         };
       }
@@ -565,15 +614,19 @@ export const getSectionPerformance = async (dateRange = '30d') => {
     });
     
     // Calculate averages and sort by views
-    return Object.values(sectionMap)
+    const result = Object.values(sectionMap)
       .map(section => ({
         ...section,
-        engagement: section.count > 0 ? section.engagement / section.count : 0,
-        performance: Math.round((section.views * 0.4) + (section.engagement * 0.6))
+        engagement: section.count > 0 ? Math.round((section.engagement / section.count) * 10) / 10 : 0,
+        performance: Math.round((section.views * 0.4) + ((section.engagement / section.count) * 0.6))
       }))
       .sort((a, b) => b.views - a.views);
+
+    console.log('✅ Processed section performance:', result);
+    return result;
+
   } catch (error) {
-    console.error('Error getting section performance:', error);
+    console.error('❌ Error in getSectionPerformance:', error);
     return [];
   }
 };
@@ -586,6 +639,8 @@ export const getTopPerformingContent = async (dateRange = '30d') => {
     const days = parseDateRange(dateRange);
     const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
     
+    console.log('🔍 Getting top performing content for date range:', dateRange);
+    
     const { data: contentData, error } = await supabase
       .from('content_performance')
       .select('*')
@@ -593,20 +648,31 @@ export const getTopPerformingContent = async (dateRange = '30d') => {
       .order('view_count', { ascending: false })
       .limit(10);
     
-    if (error || !contentData || contentData.length === 0) {
-      console.error('Error getting top performing content:', error);
+    if (error) {
+      console.error('❌ Error getting top performing content:', error);
       return [];
     }
 
-    return contentData.map(item => ({
-      title: `${item.content_type} ${item.content_id}`,
+    if (!contentData || contentData.length === 0) {
+      console.log('⚠️ No content data found, returning empty array');
+      return [];
+    }
+
+    console.log('✅ Found top performing content:', contentData.length, 'records');
+
+    const result = contentData.map(item => ({
+      title: `${item.content_type} Section`,
       type: item.content_type,
       section: item.content_type,
       views: item.view_count || 0,
       engagement: item.engagement_score || 0
     }));
+
+    console.log('✅ Processed top performing content:', result);
+    return result;
+
   } catch (error) {
-    console.error('Error getting top performing content:', error);
+    console.error('❌ Error getting top performing content:', error);
     return [];
   }
 };
@@ -619,16 +685,25 @@ export const getContentEngagementHistory = async (dateRange = '30d') => {
     const days = parseDateRange(dateRange);
     const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
     
+    console.log('🔍 Getting content engagement history for date range:', dateRange);
+    
     const { data: historyData, error } = await supabase
       .from('content_performance')
       .select('performance_date, engagement_score')
       .gte('performance_date', startDate.toISOString().split('T')[0])
       .order('performance_date', { ascending: true });
     
-    if (error || !historyData || historyData.length === 0) {
-      console.error('Error getting content engagement history:', error);
+    if (error) {
+      console.error('❌ Error getting content engagement history:', error);
       return [];
     }
+
+    if (!historyData || historyData.length === 0) {
+      console.log('⚠️ No history data found, returning empty array');
+      return [];
+    }
+
+    console.log('✅ Found engagement history:', historyData.length, 'records');
 
     // Group by date and calculate daily averages
     const dailyEngagement = {};
@@ -641,12 +716,16 @@ export const getContentEngagementHistory = async (dateRange = '30d') => {
       dailyEngagement[date].count++;
     });
     
-    return Object.entries(dailyEngagement).map(([date, data]) => ({
+    const result = Object.entries(dailyEngagement).map(([date, data]) => ({
       date,
-      engagement: Math.round(data.total / data.count)
+      engagement: Math.round((data.total / data.count) * 10) / 10
     }));
+
+    console.log('✅ Processed engagement history:', result);
+    return result;
+
   } catch (error) {
-    console.error('Error getting content engagement history:', error);
+    console.error('❌ Error getting content engagement history:', error);
     return [];
   }
 };
@@ -1348,6 +1427,53 @@ const updateAdminActivityAnalytics = async (sessionDate, duration, sectionsCount
 };
 
 // ===== HELPER FUNCTIONS =====
+
+// Helper function to calculate views change
+const calculateViewsChange = (data) => {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    
+    const todayViews = data
+      .filter(item => item.performance_date === today)
+      .reduce((sum, item) => sum + (item.view_count || 0), 0);
+    
+    const yesterdayViews = data
+      .filter(item => item.performance_date === yesterday)
+      .reduce((sum, item) => sum + (item.view_count || 0), 0);
+    
+    if (yesterdayViews === 0) return todayViews > 0 ? 100 : 0;
+    
+    return Math.round(((todayViews - yesterdayViews) / yesterdayViews) * 100 * 10) / 10;
+  } catch (error) {
+    return 0;
+  }
+};
+
+// Helper function to calculate engagement change
+const calculateEngagementChange = (data) => {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    
+    const todayData = data.filter(item => item.performance_date === today);
+    const yesterdayData = data.filter(item => item.performance_date === yesterday);
+    
+    const todayAvg = todayData.length > 0 
+      ? todayData.reduce((sum, item) => sum + (item.engagement_score || 0), 0) / todayData.length 
+      : 0;
+    
+    const yesterdayAvg = yesterdayData.length > 0 
+      ? yesterdayData.reduce((sum, item) => sum + (item.engagement_score || 0), 0) / yesterdayData.length 
+      : 0;
+    
+    if (yesterdayAvg === 0) return todayAvg > 0 ? 100 : 0;
+    
+    return Math.round(((todayAvg - yesterdayAvg) / yesterdayAvg) * 100 * 10) / 10;
+  } catch (error) {
+    return 0;
+  }
+};
 
 /**
 * Calculate period averages for portfolio metrics

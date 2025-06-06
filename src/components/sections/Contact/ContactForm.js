@@ -4,7 +4,9 @@
 
 // src/components/sections/Contact/ContactForm.js
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import visitorTracking from '../../../services/visitorTrackingService';
+import { useState, useEffect } from 'react';
 import { sendContactEmail } from '../../../services/emailService';
 import './Contact.css';
 
@@ -282,6 +284,11 @@ const ContactForm = () => {
       
       if (result.success) {
         console.log('✅ Contact form submitted successfully:', result.data);
+
+        await visitorTracking.trackContactSubmission(
+          formData.inquiryType || 'general-inquiry',
+          formData.subject
+        );
         
         setSubmitStatus('success');
         setShowForm(false); // Hide form on success

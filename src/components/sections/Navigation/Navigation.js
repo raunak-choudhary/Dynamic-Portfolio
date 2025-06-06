@@ -1,10 +1,27 @@
 // src/components/sections/Navigation/Navigation.js
 
 import React from 'react';
+import { useEffect, useRef } from 'react';
+import visitorTracking from '../../../services/visitorTrackingService';
 import { useNavigate } from 'react-router-dom';
 import './Navigation.css';
 
 const Navigation = () => {
+  const hasTracked = useRef(false);
+  const { startTracking, stopTracking } = visitorTracking.useTimeTracking('navigation', 'main');
+
+  useEffect(() => {
+    if (!hasTracked.current) {
+      hasTracked.current = true;
+      startTracking();
+      visitorTracking.trackSectionView('navigation', 'main');
+    }
+
+    return () => {
+      stopTracking();
+    };
+  }, [startTracking, stopTracking]);
+
   const navigate = useNavigate();
 
   const navigationCards = [

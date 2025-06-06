@@ -177,8 +177,8 @@
 }
 
 .company-logo {
-  width: 60px;
-  height: 60px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   object-fit: cover;
   border: 3px solid var(--neon-purple);
@@ -192,8 +192,8 @@
 }
 
 .company-logo-temp {
-  width: 60px;
-  height: 60px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--neon-purple), var(--neon-pink));
   display: flex;
@@ -254,6 +254,7 @@
 /* Project Title Section */
 .internships-section .title-section {
   text-align: center;
+  margin-top: var(--spacing-md);
   margin-bottom: var(--spacing-md);
 }
 
@@ -1289,12 +1290,12 @@
 
   .company-logo,
   .company-logo-temp {
-    width: 50px;
-    height: 50px;
+    width: 70px;
+    height: 70px;
   }
 
   .company-logo-temp {
-    font-size: var(--text-base);
+    font-size: var(--text-lg);
   }
 }
 

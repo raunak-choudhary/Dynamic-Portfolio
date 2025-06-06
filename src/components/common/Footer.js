@@ -1,6 +1,7 @@
 // src/components/common/Footer.js
 
 import React from 'react';
+import visitorTracking from '../../services/visitorTrackingService';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Footer.css';
 
@@ -48,7 +49,21 @@ const Footer = () => {
     }
   ];
 
+  const handleSocialClick = (platform, url) => {
+    visitorTracking.trackClick('social_media', platform, url);
+  };
+
+  const handleFooterLinkClick = (linkName, linkPath) => {
+    visitorTracking.trackClick('footer_navigation', linkName, linkPath);
+  };
+
+  const handleEmailClick = () => {
+    visitorTracking.trackClick('contact_email', 'footer_email', 'mailto:raunakchoudhary17@gmail.com');
+  };
+
   const handleQuickLinkClick = (link) => {
+    handleFooterLinkClick(link.name, link.path);
+    
     if (link.path === '/') {
       // Navigate to home and scroll to top
       navigate('/');
@@ -80,6 +95,7 @@ const Footer = () => {
   };
 
   const handleBrandClick = () => {
+    visitorTracking.trackClick('footer_brand', 'logo_click', '/');
     navigate('/');
     setTimeout(() => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -89,9 +105,8 @@ const Footer = () => {
   return (
     <footer className="footer glass-footer">
       <div className="footer-container container">
-        {/* Main Footer Content */}
         <div className="footer-content">
-          {/* Brand Section */}
+          {/* Brand Section - UPDATED with tracking */}
           <div className="footer-brand">
             <div className="footer-logo-section">
               <img 
@@ -99,7 +114,6 @@ const Footer = () => {
                 alt="RC Portfolio Logo" 
                 className="footer-logo"
                 onError={(e) => {
-                  // Fallback to a default logo or hide if not found
                   e.target.style.display = 'none';
                 }}
               />
@@ -112,7 +126,7 @@ const Footer = () => {
               with cutting-edge technologies. Currently pursuing MS in Computer Science at NYU.
             </p>
             
-            {/* Social Links with PNG Icons */}
+            {/* Social Links - UPDATED with tracking */}
             <div className="footer-social">
               {socialLinks.map((link) => (
                 <a
@@ -123,13 +137,13 @@ const Footer = () => {
                   className="social-link"
                   aria-label={link.name}
                   title={link.name}
+                  onClick={() => handleSocialClick(link.name.toLowerCase(), link.url)}
                 >
                   <img 
                     src={link.icon} 
                     alt={`${link.name} icon`}
                     className="social-icon-img"
                     onError={(e) => {
-                      // Fallback if icon doesn't load
                       e.target.style.display = 'none';
                       console.error(`Failed to load ${link.name} icon`);
                     }}
@@ -139,7 +153,7 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* Quick Links - UPDATED with tracking */}
           <div className="footer-links">
             <h4 className="footer-section-title">Quick Links</h4>
             <ul className="footer-link-list">
@@ -153,7 +167,11 @@ const Footer = () => {
                       {link.name}
                     </button>
                   ) : (
-                    <Link to={link.path} className="footer-link">
+                    <Link 
+                      to={link.path} 
+                      className="footer-link"
+                      onClick={() => handleFooterLinkClick(link.name, link.path)}
+                    >
                       {link.name}
                     </Link>
                   )}
@@ -162,13 +180,17 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Portfolio Sections */}
+          {/* Portfolio Sections - UPDATED with tracking */}
           <div className="footer-links">
             <h4 className="footer-section-title">Portfolio</h4>
             <ul className="footer-link-list">
               {portfolioSections.map((link) => (
                 <li key={link.name}>
-                  <Link to={link.path} className="footer-link">
+                  <Link 
+                    to={link.path} 
+                    className="footer-link"
+                    onClick={() => handleFooterLinkClick(link.name, link.path)}
+                  >
                     {link.name}
                   </Link>
                 </li>
@@ -176,13 +198,17 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Contact Info */}
+          {/* Contact Info - UPDATED with tracking */}
           <div className="footer-contact">
             <h4 className="footer-section-title">Get In Touch</h4>
             <div className="contact-info">
               <p className="contact-item">
                 <span className="contact-label">Email:</span>
-                <a href="mailto:raunakchoudhary17@gmail.com" className="contact-link">
+                <a 
+                  href="mailto:raunakchoudhary17@gmail.com" 
+                  className="contact-link"
+                  onClick={handleEmailClick}
+                >
                   raunakchoudhary17@gmail.com
                 </a>
               </p>

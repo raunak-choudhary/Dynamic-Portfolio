@@ -12,6 +12,7 @@ import ContentAnalytics from './ContentAnalytics';
 import TrendAnalysis from './TrendAnalysis';
 import ReportGenerator from './ReportGenerator';
 import AutomatedReporting from './AutomatedReporting';
+import SocialMediaAnalytics from './SocialMediaAnalytics';
 import './AnalyticsDashboard.css';
 
 const AnalyticsDashboard = () => {
@@ -37,6 +38,7 @@ const AnalyticsDashboard = () => {
     { id: 'portfolio', name: 'Portfolio Metrics', icon: '📈', shortcut: 'p' },
     { id: 'content', name: 'Content Analytics', icon: '📝', shortcut: 'c' }, // ✅ FIXED
     { id: 'contacts', name: 'Contact Insights', icon: '📧', shortcut: 'i' },
+    { id: 'social', name: 'Social Media', icon: '🌐', shortcut: 'l' },
     { id: 'admin', name: 'Admin Productivity', icon: '⚡', shortcut: 'a' },
     { id: 'trends', name: 'Trends & Patterns', icon: '📉', shortcut: 't' },
     { id: 'reports', name: 'Reports', icon: '📄', shortcut: 'r' }, // ✅ ADDED
@@ -81,11 +83,13 @@ const AnalyticsDashboard = () => {
       setIsLoading(true);
       setError(null);
       
+      console.log('🔍 Loading overview data...');
+      
       const [
         portfolioCompleteness,
         contactAnalytics,
         adminProductivity,
-        contentEngagement
+        contentEngagementData  // This is now an object, not array
       ] = await Promise.all([
         analyticsService.calculatePortfolioCompleteness(),
         analyticsService.getContactAnalytics(selectedDateRange),
@@ -93,15 +97,22 @@ const AnalyticsDashboard = () => {
         analyticsService.calculateContentEngagement(null, parseDateRange(selectedDateRange))
       ]);
 
+      console.log('✅ Overview data loaded:', {
+        portfolioCompleteness,
+        contactAnalytics,
+        adminProductivity,
+        contentEngagementData
+      });
+
       setOverviewData({
         portfolioCompleteness: portfolioCompleteness || 0,
         contactAnalytics: contactAnalytics || {},
         adminProductivity: adminProductivity || {},
-        contentEngagement: contentEngagement || [],
+        contentEngagement: contentEngagementData || {}, // Now an object
         lastUpdated: new Date()
       });
     } catch (error) {
-      console.error('Error loading overview data:', error);
+      console.error('❌ Error loading overview data:', error);
       setError('Failed to load analytics data. Please try again.');
     } finally {
       setIsLoading(false);
@@ -161,12 +172,15 @@ const AnalyticsDashboard = () => {
   const renderOverviewContent = useCallback(() => {
     const { portfolioCompleteness, contactAnalytics, adminProductivity, contentEngagement } = overviewData;
 
-    // Calculate real trend changes using historical data
+    // Calculate real trend changes using historical data - FIXED
     const messageTrend = calculateChange(contactAnalytics?.totalMessages, contactAnalytics?.historicalData);
+    
+    // FIX: contentEngagement is now an object, not array
     const contentViewsTrend = calculateChange(
-      contentEngagement?.reduce((sum, item) => sum + (item.total_views || 0), 0),
-      contentEngagement?.filter(item => item.historical)
+      contentEngagement?.totalViews || 0,
+      contentEngagement?.historicalData // This may not exist yet, that's ok
     );
+    
     const productivityTrend = calculateChange(adminProductivity?.productivityScore, adminProductivity?.historicalData);
 
     return (
@@ -207,7 +221,7 @@ const AnalyticsDashboard = () => {
           
           <MetricsCard
             title="Content Views"
-            value={contentEngagement?.reduce((sum, item) => sum + (item.total_views || 0), 0) || 0}
+            value={contentEngagement?.totalViews || 0}  // FIXED: use totalViews from object
             change={contentViewsTrend}
             changeType={getChangeType(contentViewsTrend)}
             icon="👀"
@@ -246,7 +260,7 @@ const AnalyticsDashboard = () => {
 
           <MetricsCard
             title="Content Engagement"
-            value={`${(contentEngagement?.reduce((sum, item) => sum + (item.avg_engagement || 0), 0) / (contentEngagement?.length || 1)).toFixed(1)}`}
+            value={`${contentEngagement?.avgEngagementScore || 0}`}  // FIXED: use avgEngagementScore from object
             icon="⭐"
             color="yellow"
             description="Average content rating"
@@ -256,7 +270,7 @@ const AnalyticsDashboard = () => {
           />
         </div>
 
-        {/* Quick Actions Grid */}
+        {/* Quick Actions Grid - SAME AS BEFORE */}
         <div className="analytics-quick-actions">
           <h3 className="quick-actions-title">Quick Analytics Actions</h3>
           <div className="quick-actions-grid">
@@ -307,7 +321,7 @@ const AnalyticsDashboard = () => {
           </div>
         </div>
 
-        {/* Popular Contact Subjects */}
+        {/* Popular Contact Subjects - SAME AS BEFORE */}
         {contactAnalytics?.popularSubjects && contactAnalytics.popularSubjects.length > 0 && (
           <div className="analytics-section">
             <h3 className="analytics-section-title">
@@ -326,7 +340,7 @@ const AnalyticsDashboard = () => {
           </div>
         )}
 
-        {/* Analytics Insights Summary */}
+        {/* Analytics Insights Summary - UPDATED FOR NEW STRUCTURE */}
         <div className="analytics-insights-summary">
           <h3 className="insights-title">
             <span className="section-icon">💡</span>
@@ -380,11 +394,11 @@ const AnalyticsDashboard = () => {
           </div>
         </div>
 
-        {/* Empty State */}
+        {/* Empty State - UPDATED CONDITION */}
         {!isLoading && (
           (!contactAnalytics?.totalMessages && 
-           !adminProductivity?.totalSessions && 
-           (!contentEngagement || contentEngagement.length === 0)) && (
+          !adminProductivity?.totalSessions && 
+          !(contentEngagement?.totalViews > 0)) && (  // FIXED: check totalViews property
           <div className="empty-state">
             <div className="empty-icon">📊</div>
             <h3 className="empty-title">No Analytics Data Available</h3>
@@ -487,6 +501,7 @@ const AnalyticsDashboard = () => {
         {activeTab === 'portfolio' && <PortfolioMetrics dateRange={selectedDateRange} />}
         {activeTab === 'content' && <ContentAnalytics dateRange={selectedDateRange} />}
         {activeTab === 'contacts' && <VisitorInsights dateRange={selectedDateRange} />}
+        {activeTab === 'social' && <SocialMediaAnalytics dateRange={selectedDateRange} />}
         {activeTab === 'admin' && <AdminProductivity dateRange={selectedDateRange} />}
         {activeTab === 'trends' && <TrendAnalysis dateRange={selectedDateRange} />}
         {activeTab === 'reports' && <ReportGenerator dateRange={selectedDateRange} />}

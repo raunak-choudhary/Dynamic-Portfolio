@@ -1,5 +1,6 @@
 // src/components/sections/Hero/Hero.js - CLEAN PRODUCTION VERSION
-
+import React, { useEffect, useRef } from 'react';
+import visitorTracking from '../../../services/visitorTrackingService';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Cube3D from './Cube3D';
 import { portfolioData } from '../../../data/portfolioData';
@@ -8,6 +9,21 @@ import LoadingSpinner from '../../common/LoadingSpinner';
 import './Hero.css';
 
 const Hero = () => {
+  const hasTracked = useRef(false);
+  const { startTracking, stopTracking } = visitorTracking.useTimeTracking('hero', 'main');
+
+  useEffect(() => {
+    if (!hasTracked.current) {
+      hasTracked.current = true;
+      startTracking();
+      visitorTracking.trackSectionView('hero', 'main');
+    }
+
+    return () => {
+      stopTracking();
+    };
+  }, [startTracking, stopTracking]);
+
   const navigate = useNavigate();
   const location = useLocation();
 

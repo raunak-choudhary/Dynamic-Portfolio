@@ -1,4 +1,4 @@
-// src/App.js - PRODUCTION VERSION (Test imports removed)
+// src/App.js - PRODUCTION VERSION WITH VISITOR TRACKING
 
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
@@ -13,7 +13,21 @@ import { viewportUtils } from './utils/viewportUtils';
 import routeEncoder from './utils/routeEncoder';
 import routeNavigation from './utils/routeNavigation';
 
+// 📊 VISITOR TRACKING: Import visitor tracking service
+import visitorTrackingService from './services/visitorTrackingService';
+
 function App() {
+  // 📊 NEW: Initialize visitor tracking
+  useEffect(() => {
+    // Initialize visitor tracking for real analytics
+    try {
+      visitorTrackingService.initializeVisitorTracking();
+      console.log('📊 Visitor tracking initialized successfully');
+    } catch (error) {
+      console.error('❌ Error initializing visitor tracking:', error);
+    }
+  }, []);
+
   // 🔐 Initialize encryption system (production version)
   useEffect(() => {
     // Make encryption system available for internal use

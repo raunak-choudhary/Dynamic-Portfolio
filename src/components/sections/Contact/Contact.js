@@ -4,11 +4,27 @@
 
 // src/components/sections/Contact/Contact.js
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import visitorTracking from '../../../services/visitorTrackingService';
 import ContactForm from './ContactForm';
 import './Contact.css';
 
 const Contact = () => {
+  const hasTracked = useRef(false);
+  const { startTracking, stopTracking } = visitorTracking.useTimeTracking('contact', 'main');
+
+  useEffect(() => {
+    if (!hasTracked.current) {
+      hasTracked.current = true;
+      startTracking();
+      visitorTracking.trackSectionView('contact', 'main');
+    }
+
+    return () => {
+      stopTracking();
+    };
+  }, [startTracking, stopTracking]);
+
   return (
     <section className="contact-section" id="contact">
       <div className="container">

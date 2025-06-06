@@ -1,6 +1,7 @@
 // src/components/common/Header.js
 
 import React, { useState } from 'react';
+import visitorTracking from '../../services/visitorTrackingService';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
 import './Header.css';
@@ -17,12 +18,30 @@ const Header = () => {
     { name: 'Contact Me', path: '/#contact', section: 'contact' }
   ];
 
+  const handleNavTrack = (itemName, itemPath, isMobile = false) => {
+    const elementType = isMobile ? 'mobile_navigation' : 'header_navigation';
+    visitorTracking.trackClick(elementType, itemName.toLowerCase().replace(' ', '_'), itemPath);
+  };
+
+  const handleBrandTrack = () => {
+    visitorTracking.trackClick('header_brand', 'logo_click', '/');
+  };
+
+  const handleMobileMenuTrack = (action) => {
+    visitorTracking.trackClick('mobile_menu', action, '');
+  };
+
   const toggleMenu = () => {
+    const newState = !isMenuOpen;
     setIsMenuOpen(!isMenuOpen);
+
+    // 📊 Track mobile menu usage
+    handleMobileMenuTrack(newState ? 'open' : 'close');
   };
 
   const closeMenu = () => {
     setIsMenuOpen(false);
+    handleMobileMenuTrack('close');
   };
 
   const isActivePath = (path) => {
@@ -41,7 +60,10 @@ const Header = () => {
     return location.pathname === path;
   };
 
-  const handleNavClick = (item) => {
+  const handleNavClick = (item, isMobile = false) => {
+
+    handleNavTrack(item.name, item.path, isMobile);
+
     closeMenu();
     
     if (item.path === '/') {
@@ -74,12 +96,17 @@ const Header = () => {
     }
   };
 
+  const handleBrandClick = () => {
+    handleBrandTrack();
+    handleNavClick(navItems[0]);
+  };
+
   return (
     <header className="header glass-header">
       <div className="header-container container">
-        {/* Logo and Brand */}
+        {/* Logo and Brand - UPDATED with tracking */}
         <div className="header-brand">
-          <button onClick={() => handleNavClick(navItems[0])} className="brand-link">
+          <button onClick={handleBrandClick} className="brand-link">
             <img 
               src="/logo.png" 
               alt="RC Portfolio Logo" 
@@ -93,13 +120,13 @@ const Header = () => {
           </button>
         </div>
 
-        {/* Desktop Navigation */}
+        {/* Desktop Navigation - UPDATED with tracking */}
         <nav className="header-nav desktop-nav">
           <ul className="nav-list">
             {navItems.map((item) => (
               <li key={item.name} className="nav-item">
                 <button
-                  onClick={() => handleNavClick(item)}
+                  onClick={() => handleNavClick(item, false)}
                   className={`nav-link ${isActivePath(item.path) ? 'active' : ''}`}
                 >
                   {item.name}
@@ -113,7 +140,7 @@ const Header = () => {
         <div className="header-actions">
           <ThemeToggle />
           
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button - UPDATED with tracking */}
           <button
             className={`mobile-menu-btn ${isMenuOpen ? 'active' : ''}`}
             onClick={toggleMenu}
@@ -125,13 +152,13 @@ const Header = () => {
           </button>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Navigation - UPDATED with tracking */}
         <nav className={`header-nav mobile-nav ${isMenuOpen ? 'active' : ''}`}>
           <ul className="nav-list">
             {navItems.map((item) => (
               <li key={item.name} className="nav-item">
                 <button
-                  onClick={() => handleNavClick(item)}
+                  onClick={() => handleNavClick(item, true)}
                   className={`nav-link ${isActivePath(item.path) ? 'active' : ''}`}
                 >
                   {item.name}

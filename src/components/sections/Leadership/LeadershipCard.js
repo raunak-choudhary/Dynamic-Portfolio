@@ -10,17 +10,6 @@ const LeadershipCard = ({ leadership }) => {
 
   const [isFlipped, setIsFlipped] = useState(false);
 
-  // Generate organization initials for fallback
-  const generateOrganizationInitials = (organization) => {
-    if (!organization) return 'ORG';
-    
-    const words = organization.split(' ').filter(word => word.length > 0);
-    if (words.length === 1) {
-      return words[0].substring(0, 3).toUpperCase();
-    }
-    return words.slice(0, 3).map(word => word.charAt(0).toUpperCase()).join('');
-  };
-
   // Format date for display
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -146,12 +135,6 @@ const LeadershipCard = ({ leadership }) => {
 
           {/* Header with Organization Initials and Flip Icon */}
           <div className="ldrpft-card-header">
-            <div className="ldrpft-organization-initials-section">
-              <div className="ldrpft-organization-initials ldrpft-organization-initials-large">
-                {generateOrganizationInitials(leadership.organization)}
-              </div>
-            </div>
-
             {/* Flip Icon - only show if there's back content */}
             {canFlip && (
               <button 
